@@ -84,10 +84,12 @@ See [backend/app/models/SCHEMA.md](backend/app/models/SCHEMA.md) for complete da
 ## Documentation References
 
 ### Data Layer
+
 - **Database Schema**: [backend/app/models/SCHEMA.md](backend/app/models/SCHEMA.md) - Complete schema documentation for all tables
 - **Validation Schemas**: [backend/app/http/validation/](backend/app/http/validation/) - Marshmallow validation schemas for request/response handling
 
 ### Testing & Fixtures
+
 - **Test Suite**: [backend/tests/](backend/tests/) - Comprehensive pytest test suite with 62+ tests achieving 80%+ code coverage
 - **Test Fixtures**: [backend/tests/conftest.py](backend/tests/conftest.py) - Pytest fixtures for all models
 - **Factory Helpers**: [backend/tests/factories/](backend/tests/factories/) - Factory-boy fixtures for test data generation
