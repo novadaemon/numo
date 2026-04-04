@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { TotalsWidget, MonthlyExpensesChart, CategoryExpensesChart, DebitsTable } from '@/components/Dashboard';
+import { TotalsWidget, MonthlyExpensesChart, CategoryExpensesChart, DebitsTable, HeaderMenu } from '@/components/Dashboard';
 import { debitsService } from '@/services';
 import { PaginatedResponse } from '@/types';
 import { Debit } from '@/types/models';
@@ -80,13 +80,16 @@ export function Dashboard() {
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            Dashboard
-          </h1>
-          <p className="text-gray-600">
-            Resumen de tu actividad financiera de {new Date().getFullYear()}
-          </p>
+        <div className="mb-8 flex items-start justify-between">
+          <div>
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">
+              Dashboard
+            </h1>
+            <p className="text-gray-600">
+              Resumen de tu actividad financiera de {new Date().getFullYear()}
+            </p>
+          </div>
+          <HeaderMenu />
         </div>
 
         {/* Totals Widget - Mes Actual */}

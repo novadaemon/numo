@@ -4,3 +4,4 @@ export { CategoryExpensesChart } from './CategoryExpensesChart';
 export { AddDebitForm } from './AddDebitForm';
 export { AddCreditForm } from './AddCreditForm';
 export { DebitsTable } from './DebitsTable';
+export { HeaderMenu } from './HeaderMenu';
