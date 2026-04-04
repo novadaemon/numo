@@ -101,7 +101,7 @@ export function Dashboard() {
             <div className="rounded-lg border border-gray-200 p-8 text-center">
               <p className="text-gray-500">Cargando gastos...</p>
             </div>
-          ) : tableData && tableData.data && tableData.data.length > 0 ? (
+          ) : tableData?.data && Array.isArray(tableData.data) && tableData.data.length > 0 ? (
             <DebitsTable 
               debits={tableData.data}
               page={tableData.page}

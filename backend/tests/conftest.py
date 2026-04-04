@@ -11,11 +11,8 @@ from app.factories import CategoryFactory, PlaceFactory, DebitFactory, CreditFac
 @pytest.fixture(scope='session')
 def app():
     """Create application for the tests."""
-    # Create a temporary database for tests
-    db_fd, db_path = tempfile.mkstemp(suffix='.db')
-    
-    # Set test database URL
-    os.environ['DATABASE_URL'] = f'sqlite:///{db_path}'
+    # Use in-memory SQLite database for tests (like Pest)
+    os.environ['DATABASE_URL'] = 'sqlite:///:memory:'
     
     app = create_app()
     app.config['TESTING'] = True
@@ -27,8 +24,6 @@ def app():
     
     # Cleanup
     Base.metadata.drop_all(bind=engine)
-    os.close(db_fd)
-    os.unlink(db_path)
 
 
 @pytest.fixture
@@ -45,18 +40,18 @@ def runner(app):
 
 @pytest.fixture(autouse=True)
 def db_session(app):
-    """Reset database before each test."""
-    # Clear all tables before each test
+    """Reset database before each test (like Pest)."""
     session = SessionLocal()
     try:
-        session.query(Debit).delete()
-        session.query(Credit).delete()
-        session.query(Category).delete()
-        session.query(Place).delete()
-        session.commit()
+        # Drop all tables
+        Base.metadata.drop_all(bind=engine)
+        
+        # Recreate all tables
+        Base.metadata.create_all(bind=engine)
         
         yield session
         
+        # Cleanup after test
         session.rollback()
     finally:
         session.close()
@@ -145,3 +140,66 @@ def credit(app):
         return credit
     finally:
         session.close()
+
+
+@pytest.fixture
+def debit_factory(app):
+    """Factory fixture for creating test debits."""
+    session = SessionLocal()
+    
+    class Factory:
+        def create(self, category=None, category_id=None, place=None, place_id=None, **kwargs):
+            # If category_id is provided, fetch the category object
+            if category_id and not category:
+                category = session.query(Category).get(category_id)
+            
+            # If place_id is provided, fetch the place object
+            if place_id and not place:
+                place = session.query(Place).get(place_id)
+            
+            debit = DebitFactory.create(
+                category=category,
+                place=place,
+                **kwargs
+            )
+            session.add(debit)
+            session.commit()
+            session.refresh(debit)
+            return debit
+    
+    yield Factory()
+    session.close()
+
+
+@pytest.fixture
+def credit_factory(app):
+    """Factory fixture for creating test credits."""
+    session = SessionLocal()
+    
+    class Factory:
+        def create(self, **kwargs):
+            credit = CreditFactory.create(**kwargs)
+            session.add(credit)
+            session.commit()
+            session.refresh(credit)
+            return credit
+    
+    yield Factory()
+    session.close()
+
+
+@pytest.fixture
+def category_factory(app):
+    """Factory fixture for creating test categories."""
+    session = SessionLocal()
+    
+    class Factory:
+        def create(self, **kwargs):
+            category = CategoryFactory.create(**kwargs)
+            session.add(category)
+            session.commit()
+            session.refresh(category)
+            return category
+    
+    yield Factory()
+    session.close()
