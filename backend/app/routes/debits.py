@@ -7,6 +7,7 @@ from marshmallow import ValidationError
 from ..database import SessionLocal
 from ..models import Debit, Category, Place
 from ..http.validation import DebitSchema
+from ..http.pagination import validate_pagination_params, apply_pagination
 
 bp = Blueprint('debits', __name__, url_prefix='/debits')
 schema = DebitSchema()
@@ -35,9 +36,17 @@ def format_debit(debit):
 
 @bp.route('', methods=['GET'])
 def get_debits():
-    """Get all debits, optionally filtered by date range."""
+    """Get all debits, optionally filtered by date range with pagination."""
     db = SessionLocal()
     try:
+        # Get pagination parameters
+        page = request.args.get('page', type=int)
+        size = request.args.get('size', type=int)
+        
+        page, size, error = validate_pagination_params(page, size)
+        if error:
+            return jsonify({'error': error}), 400
+        
         # Get query parameters for filtering
         from_date = request.args.get('from_date')
         to_date = request.args.get('to_date')
@@ -67,8 +76,19 @@ def get_debits():
         if place_id:
             query = query.filter(Debit.place_id == place_id)
 
+        # Get total count before pagination
+        total = query.count()
+        
+        # Apply pagination
+        query = apply_pagination(query, page, size)
         debits = query.all()
-        return jsonify([format_debit(d) for d in debits]), 200
+
+        return jsonify({
+            'data': [format_debit(d) for d in debits],
+            'page': page,
+            'size': size,
+            'total': total
+        }), 200
     finally:
         db.close()
 

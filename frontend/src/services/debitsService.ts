@@ -1,6 +1,6 @@
 import { apiClient } from './apiClient';
 import { Debit } from '@/types/models';
-import { DebitFormData, DebitFilterParams } from '@/types';
+import { DebitFormData, DebitFilterParams, PaginatedResponse } from '@/types';
 
 /**
  * Debits service - handles all debit/expense-related API calls
@@ -14,6 +14,12 @@ export class DebitsService {
   private buildQueryString(params: DebitFilterParams): string {
     const query = new URLSearchParams();
 
+    if (params.page !== undefined) {
+      query.append('page', params.page.toString());
+    }
+    if (params.size !== undefined) {
+      query.append('size', params.size.toString());
+    }
     if (params.from_date) {
       query.append('from_date', params.from_date);
     }
@@ -32,11 +38,11 @@ export class DebitsService {
   }
 
   /**
-   * Get all debits with optional filters
+   * Get all debits with optional filters and pagination
    */
-  async getAll(filters?: DebitFilterParams): Promise<Debit[]> {
+  async getAll(filters?: DebitFilterParams): Promise<PaginatedResponse<Debit>> {
     const queryString = filters ? this.buildQueryString(filters) : '';
-    return this.apiClient.get<Debit[]>(`/debits${queryString}`);
+    return this.apiClient.get<PaginatedResponse<Debit>>(`/debits${queryString}`);
   }
 
   /**
@@ -70,21 +76,21 @@ export class DebitsService {
   /**
    * Get debits by category
    */
-  async getByCategory(categoryId: number): Promise<Debit[]> {
+  async getByCategory(categoryId: number): Promise<PaginatedResponse<Debit>> {
     return this.getAll({ category_id: categoryId });
   }
 
   /**
    * Get debits by place
    */
-  async getByPlace(placeId: number): Promise<Debit[]> {
+  async getByPlace(placeId: number): Promise<PaginatedResponse<Debit>> {
     return this.getAll({ place_id: placeId });
   }
 
   /**
    * Get debits in date range
    */
-  async getByDateRange(fromDate: string, toDate: string): Promise<Debit[]> {
+  async getByDateRange(fromDate: string, toDate: string): Promise<PaginatedResponse<Debit>> {
     return this.getAll({ from_date: fromDate, to_date: toDate });
   }
 }

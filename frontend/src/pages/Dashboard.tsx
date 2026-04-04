@@ -1,5 +1,8 @@
+import { useState, useEffect } from 'react';
 import { TotalsWidget, MonthlyExpensesChart, CategoryExpensesChart, DebitsTable } from '@/components/Dashboard';
-import { useDashboardData } from '@/hooks/useDashboardData';
+import { debitsService } from '@/services';
+import { PaginatedResponse } from '@/types';
+import { Debit } from '@/types/models';
 
 /**
  * Página principal del Dashboard
@@ -7,11 +10,44 @@ import { useDashboardData } from '@/hooks/useDashboardData';
  * - Widget de totales (ingresos, gastos, saldo)
  * - Gráfico de gastos por mes
  * - Gráfico de gastos por categoría
- * - Tabla de gastos del mes ordenados por fecha
+ * - Tabla paginada de gastos del mes ordenados por fecha
  */
 export function Dashboard() {
-  // Obtener datos del mes actual para la tabla
-  const { debits: monthDebits, loading } = useDashboardData('month');
+  // Obtener datos paginados del mes actual para la tabla
+  const [tableData, setTableData] = useState<PaginatedResponse<Debit> | null>(null);
+  const [currentPage, setCurrentPage] = useState(0);
+  const pageSize = 10;
+  const [tableLoading, setTableLoading] = useState(true);
+
+  // Obtener datos paginados de la tabla
+  useEffect(() => {
+    const fetchTableData = async () => {
+      try {
+        setTableLoading(true);
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        const currentMonth = now.getMonth();
+
+        const startDate = new Date(currentYear, currentMonth, 1);
+        const endDate = new Date(currentYear, currentMonth + 1, 0);
+
+        const response = await debitsService.getAll({
+          from_date: startDate.toISOString().split('T')[0],
+          to_date: endDate.toISOString().split('T')[0],
+          page: currentPage,
+          size: pageSize,
+        });
+
+        setTableData(response);
+      } catch (error) {
+        console.error('Error fetching table data:', error);
+      } finally {
+        setTableLoading(false);
+      }
+    };
+
+    fetchTableData();
+  }, [currentPage]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -50,12 +86,22 @@ export function Dashboard() {
           <p className="text-sm text-gray-500 font-medium mb-3">
             Gastos del Mes - {new Date().toLocaleString('es-ES', { month: 'long', year: 'numeric' })}
           </p>
-          {loading ? (
+          {tableLoading ? (
             <div className="rounded-lg border border-gray-200 p-8 text-center">
               <p className="text-gray-500">Cargando gastos...</p>
             </div>
+          ) : tableData && tableData.data.length > 0 ? (
+            <DebitsTable 
+              debits={tableData.data}
+              page={tableData.page}
+              size={tableData.size}
+              total={tableData.total}
+              onPageChange={setCurrentPage}
+            />
           ) : (
-            <DebitsTable debits={monthDebits} />
+            <div className="rounded-lg border border-gray-200 p-8 text-center">
+              <p className="text-gray-500">No hay gastos registrados para este período</p>
+            </div>
           )}
         </div>
       </div>

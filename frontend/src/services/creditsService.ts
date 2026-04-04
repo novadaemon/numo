@@ -1,6 +1,7 @@
 import { apiClient } from './apiClient';
 import { Credit } from '@/types/models';
 import { CreditFormData } from '@/types/forms';
+import { CreditFilterParams, PaginatedResponse } from '@/types';
 
 /**
  * Credits service - handles all credit/income-related API calls
@@ -9,10 +10,34 @@ export class CreditsService {
   private apiClient = apiClient;
 
   /**
-   * Get all credits
+   * Build query string from filter parameters
    */
-  async getAll(): Promise<Credit[]> {
-    return this.apiClient.get<Credit[]>('/credits');
+  private buildQueryString(params: CreditFilterParams): string {
+    const query = new URLSearchParams();
+
+    if (params.page !== undefined) {
+      query.append('page', params.page.toString());
+    }
+    if (params.size !== undefined) {
+      query.append('size', params.size.toString());
+    }
+    if (params.from_date) {
+      query.append('from_date', params.from_date);
+    }
+    if (params.to_date) {
+      query.append('to_date', params.to_date);
+    }
+
+    const queryString = query.toString();
+    return queryString ? `?${queryString}` : '';
+  }
+
+  /**
+   * Get all credits with optional filters and pagination
+   */
+  async getAll(filters?: CreditFilterParams): Promise<PaginatedResponse<Credit>> {
+    const queryString = filters ? this.buildQueryString(filters) : '';
+    return this.apiClient.get<PaginatedResponse<Credit>>(`/credits${queryString}`);
   }
 
   /**
@@ -41,6 +66,13 @@ export class CreditsService {
    */
   async delete(id: number): Promise<void> {
     return this.apiClient.delete<void>(`/credits/${id}`);
+  }
+
+  /**
+   * Get credits in date range
+   */
+  async getByDateRange(fromDate: string, toDate: string): Promise<PaginatedResponse<Credit>> {
+    return this.getAll({ from_date: fromDate, to_date: toDate });
   }
 }
 

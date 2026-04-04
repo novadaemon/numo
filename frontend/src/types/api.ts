@@ -42,6 +42,16 @@ export interface PaginationParams {
 }
 
 /**
+ * Paginated response wrapper
+ */
+export interface PaginatedResponse<T> {
+  data: T[];
+  page: number;
+  size: number;
+  total: number;
+}
+
+/**
  * Debit filter parameters
  */
 export interface DebitFilterParams {
@@ -49,4 +59,16 @@ export interface DebitFilterParams {
   to_date?: string; // ISO-8601 date
   category_id?: number;
   place_id?: number;
+  page?: number; // Page number (0-indexed)
+  size?: number; // Page size (10, 25, 50, or 100)
+}
+
+/**
+ * Credit filter parameters
+ */
+export interface CreditFilterParams {
+  from_date?: string; // ISO-8601 date
+  to_date?: string; // ISO-8601 date
+  page?: number; // Page number (0-indexed)
+  size?: number; // Page size (10, 25, 50, or 100)
 }

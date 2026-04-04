@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Debit } from '@/types/models';
 import {
   Table,
@@ -7,19 +8,28 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
 
 interface DebitsTableProps {
   debits: Debit[];
+  page?: number;
+  size?: number;
+  total?: number;
+  onPageChange?: (page: number) => void;
 }
 
 /**
  * Tabla que muestra los gastos ordenados de forma descendente por created_at
+ * con soporte para paginación
  */
-export function DebitsTable({ debits }: DebitsTableProps) {
-  // Ordenar debits de forma descendente por created_at
-  const sortedDebits = [...debits].sort((a, b) => {
-    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-  });
+export function DebitsTable({ 
+  debits, 
+  page = 0, 
+  size = 10, 
+  total = 0,
+  onPageChange 
+}: DebitsTableProps) {
+  const [loading, setLoading] = useState(false);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -39,7 +49,27 @@ export function DebitsTable({ debits }: DebitsTableProps) {
     }).format(amount);
   };
 
-  if (sortedDebits.length === 0) {
+  const totalPages = Math.ceil(total / size);
+  const hasNextPage = page < totalPages - 1;
+  const hasPrevPage = page > 0;
+
+  const handlePrevPage = () => {
+    if (hasPrevPage && onPageChange) {
+      setLoading(true);
+      onPageChange(page - 1);
+      setLoading(false);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (hasNextPage && onPageChange) {
+      setLoading(true);
+      onPageChange(page + 1);
+      setLoading(false);
+    }
+  };
+
+  if (debits.length === 0) {
     return (
       <div className="rounded-lg border border-gray-200 p-8 text-center">
         <p className="text-gray-500">No hay gastos registrados para este período</p>
@@ -48,39 +78,68 @@ export function DebitsTable({ debits }: DebitsTableProps) {
   }
 
   return (
-    <div className="rounded-lg border border-gray-200 overflow-hidden">
-      <Table>
-        <TableHeader>
-          <TableRow className="bg-gray-50">
-            <TableHead className="text-gray-700">Fecha</TableHead>
-            <TableHead className="text-gray-700">Categoría</TableHead>
-            <TableHead className="text-gray-700">Lugar</TableHead>
-            <TableHead className="text-gray-700">Concepto</TableHead>
-            <TableHead className="text-right text-gray-700">Monto</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {sortedDebits.map((debit) => (
-            <TableRow key={debit.id} className="hover:bg-gray-50">
-              <TableCell className="text-sm text-gray-900">
-                {formatDate(debit.created_at)}
-              </TableCell>
-              <TableCell className="text-sm text-gray-900">
-                {debit.category?.name || 'Sin categoría'}
-              </TableCell>
-              <TableCell className="text-sm text-gray-600">
-                {debit.place?.name || '-'}
-              </TableCell>
-              <TableCell className="text-sm text-gray-600 max-w-xs truncate">
-                {debit.concept || debit.observations || '-'}
-              </TableCell>
-              <TableCell className="text-right text-sm font-semibold text-red-600">
-                -{formatCurrency(debit.amount)}
-              </TableCell>
+    <div>
+      <div className="rounded-lg border border-gray-200 overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-gray-50">
+              <TableHead className="text-gray-700">Fecha</TableHead>
+              <TableHead className="text-gray-700">Categoría</TableHead>
+              <TableHead className="text-gray-700">Lugar</TableHead>
+              <TableHead className="text-gray-700">Concepto</TableHead>
+              <TableHead className="text-right text-gray-700">Monto</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {debits.map((debit) => (
+              <TableRow key={debit.id} className="hover:bg-gray-50">
+                <TableCell className="text-sm text-gray-900">
+                  {formatDate(debit.created_at)}
+                </TableCell>
+                <TableCell className="text-sm text-gray-900">
+                  {debit.category?.name || 'Sin categoría'}
+                </TableCell>
+                <TableCell className="text-sm text-gray-600">
+                  {debit.place?.name || '-'}
+                </TableCell>
+                <TableCell className="text-sm text-gray-600 max-w-xs truncate">
+                  {debit.concept || debit.observations || '-'}
+                </TableCell>
+                <TableCell className="text-right text-sm font-semibold text-red-600">
+                  -{formatCurrency(debit.amount)}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between mt-4 px-4">
+          <div className="text-sm text-gray-600">
+            Página {page + 1} de {totalPages} ({total} total)
+          </div>
+          <div className="flex gap-2">
+            <Button
+              onClick={handlePrevPage}
+              disabled={!hasPrevPage || loading}
+              variant="outline"
+              size="sm"
+            >
+              Anterior
+            </Button>
+            <Button
+              onClick={handleNextPage}
+              disabled={!hasNextPage || loading}
+              variant="outline"
+              size="sm"
+            >
+              Siguiente
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

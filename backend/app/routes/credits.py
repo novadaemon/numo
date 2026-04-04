@@ -6,6 +6,7 @@ from marshmallow import ValidationError
 from ..database import SessionLocal
 from ..models import Credit
 from ..http.validation import CreditSchema
+from ..http.pagination import validate_pagination_params, apply_pagination
 
 bp = Blueprint('credits', __name__, url_prefix='/credits')
 schema = CreditSchema()
@@ -23,9 +24,17 @@ def format_credit(credit):
 
 @bp.route('', methods=['GET'])
 def get_credits():
-    """Get all credits, optionally filtered by date range."""
+    """Get all credits, optionally filtered by date range with pagination."""
     db = SessionLocal()
     try:
+        # Get pagination parameters
+        page = request.args.get('page', type=int)
+        size = request.args.get('size', type=int)
+        
+        page, size, error = validate_pagination_params(page, size)
+        if error:
+            return jsonify({'error': error}), 400
+        
         # Get query parameters for filtering
         from_date = request.args.get('from_date')
         to_date = request.args.get('to_date')
@@ -47,8 +56,19 @@ def get_credits():
             except ValueError:
                 return jsonify({'error': 'invalid to_date format (use ISO format)'}), 400
 
+        # Get total count before pagination
+        total = query.count()
+        
+        # Apply pagination
+        query = apply_pagination(query, page, size)
         credits = query.all()
-        return jsonify([format_credit(c) for c in credits]), 200
+
+        return jsonify({
+            'data': [format_credit(c) for c in credits],
+            'page': page,
+            'size': size,
+            'total': total
+        }), 200
     finally:
         db.close()
 
