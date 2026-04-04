@@ -12,7 +12,7 @@ class Debit(Base):
 
     id = Column(Integer, primary_key=True)
     category_id = Column(Integer, ForeignKey('categories.id'), nullable=False, index=True)
-    place_id = Column(Integer, ForeignKey('places.id'), nullable=False, index=True)
+    place_id = Column(Integer, ForeignKey('places.id'), nullable=True, index=True)
     debited_at = Column(DateTime, nullable=False, default=datetime.utcnow)
     amount = Column(Float, nullable=False)
     observations = Column(Text, nullable=True)

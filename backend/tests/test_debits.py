@@ -68,21 +68,23 @@ class TestDebitsEndpoints:
         assert 'errors' in data
         assert 'category_id' in data['errors']
 
-    def test_create_debit_missing_place_id(self, client, category):
-        """Test creating a debit without place_id."""
+    def test_create_debit_without_place_id(self, client, category):
+        """Test creating a debit without place_id (place_id is nullable)."""
         payload = {
             'category_id': category.id,
-            'amount': 50.00
+            'amount': 50.00,
+            'observations': 'No specific place'
         }
         response = client.post(
             '/debits',
             data=json.dumps(payload),
             content_type='application/json'
         )
-        assert response.status_code == 400
+        assert response.status_code == 201
         data = json.loads(response.data)
-        assert 'errors' in data
-        assert 'place_id' in data['errors']
+        assert data['amount'] == 50.00
+        assert data['place_id'] is None
+        assert data['place'] is None
 
     def test_create_debit_missing_amount(self, client, category, place):
         """Test creating a debit without amount."""
