@@ -38,9 +38,20 @@ export function Dashboard() {
           size: pageSize,
         });
 
-        setTableData(response);
+        // Handle both paginated responses and direct arrays (for backwards compatibility)
+        if (Array.isArray(response)) {
+          setTableData({
+            data: response,
+            page: 0,
+            size: pageSize,
+            total: response.length,
+          });
+        } else {
+          setTableData(response);
+        }
       } catch (error) {
         console.error('Error fetching table data:', error);
+        setTableData(null);
       } finally {
         setTableLoading(false);
       }
@@ -90,7 +101,7 @@ export function Dashboard() {
             <div className="rounded-lg border border-gray-200 p-8 text-center">
               <p className="text-gray-500">Cargando gastos...</p>
             </div>
-          ) : tableData && tableData.data.length > 0 ? (
+          ) : tableData && tableData.data && tableData.data.length > 0 ? (
             <DebitsTable 
               debits={tableData.data}
               page={tableData.page}
