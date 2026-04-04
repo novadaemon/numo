@@ -36,8 +36,10 @@ export function TotalsWidget({ className = '' }: TotalsWidgetProps) {
       const startDate = new Date(currentYear, currentMonth, 1);
       const endDate = new Date(currentYear, currentMonth + 1, 0);
 
-      // Obtener todos los ingresos
-      const allCredits = await creditsService.getAll();
+      // Obtener todos los ingresos con size=100
+      const response = await creditsService.getAll({ page: 0, size: 100 });
+      const allCredits = response.data;
+      
       const credits = allCredits.filter((credit) => {
         const creditDate = new Date(credit.created_at);
         return creditDate >= startDate && creditDate <= endDate;

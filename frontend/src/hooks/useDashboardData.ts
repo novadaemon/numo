@@ -65,8 +65,13 @@ export function useDashboardData(period: DatePeriod = 'year'): DashboardData {
       try {
         const { startDate, endDate } = getDateRange(period);
 
-        // Obtener gastos del período (con paginación, size grande para obtener todos)
-        const response = await debitsService.getByDateRange(startDate, endDate);
+        // Obtener gastos del período (con paginación, size=100 para obtener todos)
+        const response = await debitsService.getAll({ 
+          from_date: startDate, 
+          to_date: endDate,
+          page: 0,
+          size: 100
+        });
         const debits = response.data;
 
         // Calcular total de gastos
