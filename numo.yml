@@ -493,6 +493,19 @@ paths:
       tags:
         - Credits
       description: Retrieve a list of all income (credits)
+      parameters:
+        - name: from_date
+          in: query
+          description: Filter credits from this date (ISO 8601 format)
+          schema:
+            type: string
+            format: date-time
+        - name: to_date
+          in: query
+          description: Filter credits until this date (ISO 8601 format)
+          schema:
+            type: string
+            format: date-time
       responses:
         "200":
           description: List of credits
@@ -719,7 +732,8 @@ components:
           description: When the expense occurred
         concept:
           type: string
-          maxLength: 500
+          minLength: 1
+          maxLength: 255
           nullable: false
           description: Concept or description of the expense
         observations:
@@ -732,6 +746,7 @@ components:
         - category_id
         - amount
         - created_at
+        - concept
 
     DebitInput:
       type: object
@@ -757,8 +772,9 @@ components:
           description: When the expense occurred (defaults to current time if not provided)
         concept:
           type: string
-          maxLength: 500
-          nullable: true
+          minLength: 1
+          maxLength: 255
+          nullable: false
           description: Concept or description of the expense
         observations:
           type: string
@@ -768,6 +784,7 @@ components:
       required:
         - category_id
         - amount
+        - concept
 
     Credit:
       type: object
