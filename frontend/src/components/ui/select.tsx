@@ -131,7 +131,7 @@ const SelectContent = React.forwardRef<
         ref={(node) => {
           if (typeof ref === "function") ref(node)
           else if (ref) ref.current = node
-          contentRef.current = node as HTMLDivElement
+          ;(contentRef as React.MutableRefObject<HTMLDivElement | null>).current = node as HTMLDivElement
         }}
         className={cn(
           "relative z-50 max-h-[--radix-select-content-available-height] min-w-[--radix-select-trigger-width] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",

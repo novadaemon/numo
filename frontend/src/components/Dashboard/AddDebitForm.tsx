@@ -24,13 +24,12 @@ import { Plus } from 'lucide-react';
 
 interface AddDebitFormProps {
   onOpenChange: (open: boolean) => void;
-  onSuccess?: () => void;
 }
 
 /**
  * Formulario para agregar un nuevo gasto (debit)
  */
-export function AddDebitForm({ onOpenChange, onSuccess }: AddDebitFormProps) {
+export function AddDebitForm({ onOpenChange }: AddDebitFormProps) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [places, setPlaces] = useState<Place[]>([]);
   const [loading, setLoading] = useState(false);
@@ -121,16 +120,8 @@ export function AddDebitForm({ onOpenChange, onSuccess }: AddDebitFormProps) {
         observations: formData.observations || undefined,
         created_at: formData.created_at,
       });
-      setFormData({
-        category_id: '',
-        place_id: '',
-        amount: '',
-        concept: '',
-        observations: '',
-        created_at: new Date().toISOString().slice(0, 16),
-      });
-      onOpenChange(false);
-      onSuccess?.();
+      // Recargar la página para refrescar todos los datos
+      window.location.reload();
     } catch (error) {
       console.error('Error creating debit:', error);
       alert('Error al crear el gasto');

@@ -7,13 +7,12 @@ import { Textarea } from '@/components/ui/textarea';
 
 interface AddCreditFormProps {
   onOpenChange: (open: boolean) => void;
-  onSuccess?: () => void;
 }
 
 /**
  * Formulario para agregar un nuevo ingreso (credit)
  */
-export function AddCreditForm({ onOpenChange, onSuccess }: AddCreditFormProps) {
+export function AddCreditForm({ onOpenChange }: AddCreditFormProps) {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     amount: '',
@@ -40,13 +39,8 @@ export function AddCreditForm({ onOpenChange, onSuccess }: AddCreditFormProps) {
         observations: formData.observations || undefined,
         created_at: formData.created_at,
       });
-      setFormData({
-        amount: '',
-        observations: '',
-        created_at: new Date().toISOString().slice(0, 16),
-      });
-      onOpenChange(false);
-      onSuccess?.();
+      // Recargar la página para refrescar todos los datos
+      window.location.reload();
     } catch (error) {
       console.error('Error creating credit:', error);
       alert('Error al crear el ingreso');

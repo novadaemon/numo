@@ -1,6 +1,7 @@
 import { useDashboardData } from '@/hooks';
 import { useState, useEffect, useCallback } from 'react';
 import { creditsService } from '@/services';
+import { Credit } from '@/types';
 import { AddDebitForm } from './AddDebitForm';
 import { AddCreditForm } from './AddCreditForm';
 import { Button } from '@/components/ui/button';
@@ -44,7 +45,7 @@ export function TotalsWidget({ className = '' }: TotalsWidgetProps) {
       });
       
       // Validar respuesta y extraer credits
-      let allCredits = [];
+      let allCredits: Credit[] = [];
       if (response && typeof response === 'object') {
         if ('data' in response && Array.isArray(response.data)) {
           allCredits = response.data;
@@ -65,16 +66,6 @@ export function TotalsWidget({ className = '' }: TotalsWidgetProps) {
   useEffect(() => {
     fetchIncome();
   }, [fetchIncome]);
-
-  const handleDebitSuccess = async () => {
-    setShowDebitForm(false);
-    await fetchIncome();
-  };
-
-  const handleCreditSuccess = async () => {
-    setShowCreditForm(false);
-    await fetchIncome();
-  };
 
   const balance = totalIncome - totalExpenses;
   const currentMonth = new Date().toLocaleString('es-ES', { month: 'long', year: 'numeric' });
@@ -159,10 +150,7 @@ export function TotalsWidget({ className = '' }: TotalsWidgetProps) {
               Registra un nuevo gasto en tu cuenta
             </DialogDescription>
           </DialogHeader>
-          <AddDebitForm
-            onOpenChange={setShowDebitForm}
-            onSuccess={handleDebitSuccess}
-          />
+          <AddDebitForm onOpenChange={setShowDebitForm} />
         </DialogContent>
       </Dialog>
 
@@ -175,10 +163,7 @@ export function TotalsWidget({ className = '' }: TotalsWidgetProps) {
               Registra un nuevo ingreso en tu cuenta
             </DialogDescription>
           </DialogHeader>
-          <AddCreditForm
-            onOpenChange={setShowCreditForm}
-            onSuccess={handleCreditSuccess}
-          />
+          <AddCreditForm onOpenChange={setShowCreditForm} />
         </DialogContent>
       </Dialog>
     </>
