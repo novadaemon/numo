@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { TotalsWidget, MonthlyExpensesChart, CategoryExpensesChart, DebitsTable } from '@/components/Dashboard';
 import { debitsService } from '@/services';
 import { PaginatedResponse } from '@/types';
@@ -18,6 +18,7 @@ export function Dashboard() {
   const [currentPage, setCurrentPage] = useState(0);
   const pageSize = 10;
   const [tableLoading, setTableLoading] = useState(true);
+  const scrollPositionRef = useRef(0);
 
   // Obtener datos paginados de la tabla
   useEffect(() => {
@@ -42,12 +43,16 @@ export function Dashboard() {
         if (Array.isArray(response)) {
           setTableData({
             data: response,
-            page: 0,
+            page: currentPage,
             size: pageSize,
             total: response.length,
           });
         } else {
-          setTableData(response);
+          // Ensure page reflects the current page we requested
+          setTableData({
+            ...response,
+            page: currentPage
+          });
         }
       } catch (error) {
         console.error('Error fetching table data:', error);
@@ -59,6 +64,17 @@ export function Dashboard() {
 
     fetchTableData();
   }, [currentPage]);
+
+  // Restore scroll position when data updates
+  useEffect(() => {
+    window.scrollTo(0, scrollPositionRef.current);
+  }, [tableData]);
+
+  // Handle page change with scroll position save
+  const handlePageChange = (page: number) => {
+    scrollPositionRef.current = window.scrollY;
+    setCurrentPage(page);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -108,7 +124,7 @@ export function Dashboard() {
               size={tableData.size}
               total={tableData.total}
               loading={tableLoading}
-              onPageChange={setCurrentPage}
+              onPageChange={handlePageChange}
             />
           ) : (
             <div className="rounded-lg border border-gray-200 p-8 text-center">
