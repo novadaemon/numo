@@ -3,10 +3,13 @@ from flask import Blueprint, request, jsonify
 from datetime import datetime
 from sqlalchemy import desc
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from marshmallow import ValidationError
 from ..database import SessionLocal
 from ..models import Debit, Category, Place
+from ..http.validation import DebitSchema
 
 bp = Blueprint('debits', __name__, url_prefix='/debits')
+schema = DebitSchema()
 
 
 def format_debit(debit):
@@ -66,43 +69,27 @@ def get_debits():
 @bp.route('', methods=['POST'])
 def create_debit():
     """Create a new debit."""
-    data = request.get_json()
-
-    # Validate required fields
-    if not data or not all(k in data for k in ['category_id', 'place_id', 'amount']):
-        return jsonify({'error': 'category_id, place_id, and amount are required'}), 400
-
-    if data['amount'] <= 0:
-        return jsonify({'error': 'amount must be greater than 0'}), 400
+    try:
+        validated_data = schema.load(request.get_json())
+    except ValidationError as err:
+        return jsonify({'errors': err.messages}), 400
 
     db = SessionLocal()
     try:
         # Verify foreign keys exist
-        category = db.query(Category).filter(Category.id == data['category_id']).first()
+        category = db.query(Category).filter(Category.id == validated_data['category_id']).first()
         if not category:
             return jsonify({'error': 'category not found'}), 404
 
-        place = db.query(Place).filter(Place.id == data['place_id']).first()
+        place = db.query(Place).filter(Place.id == validated_data['place_id']).first()
         if not place:
             return jsonify({'error': 'place not found'}), 404
 
-        # Create debit
-        debited_at = data.get('debited_at')
-        if debited_at:
-            try:
-                debited_at = datetime.fromisoformat(debited_at)
-            except (ValueError, TypeError):
-                return jsonify({'error': 'invalid debited_at format (use ISO format)'}), 400
-        else:
-            debited_at = datetime.utcnow()
+        # Create debit with default timestamp if not provided
+        if not validated_data.get('debited_at'):
+            validated_data['debited_at'] = datetime.utcnow()
 
-        debit = Debit(
-            category_id=data['category_id'],
-            place_id=data['place_id'],
-            amount=data['amount'],
-            debited_at=debited_at,
-            observations=data.get('observations'),
-        )
+        debit = Debit(**validated_data)
         db.add(debit)
         db.commit()
         db.refresh(debit)
@@ -132,7 +119,10 @@ def get_debit(debit_id):
 @bp.route('/<int:debit_id>', methods=['PUT'])
 def update_debit(debit_id):
     """Update a debit."""
-    data = request.get_json()
+    try:
+        validated_data = schema.load(request.get_json(), partial=True)
+    except ValidationError as err:
+        return jsonify({'errors': err.messages}), 400
 
     db = SessionLocal()
     try:
@@ -140,32 +130,20 @@ def update_debit(debit_id):
         if not debit:
             return jsonify({'error': 'debit not found'}), 404
 
-        # Update fields if provided
-        if 'category_id' in data:
-            category = db.query(Category).filter(Category.id == data['category_id']).first()
+        # Validate foreign keys if provided
+        if 'category_id' in validated_data:
+            category = db.query(Category).filter(Category.id == validated_data['category_id']).first()
             if not category:
                 return jsonify({'error': 'category not found'}), 404
-            debit.category_id = data['category_id']
 
-        if 'place_id' in data:
-            place = db.query(Place).filter(Place.id == data['place_id']).first()
+        if 'place_id' in validated_data:
+            place = db.query(Place).filter(Place.id == validated_data['place_id']).first()
             if not place:
                 return jsonify({'error': 'place not found'}), 404
-            debit.place_id = data['place_id']
 
-        if 'amount' in data:
-            if data['amount'] <= 0:
-                return jsonify({'error': 'amount must be greater than 0'}), 400
-            debit.amount = data['amount']
-
-        if 'debited_at' in data:
-            try:
-                debit.debited_at = datetime.fromisoformat(data['debited_at'])
-            except (ValueError, TypeError):
-                return jsonify({'error': 'invalid debited_at format (use ISO format)'}), 400
-
-        if 'observations' in data:
-            debit.observations = data['observations']
+        # Update fields
+        for key, value in validated_data.items():
+            setattr(debit, key, value)
 
         db.commit()
         db.refresh(debit)

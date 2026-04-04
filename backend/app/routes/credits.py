@@ -2,10 +2,13 @@
 from flask import Blueprint, request, jsonify
 from datetime import datetime
 from sqlalchemy import desc
+from marshmallow import ValidationError
 from ..database import SessionLocal
 from ..models import Credit
+from ..http.validation import CreditSchema
 
 bp = Blueprint('credits', __name__, url_prefix='/credits')
+schema = CreditSchema()
 
 
 def format_credit(credit):
@@ -53,32 +56,18 @@ def get_credits():
 @bp.route('', methods=['POST'])
 def create_credit():
     """Create a new credit."""
-    data = request.get_json()
-
-    # Validate required fields
-    if not data or 'amount' not in data:
-        return jsonify({'error': 'amount is required'}), 400
-
-    if data['amount'] <= 0:
-        return jsonify({'error': 'amount must be greater than 0'}), 400
+    try:
+        validated_data = schema.load(request.get_json())
+    except ValidationError as err:
+        return jsonify({'errors': err.messages}), 400
 
     db = SessionLocal()
     try:
-        # Create credit
-        credited_at = data.get('credited_at')
-        if credited_at:
-            try:
-                credited_at = datetime.fromisoformat(credited_at)
-            except (ValueError, TypeError):
-                return jsonify({'error': 'invalid credited_at format (use ISO format)'}), 400
-        else:
-            credited_at = datetime.utcnow()
+        # Create credit with default timestamp if not provided
+        if not validated_data.get('credited_at'):
+            validated_data['credited_at'] = datetime.utcnow()
 
-        credit = Credit(
-            amount=data['amount'],
-            credited_at=credited_at,
-            observations=data.get('observations'),
-        )
+        credit = Credit(**validated_data)
         db.add(credit)
         db.commit()
         db.refresh(credit)
@@ -108,7 +97,10 @@ def get_credit(credit_id):
 @bp.route('/<int:credit_id>', methods=['PUT'])
 def update_credit(credit_id):
     """Update a credit."""
-    data = request.get_json()
+    try:
+        validated_data = schema.load(request.get_json(), partial=True)
+    except ValidationError as err:
+        return jsonify({'errors': err.messages}), 400
 
     db = SessionLocal()
     try:
@@ -116,20 +108,9 @@ def update_credit(credit_id):
         if not credit:
             return jsonify({'error': 'credit not found'}), 404
 
-        # Update fields if provided
-        if 'amount' in data:
-            if data['amount'] <= 0:
-                return jsonify({'error': 'amount must be greater than 0'}), 400
-            credit.amount = data['amount']
-
-        if 'credited_at' in data:
-            try:
-                credit.credited_at = datetime.fromisoformat(data['credited_at'])
-            except (ValueError, TypeError):
-                return jsonify({'error': 'invalid credited_at format (use ISO format)'}), 400
-
-        if 'observations' in data:
-            credit.observations = data['observations']
+        # Update fields
+        for key, value in validated_data.items():
+            setattr(credit, key, value)
 
         db.commit()
         db.refresh(credit)

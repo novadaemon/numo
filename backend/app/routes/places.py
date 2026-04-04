@@ -1,10 +1,13 @@
 """Routes for place management."""
 from flask import Blueprint, request, jsonify
 from sqlalchemy.exc import IntegrityError
+from marshmallow import ValidationError
 from ..database import SessionLocal
 from ..models import Place
+from ..http.validation import PlaceSchema
 
 bp = Blueprint('places', __name__, url_prefix='/places')
+schema = PlaceSchema()
 
 
 @bp.route('', methods=['GET'])
@@ -24,19 +27,19 @@ def get_places():
 @bp.route('', methods=['POST'])
 def create_place():
     """Create a new place."""
-    data = request.get_json()
-
-    if not data or not data.get('name'):
-        return jsonify({'error': 'name is required'}), 400
+    try:
+        validated_data = schema.load(request.get_json())
+    except ValidationError as err:
+        return jsonify({'errors': err.messages}), 400
 
     db = SessionLocal()
     try:
-        place = Place(name=data['name'])
+        place = Place(**validated_data)
         db.add(place)
         db.commit()
         db.refresh(place)
 
-        return jsonify({'id': place.id, 'name': place.name}), 201
+        return jsonify(schema.dump(place)), 201
     except IntegrityError:
         db.rollback()
         return jsonify({'error': 'place name already exists'}), 409
@@ -64,10 +67,10 @@ def get_place(place_id):
 @bp.route('/<int:place_id>', methods=['PUT'])
 def update_place(place_id):
     """Update a place."""
-    data = request.get_json()
-
-    if not data or not data.get('name'):
-        return jsonify({'error': 'name is required'}), 400
+    try:
+        validated_data = schema.load(request.get_json(), partial=True)
+    except ValidationError as err:
+        return jsonify({'errors': err.messages}), 400
 
     db = SessionLocal()
     try:
@@ -75,11 +78,13 @@ def update_place(place_id):
         if not place:
             return jsonify({'error': 'place not found'}), 404
 
-        place.name = data['name']
+        for key, value in validated_data.items():
+            setattr(place, key, value)
+        
         db.commit()
         db.refresh(place)
 
-        return jsonify({'id': place.id, 'name': place.name}), 200
+        return jsonify(schema.dump(place)), 200
     except IntegrityError:
         db.rollback()
         return jsonify({'error': 'place name already exists'}), 409

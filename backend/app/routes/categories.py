@@ -1,10 +1,13 @@
 """Routes for category management."""
 from flask import Blueprint, request, jsonify
 from sqlalchemy.exc import IntegrityError
+from marshmallow import ValidationError
 from ..database import SessionLocal
 from ..models import Category
+from ..http.validation import CategorySchema
 
 bp = Blueprint('categories', __name__, url_prefix='/categories')
+schema = CategorySchema()
 
 
 @bp.route('', methods=['GET'])
@@ -24,19 +27,19 @@ def get_categories():
 @bp.route('', methods=['POST'])
 def create_category():
     """Create a new category."""
-    data = request.get_json()
-
-    if not data or not data.get('name'):
-        return jsonify({'error': 'name is required'}), 400
+    try:
+        validated_data = schema.load(request.get_json())
+    except ValidationError as err:
+        return jsonify({'errors': err.messages}), 400
 
     db = SessionLocal()
     try:
-        category = Category(name=data['name'])
+        category = Category(**validated_data)
         db.add(category)
         db.commit()
         db.refresh(category)
 
-        return jsonify({'id': category.id, 'name': category.name}), 201
+        return jsonify(schema.dump(category)), 201
     except IntegrityError:
         db.rollback()
         return jsonify({'error': 'category name already exists'}), 409
@@ -64,10 +67,10 @@ def get_category(category_id):
 @bp.route('/<int:category_id>', methods=['PUT'])
 def update_category(category_id):
     """Update a category."""
-    data = request.get_json()
-
-    if not data or not data.get('name'):
-        return jsonify({'error': 'name is required'}), 400
+    try:
+        validated_data = schema.load(request.get_json(), partial=True)
+    except ValidationError as err:
+        return jsonify({'errors': err.messages}), 400
 
     db = SessionLocal()
     try:
@@ -75,11 +78,13 @@ def update_category(category_id):
         if not category:
             return jsonify({'error': 'category not found'}), 404
 
-        category.name = data['name']
+        for key, value in validated_data.items():
+            setattr(category, key, value)
+        
         db.commit()
         db.refresh(category)
 
-        return jsonify({'id': category.id, 'name': category.name}), 200
+        return jsonify(schema.dump(category)), 200
     except IntegrityError:
         db.rollback()
         return jsonify({'error': 'category name already exists'}), 409
