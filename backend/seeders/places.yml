@@ -1,0 +1,9 @@
+# Sample places/locations
+places:
+  - name: Mercado
+  - name: Restaurante
+  - name: Centro Comercial
+  - name: Cine
+  - name: Farmacia
+  - name: Gasolina
+  - name: Tienda Online

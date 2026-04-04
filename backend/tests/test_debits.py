@@ -77,6 +77,7 @@ class TestDebitsEndpoints:
         payload = {
             'category_id': category.id,
             'amount': 50.00,
+            'concept': 'Test expense without place',
             'observations': 'No specific place'
         }
         response = client.post(
@@ -144,7 +145,8 @@ class TestDebitsEndpoints:
         payload = {
             'category_id': 9999,
             'place_id': place.id,
-            'amount': 50.00
+            'amount': 50.00,
+            'concept': 'Test with invalid category'
         }
         response = client.post(
             '/debits',
@@ -158,7 +160,8 @@ class TestDebitsEndpoints:
         payload = {
             'category_id': category.id,
             'place_id': 9999,
-            'amount': 50.00
+            'amount': 50.00,
+            'concept': 'Test with invalid place'
         }
         response = client.post(
             '/debits',
@@ -174,6 +177,7 @@ class TestDebitsEndpoints:
             'category_id': category.id,
             'place_id': place.id,
             'amount': 50.00,
+            'concept': 'Test with datetime',
             'debited_at': now
         }
         response = client.post(

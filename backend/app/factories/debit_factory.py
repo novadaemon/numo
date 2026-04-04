@@ -16,4 +16,5 @@ class DebitFactory(factory.Factory):
     place = factory.SubFactory(PlaceFactory)
     debited_at = factory.Faker('date_time', tzinfo=None)
     amount = factory.Faker('pydecimal', left_digits=3, right_digits=2, positive=True)
+    concept = factory.Faker('sentence')
     observations = factory.Faker('sentence')

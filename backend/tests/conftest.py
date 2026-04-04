@@ -119,6 +119,7 @@ def debit_with_relationships(app, category, place):
             category=category,
             place=place,
             amount=50.00,
+            concept="Test expense",
             debited_at=datetime.now()
         )
         session.add(debit)
