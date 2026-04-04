@@ -135,7 +135,7 @@ def delete_credit(credit_id):
         db.delete(credit)
         db.commit()
 
-        return jsonify({'message': 'credit deleted'}), 200
+        return '', 204
     except Exception as e:
         db.rollback()
         return jsonify({'error': str(e)}), 500

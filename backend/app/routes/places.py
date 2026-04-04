@@ -107,7 +107,7 @@ def delete_place(place_id):
         db.delete(place)
         db.commit()
 
-        return jsonify({'message': 'place deleted'}), 200
+        return '', 204
     except Exception as e:
         db.rollback()
         return jsonify({'error': str(e)}), 500

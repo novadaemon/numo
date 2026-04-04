@@ -107,7 +107,7 @@ def delete_category(category_id):
         db.delete(category)
         db.commit()
 
-        return jsonify({'message': 'category deleted'}), 200
+        return '', 204
     except Exception as e:
         db.rollback()
         return jsonify({'error': str(e)}), 500

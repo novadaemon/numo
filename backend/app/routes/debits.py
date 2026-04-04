@@ -17,9 +17,15 @@ def format_debit(debit):
     return {
         'id': debit.id,
         'category_id': debit.category_id,
-        'category': debit.category.name if debit.category else None,
+        'category': {
+            'id': debit.category.id,
+            'name': debit.category.name
+        } if debit.category else None,
         'place_id': debit.place_id,
-        'place': debit.place.name if debit.place else None,
+        'place': {
+            'id': debit.place.id,
+            'name': debit.place.name
+        } if debit.place else None,
         'amount': float(debit.amount),
         'debited_at': debit.debited_at.isoformat(),
         'observations': debit.observations,
@@ -168,7 +174,7 @@ def delete_debit(debit_id):
         db.delete(debit)
         db.commit()
 
-        return jsonify({'message': 'debit deleted'}), 200
+        return '', 204
     except Exception as e:
         db.rollback()
         return jsonify({'error': str(e)}), 500
