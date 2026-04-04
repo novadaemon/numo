@@ -1,12 +1,33 @@
 """Flask application factory."""
 import os
 from flask import Flask
+from flask_cors import CORS
 from .database import init_db
 
 
 def create_app():
     """Create and configure the Flask application."""
     app = Flask(__name__)
+
+    # Get allowed origins from environment variable
+    allowed_origins = os.getenv(
+        "ALLOWED_ORIGINS",
+        "http://localhost:3000,http://localhost:5173"
+    ).split(",")
+    allowed_origins = [origin.strip() for origin in allowed_origins]
+
+    # Configure CORS for frontend development
+    CORS(app, resources={
+        r"/api/*": {
+            "origins": allowed_origins,
+            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+            "allow_headers": ["Content-Type"],
+            "supports_credentials": True
+        },
+        r"/*": {
+            "origins": allowed_origins,
+        }
+    })
 
     # Ensure data directory exists for SQLite
     os.makedirs('/app/data', exist_ok=True)

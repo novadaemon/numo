@@ -8,10 +8,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Copiar requirements
-COPY requirements-dev.txt .
+COPY requirements.txt requirements-dev.txt .
 
 # Instalar dependencias Python
-RUN pip install --no-cache-dir -r requirements-dev.txt
+RUN pip install --no-cache-dir -r requirements.txt -r requirements-dev.txt
 
 # Copiar código de la aplicación
 COPY . .
