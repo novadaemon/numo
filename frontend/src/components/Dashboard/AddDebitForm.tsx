@@ -148,7 +148,7 @@ export function AddDebitForm({ onOpenChange }: AddDebitFormProps) {
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <Label htmlFor="place">Lugar (opcional)</Label>
+          <Label htmlFor="place">Lugar/Concepto (opcional)</Label>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
               <Button type="button" variant="ghost" size="sm" className="h-6 px-2">

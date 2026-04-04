@@ -81,7 +81,7 @@ export function DebitsTable({
             <TableRow className="bg-gray-50">
               <TableHead className="text-gray-700">Fecha</TableHead>
               <TableHead className="text-gray-700">Categoría</TableHead>
-              <TableHead className="text-gray-700">Lugar</TableHead>
+              <TableHead className="text-gray-700">Lugar/Concepto</TableHead>
               <TableHead className="text-right text-gray-700">Monto</TableHead>
             </TableRow>
           </TableHeader>
