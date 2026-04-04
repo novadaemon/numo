@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
+import { Routes, Route } from 'react-router-dom'
 import { apiClient } from '@/services'
-import { Dashboard } from '@/pages'
+import { Dashboard, DebitsPage } from '@/pages'
+import { HeaderMenu } from '@/components/layout'
 
 function App() {
   const [status, setStatus] = useState<string>('loading')
@@ -53,7 +55,25 @@ function App() {
     )
   }
 
-  return <Dashboard />
+  return (
+    <div className="flex flex-col min-h-screen">
+      {/* Header with Navigation */}
+      <div className="bg-white border-b border-gray-200">
+        <div className="container mx-auto px-4 flex items-center justify-between h-16">
+          <h1 className="text-2xl font-bold text-gray-900">Numo</h1>
+          <HeaderMenu />
+        </div>
+      </div>
+      
+      {/* Main Content */}
+      <div className="flex-1">
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/debits" element={<DebitsPage />} />
+        </Routes>
+      </div>
+    </div>
+  )
 }
 
 export default App

@@ -82,13 +82,6 @@ export function useDashboardData(period: DatePeriod = 'year'): DashboardData {
             debits = response as Debit[];
           }
         }
-        
-        console.log('[Dashboard] Debits fetched:', { 
-          period, 
-          dateRange: { startDate, endDate }, 
-          count: debits.length,
-          data: debits.slice(0, 3) // Log first 3 for debugging
-        });
 
         // Calcular total de gastos
         const totalExpenses = debits.reduce((sum, debit) => sum + debit.amount, 0);

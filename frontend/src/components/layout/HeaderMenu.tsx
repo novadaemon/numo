@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { Menu } from 'lucide-react';
 import {
   DropdownMenu,
@@ -11,20 +12,22 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 export function HeaderMenu() {
+  const navigate = useNavigate();
+
   const handleExpenses = () => {
-    console.log('Navigate to Gastos');
+    navigate('/debits');
   };
 
   const handleIncome = () => {
-    console.log('Navigate to Ingresos');
+    navigate('/credits');
   };
 
   const handleCategories = () => {
-    console.log('Navigate to Categorías');
+    navigate('/categories');
   };
 
   const handlePlaces = () => {
-    console.log('Navigate to Lugares');
+    navigate('/places');
   };
 
   return (
@@ -51,7 +54,7 @@ export function HeaderMenu() {
               Categorías
             </DropdownMenuItem>
             <DropdownMenuItem onClick={handlePlaces}>
-              Lugares
+              Lugares/Conceptos
             </DropdownMenuItem>
           </DropdownMenuSubContent>
         </DropdownMenuSub>

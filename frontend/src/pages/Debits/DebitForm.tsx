@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { debitsService, categoriesService, placesService } from '@/services';
-import { Category, Place } from '@/types';
+import { Category, Place, Debit } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -21,21 +21,29 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Plus } from 'lucide-react';
+import toast from 'react-hot-toast';
 
-interface AddDebitFormProps {
+interface DebitFormProps {
+  debit?: Debit;
   onOpenChange: (open: boolean) => void;
+  onSuccess?: (debit: Debit) => void;
 }
 
 /**
- * Formulario para agregar un nuevo gasto (debit)
+ * Formulario para crear o editar un gasto (debit)
+ * 
+ * @param debit - Si se proporciona, el formulario entra en modo edición
+ * @param onOpenChange - Callback para cerrar el diálogo
+ * @param onSuccess - Callback post-create/update exitoso
  */
-export function AddDebitForm({ onOpenChange }: AddDebitFormProps) {
+export function DebitForm({ debit, onOpenChange, onSuccess }: DebitFormProps) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [places, setPlaces] = useState<Place[]>([]);
   const [loading, setLoading] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [newPlaceName, setNewPlaceName] = useState('');
   const [creatingPlace, setCreatingPlace] = useState(false);
+  const isEditMode = Boolean(debit);
   const [formData, setFormData] = useState({
     category_id: '',
     place_id: '',
@@ -54,10 +62,33 @@ export function AddDebitForm({ onOpenChange }: AddDebitFormProps) {
         setPlaces(placesList);
       } catch (error) {
         console.error('Error loading data:', error);
+        toast.error('Error al cargar datos');
       }
     };
     loadData();
   }, []);
+
+  // Pre-poblar form si es modo edición
+  useEffect(() => {
+    if (isEditMode && debit) {
+      setFormData({
+        category_id: debit.category_id.toString(),
+        place_id: debit.place_id.toString(),
+        amount: debit.amount.toString(),
+        observations: debit.observations || '',
+        created_at: debit.created_at.slice(0, 16),
+      });
+    } else {
+      // Reset form en modo creación
+      setFormData({
+        category_id: '',
+        place_id: '',
+        amount: '',
+        observations: '',
+        created_at: new Date().toISOString().slice(0, 16),
+      });
+    }
+  }, [debit, isEditMode]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -85,7 +116,7 @@ export function AddDebitForm({ onOpenChange }: AddDebitFormProps) {
 
   const handleAddPlace = async () => {
     if (!newPlaceName.trim()) {
-      alert('Por favor ingresa un nombre para el lugar');
+      toast.error('Por favor ingresa un nombre para el lugar');
       return;
     }
 
@@ -99,9 +130,10 @@ export function AddDebitForm({ onOpenChange }: AddDebitFormProps) {
       }));
       setNewPlaceName('');
       setDialogOpen(false);
+      toast.success('Lugar creado exitosamente');
     } catch (error) {
       console.error('Error creating place:', error);
-      alert('Error al crear el lugar');
+      toast.error('Error al crear el lugar');
     } finally {
       setCreatingPlace(false);
     }
@@ -110,31 +142,43 @@ export function AddDebitForm({ onOpenChange }: AddDebitFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.category_id) {
-      alert('Por favor selecciona una categoría');
+      toast.error('Por favor selecciona una categoría');
       return;
     }
     if (!formData.place_id) {
-      alert('Por favor selecciona un lugar/concepto');
+      toast.error('Por favor selecciona un lugar/concepto');
       return;
     }
     if (!formData.amount) {
-      alert('Por favor ingresa el monto');
+      toast.error('Por favor ingresa el monto');
       return;
     }
     setLoading(true);
     try {
-      await debitsService.create({
+      const debitData = {
         category_id: parseInt(formData.category_id),
         place_id: parseInt(formData.place_id),
         amount: parseFloat(formData.amount),
         observations: formData.observations || undefined,
         created_at: formData.created_at,
-      });
-      // Recargar la página para refrescar todos los datos
-      window.location.reload();
+      };
+
+      let result: Debit;
+      if (isEditMode && debit) {
+        result = await debitsService.update(debit.id, debitData);
+        toast.success('Gasto actualizado exitosamente');
+      } else {
+        result = await debitsService.create(debitData);
+        toast.success('Gasto creado exitosamente');
+      }
+
+      onOpenChange(false);
+      if (onSuccess) {
+        onSuccess(result);
+      }
     } catch (error) {
-      console.error('Error creating debit:', error);
-      alert('Error al crear el gasto');
+      console.error('Error saving debit:', error);
+      toast.error(`Error al ${isEditMode ? 'actualizar' : 'crear'} el gasto`);
     } finally {
       setLoading(false);
     }
@@ -264,7 +308,7 @@ export function AddDebitForm({ onOpenChange }: AddDebitFormProps) {
 
       <div className="flex gap-3 pt-4">
         <Button type="submit" disabled={loading} className="flex-1 bg-red-500 hover:bg-red-600">
-          {loading ? 'Guardando...' : 'Agregar Gasto'}
+          {loading ? 'Guardando...' : (isEditMode ? 'Actualizar Gasto' : 'Agregar Gasto')}
         </Button>
         <Button
           type="button"

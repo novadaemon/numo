@@ -2,8 +2,7 @@ import { useDashboardData } from '@/hooks';
 import { useState, useEffect, useCallback } from 'react';
 import { creditsService } from '@/services';
 import { Credit } from '@/types';
-import { AddDebitForm } from './AddDebitForm';
-import { AddCreditForm } from './AddCreditForm';
+import { DebitForm, CreditForm } from '@/components/Forms';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -150,7 +149,7 @@ export function TotalsWidget({ className = '' }: TotalsWidgetProps) {
               Registra un nuevo gasto en tu cuenta
             </DialogDescription>
           </DialogHeader>
-          <AddDebitForm onOpenChange={setShowDebitForm} />
+          <DebitForm onOpenChange={setShowDebitForm} />
         </DialogContent>
       </Dialog>
 
@@ -163,7 +162,7 @@ export function TotalsWidget({ className = '' }: TotalsWidgetProps) {
               Registra un nuevo ingreso en tu cuenta
             </DialogDescription>
           </DialogHeader>
-          <AddCreditForm onOpenChange={setShowCreditForm} />
+          <CreditForm onOpenChange={setShowCreditForm} />
         </DialogContent>
       </Dialog>
     </>

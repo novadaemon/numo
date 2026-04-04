@@ -51,19 +51,15 @@ export class ApiClient {
   /**
    * Log request (for debugging)
    */
-  private logRequest(method: string, url: string, body?: any): void {
-    if (import.meta.env.DEV) {
-      console.log(`[API] ${method} ${url}`, body || '');
-    }
+  private logRequest(_method: string, _url: string, _body?: any): void {
+    // Logging disabled
   }
 
   /**
    * Log response (for debugging)
    */
-  private logResponse(method: string, url: string, status: number, data?: any): void {
-    if (import.meta.env.DEV) {
-      console.log(`[API] ✓ ${method} ${url} (${status})`, data || '');
-    }
+  private logResponse(_method: string, _url: string, _status: number, _data?: any): void {
+    // Logging disabled
   }
 
   /**
@@ -117,7 +113,6 @@ export class ApiClient {
 
       if (!response.ok) {
         const errorData = await this.parseErrorResponse(response);
-        console.error(`[API] ✗ ${method} ${url} (${response.status})`, errorData);
 
         const error = new Error(
           errorData.message || `HTTP ${response.status}: ${response.statusText}`

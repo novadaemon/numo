@@ -61,6 +61,8 @@ export interface DebitFilterParams {
   place_id?: number;
   page?: number; // Page number (0-indexed)
   size?: number; // Page size (10, 25, 50, or 100)
+  sort_field?: 'created_at' | 'category' | 'place' | 'amount' | null;
+  sort_order?: 'asc' | 'desc';
 }
 
 /**

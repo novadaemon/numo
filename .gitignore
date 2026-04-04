@@ -41,6 +41,9 @@ env
 dist
 .vite
 
+# TypeScript
+*.tsbuildinfo
+
 # Database
 *.db
 data/

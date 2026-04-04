@@ -5,14 +5,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 
-interface AddCreditFormProps {
+interface CreditFormProps {
   onOpenChange: (open: boolean) => void;
 }
 
 /**
  * Formulario para agregar un nuevo ingreso (credit)
  */
-export function AddCreditForm({ onOpenChange }: AddCreditFormProps) {
+export function CreditForm({ onOpenChange }: CreditFormProps) {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     amount: '',
