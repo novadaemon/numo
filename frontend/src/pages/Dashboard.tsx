@@ -1,4 +1,5 @@
-import { TotalsWidget, MonthlyExpensesChart, CategoryExpensesChart } from '@/components/Dashboard';
+import { TotalsWidget, MonthlyExpensesChart, CategoryExpensesChart, DebitsTable } from '@/components/Dashboard';
+import { useDashboardData } from '@/hooks/useDashboardData';
 
 /**
  * Página principal del Dashboard
@@ -6,8 +7,12 @@ import { TotalsWidget, MonthlyExpensesChart, CategoryExpensesChart } from '@/com
  * - Widget de totales (ingresos, gastos, saldo)
  * - Gráfico de gastos por mes
  * - Gráfico de gastos por categoría
+ * - Tabla de gastos del mes ordenados por fecha
  */
 export function Dashboard() {
+  // Obtener datos del mes actual para la tabla
+  const { debits: monthDebits, loading } = useDashboardData('month');
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
@@ -38,6 +43,20 @@ export function Dashboard() {
             <MonthlyExpensesChart />
             <CategoryExpensesChart />
           </div>
+        </div>
+
+        {/* Debits Table - Mes Actual */}
+        <div className="mt-8">
+          <p className="text-sm text-gray-500 font-medium mb-3">
+            Gastos del Mes - {new Date().toLocaleString('es-ES', { month: 'long', year: 'numeric' })}
+          </p>
+          {loading ? (
+            <div className="rounded-lg border border-gray-200 p-8 text-center">
+              <p className="text-gray-500">Cargando gastos...</p>
+            </div>
+          ) : (
+            <DebitsTable debits={monthDebits} />
+          )}
         </div>
       </div>
     </div>
