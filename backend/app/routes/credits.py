@@ -39,22 +39,24 @@ def get_credits():
         from_date = request.args.get('from_date')
         to_date = request.args.get('to_date')
 
+        # Validate date range is provided
+        if not from_date or not to_date:
+            return jsonify({'error': 'from_date and to_date are required parameters'}), 400
+
         query = db.query(Credit).order_by(desc(Credit.created_at))
 
-        # Apply filters
-        if from_date:
-            try:
-                from_dt = datetime.fromisoformat(from_date)
-                query = query.filter(Credit.created_at >= from_dt)
-            except ValueError:
-                return jsonify({'error': 'invalid from_date format (use ISO format)'}), 400
+        # Apply date filters (required)
+        try:
+            from_dt = datetime.fromisoformat(from_date)
+            query = query.filter(Credit.created_at >= from_dt)
+        except ValueError:
+            return jsonify({'error': 'invalid from_date format (use ISO format)'}), 400
 
-        if to_date:
-            try:
-                to_dt = datetime.fromisoformat(to_date)
-                query = query.filter(Credit.created_at <= to_dt)
-            except ValueError:
-                return jsonify({'error': 'invalid to_date format (use ISO format)'}), 400
+        try:
+            to_dt = datetime.fromisoformat(to_date)
+            query = query.filter(Credit.created_at <= to_dt)
+        except ValueError:
+            return jsonify({'error': 'invalid to_date format (use ISO format)'}), 400
 
         # Get total count before pagination
         total = query.count()

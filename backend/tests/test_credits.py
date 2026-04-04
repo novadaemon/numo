@@ -8,8 +8,11 @@ class TestCreditsEndpoints:
     """Test suite for credits endpoints."""
 
     def test_get_all_credits_empty(self, client):
-        """Test getting all credits when none exist - paginated response."""
-        response = client.get('/credits')
+        """Test getting all credits when none exist - paginated response with required dates."""
+        from datetime import date
+        from_date = date(2025, 7, 1).isoformat()
+        to_date = date(2025, 7, 31).isoformat()
+        response = client.get(f'/credits?from_date={from_date}&to_date={to_date}')
         assert response.status_code == 200
         data = json.loads(response.data)
         assert isinstance(data, dict)
@@ -190,13 +193,38 @@ class TestCreditsEndpoints:
 class TestCreditsPaginationEndpoints:
     """Test suite for credits pagination endpoints."""
 
+    def test_get_credits_missing_date_parameters(self, client):
+        """Test getting credits without required date parameters."""
+        response = client.get('/credits?page=0&size=10')
+        assert response.status_code == 400
+        data = json.loads(response.data)
+        assert 'error' in data
+
+    def test_get_credits_missing_from_date(self, client):
+        """Test getting credits without from_date."""
+        response = client.get('/credits?to_date=2025-07-31&page=0&size=10')
+        assert response.status_code == 400
+        data = json.loads(response.data)
+        assert 'error' in data
+
+    def test_get_credits_missing_to_date(self, client):
+        """Test getting credits without to_date."""
+        response = client.get('/credits?from_date=2025-07-01&page=0&size=10')
+        assert response.status_code == 400
+        data = json.loads(response.data)
+        assert 'error' in data
+
     def test_get_credits_with_pagination_default(self, client, credit_factory):
         """Test getting credits with default pagination (page=0, size=10)."""
         # Create 15 credits
+        from datetime import date
+        base_date = datetime(2025, 7, 1)
         for i in range(15):
-            credit_factory.create(amount=float(i + 1))
+            credit_factory.create(amount=float(i + 1), created_at=base_date + timedelta(days=i))
         
-        response = client.get('/credits')
+        from_date = date(2025, 7, 1).isoformat()
+        to_date = date(2025, 7, 31).isoformat()
+        response = client.get(f'/credits?from_date={from_date}&to_date={to_date}')
         assert response.status_code == 200
         data = json.loads(response.data)
         assert data['page'] == 0
@@ -207,10 +235,14 @@ class TestCreditsPaginationEndpoints:
     def test_get_credits_with_pagination_page_1(self, client, credit_factory):
         """Test getting credits on page 1."""
         # Create 15 credits
+        from datetime import date
+        base_date = datetime(2025, 7, 1)
         for i in range(15):
-            credit_factory.create(amount=float(i + 1))
+            credit_factory.create(amount=float(i + 1), created_at=base_date + timedelta(days=i))
         
-        response = client.get('/credits?page=1&size=10')
+        from_date = date(2025, 7, 1).isoformat()
+        to_date = date(2025, 7, 31).isoformat()
+        response = client.get(f'/credits?from_date={from_date}&to_date={to_date}&page=1&size=10')
         assert response.status_code == 200
         data = json.loads(response.data)
         assert data['page'] == 1
@@ -221,10 +253,14 @@ class TestCreditsPaginationEndpoints:
     def test_get_credits_with_size_25(self, client, credit_factory):
         """Test getting credits with size=25."""
         # Create 50 credits
+        from datetime import date
+        base_date = datetime(2025, 7, 1)
         for i in range(50):
-            credit_factory.create(amount=float(i + 1))
+            credit_factory.create(amount=float(i + 1), created_at=base_date + timedelta(days=i % 31))
         
-        response = client.get('/credits?page=0&size=25')
+        from_date = date(2025, 7, 1).isoformat()
+        to_date = date(2025, 7, 31).isoformat()
+        response = client.get(f'/credits?from_date={from_date}&to_date={to_date}&page=0&size=25')
         assert response.status_code == 200
         data = json.loads(response.data)
         assert data['page'] == 0
@@ -235,10 +271,14 @@ class TestCreditsPaginationEndpoints:
     def test_get_credits_with_size_50(self, client, credit_factory):
         """Test getting credits with size=50."""
         # Create 100 credits
+        from datetime import date
+        base_date = datetime(2025, 7, 1)
         for i in range(100):
-            credit_factory.create(amount=float(i + 1))
+            credit_factory.create(amount=float(i + 1), created_at=base_date + timedelta(days=i % 31))
         
-        response = client.get('/credits?page=0&size=50')
+        from_date = date(2025, 7, 1).isoformat()
+        to_date = date(2025, 8, 31).isoformat()
+        response = client.get(f'/credits?from_date={from_date}&to_date={to_date}&page=0&size=50')
         assert response.status_code == 200
         data = json.loads(response.data)
         assert data['size'] == 50
@@ -247,10 +287,14 @@ class TestCreditsPaginationEndpoints:
     def test_get_credits_with_size_100(self, client, credit_factory):
         """Test getting credits with size=100."""
         # Create 150 credits
+        from datetime import date
+        base_date = datetime(2025, 7, 1)
         for i in range(150):
-            credit_factory.create(amount=float(i + 1))
+            credit_factory.create(amount=float(i + 1), created_at=base_date + timedelta(days=i % 31))
         
-        response = client.get('/credits?page=0&size=100')
+        from_date = date(2025, 7, 1).isoformat()
+        to_date = date(2025, 8, 31).isoformat()
+        response = client.get(f'/credits?from_date={from_date}&to_date={to_date}&page=0&size=100')
         assert response.status_code == 200
         data = json.loads(response.data)
         assert data['size'] == 100
@@ -258,21 +302,30 @@ class TestCreditsPaginationEndpoints:
 
     def test_get_credits_invalid_size(self, client):
         """Test getting credits with invalid size parameter."""
-        response = client.get('/credits?size=15')  # 15 is not in allowed values
+        from datetime import date
+        from_date = date(2025, 7, 1).isoformat()
+        to_date = date(2025, 7, 31).isoformat()
+        response = client.get(f'/credits?from_date={from_date}&to_date={to_date}&size=15')  # 15 is not in allowed values
         assert response.status_code == 400
         data = json.loads(response.data)
         assert 'error' in data or 'errors' in data
 
     def test_get_credits_invalid_page_negative(self, client):
         """Test getting credits with negative page number."""
-        response = client.get('/credits?page=-1')
+        from datetime import date
+        from_date = date(2025, 7, 1).isoformat()
+        to_date = date(2025, 7, 31).isoformat()
+        response = client.get(f'/credits?from_date={from_date}&to_date={to_date}&page=-1')
         assert response.status_code == 400
         data = json.loads(response.data)
         assert 'error' in data or 'errors' in data
 
     def test_get_credits_invalid_size_too_large(self, client):
         """Test getting credits with size larger than allowed."""
-        response = client.get('/credits?size=1000')
+        from datetime import date
+        from_date = date(2025, 7, 1).isoformat()
+        to_date = date(2025, 7, 31).isoformat()
+        response = client.get(f'/credits?from_date={from_date}&to_date={to_date}&size=1000')
         assert response.status_code == 400
         data = json.loads(response.data)
         assert 'error' in data or 'errors' in data
@@ -315,9 +368,12 @@ class TestCreditsPaginationEndpoints:
 
     def test_get_credits_pagination_structure(self, client, credit_factory):
         """Test that pagination response has correct structure."""
-        credit_factory.create(amount=100.00)
+        from datetime import date
+        credit_factory.create(amount=100.00, created_at=datetime(2025, 7, 15))
         
-        response = client.get('/credits')
+        from_date = date(2025, 7, 1).isoformat()
+        to_date = date(2025, 7, 31).isoformat()
+        response = client.get(f'/credits?from_date={from_date}&to_date={to_date}')
         assert response.status_code == 200
         data = json.loads(response.data)
         

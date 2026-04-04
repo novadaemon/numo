@@ -8,8 +8,11 @@ class TestDebitsEndpoints:
     """Test suite for debits endpoints."""
 
     def test_get_all_debits_empty(self, client):
-        """Test getting all debits when none exist - paginated response."""
-        response = client.get('/debits')
+        """Test getting all debits when none exist - paginated response with required dates."""
+        from datetime import date
+        from_date = date(2025, 6, 1).isoformat()
+        to_date = date(2025, 6, 30).isoformat()
+        response = client.get(f'/debits?from_date={from_date}&to_date={to_date}')
         assert response.status_code == 200
         data = json.loads(response.data)
         assert isinstance(data, dict)
@@ -256,16 +259,43 @@ class TestDebitsEndpoints:
 class TestDebitsPaginationEndpoints:
     """Test suite for debits pagination endpoints."""
 
+    def test_get_debits_missing_date_parameters(self, client):
+        """Test getting debits without required date parameters."""
+        response = client.get('/debits?page=0&size=10')
+        assert response.status_code == 400
+        data = json.loads(response.data)
+        assert 'error' in data
+
+    def test_get_debits_missing_from_date(self, client):
+        """Test getting debits without from_date."""
+        response = client.get('/debits?to_date=2025-06-30&page=0&size=10')
+        assert response.status_code == 400
+        data = json.loads(response.data)
+        assert 'error' in data
+
+    def test_get_debits_missing_to_date(self, client):
+        """Test getting debits without to_date."""
+        response = client.get('/debits?from_date=2025-06-01&page=0&size=10')
+        assert response.status_code == 400
+        data = json.loads(response.data)
+        assert 'error' in data
+
     def test_get_debits_with_pagination_default(self, client, debit_factory, category):
         """Test getting debits with default pagination (page=0, size=10)."""
         # Create 15 debits
+        from datetime import datetime, timedelta, date
+        base_date = datetime(2025, 6, 1)
         for i in range(15):
             debit_factory.create(
                 category_id=category.id,
-                amount=float(i + 1)
+                amount=float(i + 1),
+                created_at=base_date + timedelta(days=i)
             )
         
-        response = client.get('/debits')
+        # Query with date range
+        from_date = date(2025, 6, 1).isoformat()
+        to_date = date(2025, 6, 30).isoformat()
+        response = client.get(f'/debits?from_date={from_date}&to_date={to_date}')
         assert response.status_code == 200
         data = json.loads(response.data)
         assert data['page'] == 0
@@ -276,13 +306,18 @@ class TestDebitsPaginationEndpoints:
     def test_get_debits_with_pagination_page_1(self, client, debit_factory, category):
         """Test getting debits on page 1."""
         # Create 15 debits
+        from datetime import datetime, timedelta, date
+        base_date = datetime(2025, 6, 1)
         for i in range(15):
             debit_factory.create(
                 category_id=category.id,
-                amount=float(i + 1)
+                amount=float(i + 1),
+                created_at=base_date + timedelta(days=i)
             )
         
-        response = client.get('/debits?page=1&size=10')
+        from_date = date(2025, 6, 1).isoformat()
+        to_date = date(2025, 6, 30).isoformat()
+        response = client.get(f'/debits?from_date={from_date}&to_date={to_date}&page=1&size=10')
         assert response.status_code == 200
         data = json.loads(response.data)
         assert data['page'] == 1
@@ -293,13 +328,18 @@ class TestDebitsPaginationEndpoints:
     def test_get_debits_with_size_25(self, client, debit_factory, category):
         """Test getting debits with size=25."""
         # Create 50 debits - use same category to avoid unique constraint on name
+        from datetime import datetime, timedelta, date
+        base_date = datetime(2025, 6, 1)
         for i in range(50):
             debit_factory.create(
                 category_id=category.id,
-                amount=float(i + 1)
+                amount=float(i + 1),
+                created_at=base_date + timedelta(days=i % 30)
             )
         
-        response = client.get('/debits?page=0&size=25')
+        from_date = date(2025, 6, 1).isoformat()
+        to_date = date(2025, 6, 30).isoformat()
+        response = client.get(f'/debits?from_date={from_date}&to_date={to_date}&page=0&size=25')
         assert response.status_code == 200
         data = json.loads(response.data)
         assert data['page'] == 0
@@ -310,13 +350,18 @@ class TestDebitsPaginationEndpoints:
     def test_get_debits_with_size_50(self, client, debit_factory, category):
         """Test getting debits with size=50."""
         # Create 100 debits
+        from datetime import datetime, timedelta, date
+        base_date = datetime(2025, 6, 1)
         for i in range(100):
             debit_factory.create(
                 category_id=category.id,
-                amount=float(i + 1)
+                amount=float(i + 1),
+                created_at=base_date + timedelta(days=i % 30)
             )
         
-        response = client.get('/debits?page=0&size=50')
+        from_date = date(2025, 6, 1).isoformat()
+        to_date = date(2025, 6, 30).isoformat()
+        response = client.get(f'/debits?from_date={from_date}&to_date={to_date}&page=0&size=50')
         assert response.status_code == 200
         data = json.loads(response.data)
         assert data['size'] == 50
@@ -325,13 +370,18 @@ class TestDebitsPaginationEndpoints:
     def test_get_debits_with_size_100(self, client, debit_factory, category):
         """Test getting debits with size=100."""
         # Create 150 debits
+        from datetime import datetime, timedelta, date
+        base_date = datetime(2025, 6, 1)
         for i in range(150):
             debit_factory.create(
                 category_id=category.id,
-                amount=float(i + 1)
+                amount=float(i + 1),
+                created_at=base_date + timedelta(days=i % 30)
             )
         
-        response = client.get('/debits?page=0&size=100')
+        from_date = date(2025, 6, 1).isoformat()
+        to_date = date(2025, 7, 31).isoformat()
+        response = client.get(f'/debits?from_date={from_date}&to_date={to_date}&page=0&size=100')
         assert response.status_code == 200
         data = json.loads(response.data)
         assert data['size'] == 100
@@ -339,21 +389,30 @@ class TestDebitsPaginationEndpoints:
 
     def test_get_debits_invalid_size(self, client):
         """Test getting debits with invalid size parameter."""
-        response = client.get('/debits?size=15')  # 15 is not in allowed values
+        from datetime import date
+        from_date = date(2025, 6, 1).isoformat()
+        to_date = date(2025, 6, 30).isoformat()
+        response = client.get(f'/debits?from_date={from_date}&to_date={to_date}&size=15')  # 15 is not in allowed values
         assert response.status_code == 400
         data = json.loads(response.data)
         assert 'error' in data or 'errors' in data
 
     def test_get_debits_invalid_page_negative(self, client):
         """Test getting debits with negative page number."""
-        response = client.get('/debits?page=-1')
+        from datetime import date
+        from_date = date(2025, 6, 1).isoformat()
+        to_date = date(2025, 6, 30).isoformat()
+        response = client.get(f'/debits?from_date={from_date}&to_date={to_date}&page=-1')
         assert response.status_code == 400
         data = json.loads(response.data)
         assert 'error' in data or 'errors' in data
 
     def test_get_debits_invalid_size_too_large(self, client):
         """Test getting debits with size larger than allowed."""
-        response = client.get('/debits?size=1000')
+        from datetime import date
+        from_date = date(2025, 6, 1).isoformat()
+        to_date = date(2025, 6, 30).isoformat()
+        response = client.get(f'/debits?from_date={from_date}&to_date={to_date}&size=1000')
         assert response.status_code == 400
         data = json.loads(response.data)
         assert 'error' in data or 'errors' in data
@@ -402,21 +461,27 @@ class TestDebitsPaginationEndpoints:
         other_category = category_factory.create(name='Transport')
         
         # Create 15 debits in first category
+        from datetime import datetime, timedelta, date
+        base_date = datetime(2025, 6, 1)
         for i in range(15):
             debit_factory.create(
                 category_id=category.id,
-                amount=float(i + 1)
+                amount=float(i + 1),
+                created_at=base_date + timedelta(days=i)
             )
         
         # Create 10 debits in other category
         for i in range(10):
             debit_factory.create(
                 category_id=other_category.id,
-                amount=float(i + 1)
+                amount=float(i + 1),
+                created_at=base_date + timedelta(days=15 + i)
             )
         
         # Filter by first category
-        response = client.get(f'/debits?category_id={category.id}&page=0&size=10')
+        from_date = date(2025, 6, 1).isoformat()
+        to_date = date(2025, 6, 30).isoformat()
+        response = client.get(f'/debits?from_date={from_date}&to_date={to_date}&category_id={category.id}&page=0&size=10')
         assert response.status_code == 200
         data = json.loads(response.data)
         assert data['total'] == 15
@@ -424,9 +489,12 @@ class TestDebitsPaginationEndpoints:
 
     def test_get_debits_pagination_structure(self, client, debit_factory, category):
         """Test that pagination response has correct structure."""
-        debit_factory.create(category_id=category.id, amount=100.00)
+        from datetime import datetime, date
+        debit_factory.create(category_id=category.id, amount=100.00, created_at=datetime(2025, 6, 15))
         
-        response = client.get('/debits')
+        from_date = date(2025, 6, 1).isoformat()
+        to_date = date(2025, 6, 30).isoformat()
+        response = client.get(f'/debits?from_date={from_date}&to_date={to_date}')
         assert response.status_code == 200
         data = json.loads(response.data)
         

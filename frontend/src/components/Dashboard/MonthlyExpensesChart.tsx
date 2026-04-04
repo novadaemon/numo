@@ -30,6 +30,19 @@ export function MonthlyExpensesChart({ className = '' }: MonthlyExpensesChartPro
     );
   }
 
+  if (!expensesByMonth || expensesByMonth.length === 0) {
+    return (
+      <div className={`bg-white rounded-lg shadow p-6 ${className}`}>
+        <h3 className="text-lg font-semibold mb-4 text-gray-800">
+          Gastos por Mes - {new Date().getFullYear()}
+        </h3>
+        <div className="h-96 flex items-center justify-center">
+          <div className="text-gray-400">Sin datos disponibles</div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={`bg-white rounded-lg shadow p-6 ${className}`}>
       <h3 className="text-lg font-semibold mb-4 text-gray-800">

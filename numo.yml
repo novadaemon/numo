@@ -337,16 +337,18 @@ paths:
             default: 10
         - name: from_date
           in: query
-          description: Filter debits from this date (ISO 8601 format)
+          required: true
+          description: Filter debits from this date (ISO 8601 format). Required parameter.
           schema:
             type: string
-            format: date-time
+            format: date
         - name: to_date
           in: query
-          description: Filter debits until this date (ISO 8601 format)
+          required: true
+          description: Filter debits until this date (ISO 8601 format). Required parameter.
           schema:
             type: string
-            format: date-time
+            format: date
         - name: category_id
           in: query
           description: Filter by category ID
@@ -528,16 +530,18 @@ paths:
             default: 10
         - name: from_date
           in: query
-          description: Filter credits from this date (ISO 8601 format)
+          required: true
+          description: Filter credits from this date (ISO 8601 format). Required parameter.
           schema:
             type: string
-            format: date-time
+            format: date
         - name: to_date
           in: query
-          description: Filter credits until this date (ISO 8601 format)
+          required: true
+          description: Filter credits until this date (ISO 8601 format). Required parameter.
           schema:
             type: string
-            format: date-time
+            format: date
       responses:
         "200":
           description: List of credits with pagination info

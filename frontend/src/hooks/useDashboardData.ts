@@ -65,14 +65,30 @@ export function useDashboardData(period: DatePeriod = 'year'): DashboardData {
       try {
         const { startDate, endDate } = getDateRange(period);
 
-        // Obtener gastos del período (con paginación, size=100 para obtener todos)
+        // Obtener gastos del período (sin requerir page/size, el backend usa defaults)
+        // Pero como necesitamos todos los datos del año, usamos size=100
         const response = await debitsService.getAll({ 
           from_date: startDate, 
           to_date: endDate,
-          page: 0,
-          size: 100
+          size: 100  // Solo especificar size, backend usa page=0 por defecto
         });
-        const debits = response.data;
+        
+        // Validar respuesta y extraer debits
+        let debits: Debit[] = [];
+        if (response) {
+          if ('data' in response && Array.isArray(response.data)) {
+            debits = response.data;
+          } else if (Array.isArray(response)) {
+            debits = response as Debit[];
+          }
+        }
+        
+        console.log('[Dashboard] Debits fetched:', { 
+          period, 
+          dateRange: { startDate, endDate }, 
+          count: debits.length,
+          data: debits.slice(0, 3) // Log first 3 for debugging
+        });
 
         // Calcular total de gastos
         const totalExpenses = debits.reduce((sum, debit) => sum + debit.amount, 0);

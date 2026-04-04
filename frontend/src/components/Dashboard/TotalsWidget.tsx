@@ -36,16 +36,24 @@ export function TotalsWidget({ className = '' }: TotalsWidgetProps) {
       const startDate = new Date(currentYear, currentMonth, 1);
       const endDate = new Date(currentYear, currentMonth + 1, 0);
 
-      // Obtener todos los ingresos con size=100
-      const response = await creditsService.getAll({ page: 0, size: 100 });
-      const allCredits = response.data;
-      
-      const credits = allCredits.filter((credit) => {
-        const creditDate = new Date(credit.created_at);
-        return creditDate >= startDate && creditDate <= endDate;
+      // Obtener ingresos del mes con fechas requeridas
+      const response = await creditsService.getAll({ 
+        from_date: startDate.toISOString().split('T')[0],
+        to_date: endDate.toISOString().split('T')[0],
+        size: 100
       });
+      
+      // Validar respuesta y extraer credits
+      let allCredits = [];
+      if (response && typeof response === 'object') {
+        if ('data' in response && Array.isArray(response.data)) {
+          allCredits = response.data;
+        } else if (Array.isArray(response)) {
+          allCredits = response;
+        }
+      }
 
-      const total = credits.reduce((sum, credit) => sum + credit.amount, 0);
+      const total = allCredits.reduce((sum, credit) => sum + credit.amount, 0);
       setTotalIncome(total);
     } catch (err) {
       console.error('Error loading income:', err);
