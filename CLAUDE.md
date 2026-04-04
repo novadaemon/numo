@@ -155,7 +155,6 @@ The system is designed as a full-stack application with a REST API backend and a
 - Keep the project lightweight (avoid unnecessary dependencies).
 - Follow existing patterns in the codebase before introducing new ones.
 - Ensure consistency in naming and structure across backend and frontend.
-- Use Python version 3.11.
 - **Always update `numo.yml` OpenAPI specification when modifying API endpoints, schemas, or status codes**.
 - Run the test suite with `docker-compose exec -T backend pytest tests/ -v --cov=app` to verify changes.
 - Aim for maintaining 80%+ code coverage with comprehensive test cases.

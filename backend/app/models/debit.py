@@ -15,6 +15,7 @@ class Debit(Base):
     place_id = Column(Integer, ForeignKey('places.id'), nullable=True, index=True)
     debited_at = Column(DateTime, nullable=False, default=datetime.utcnow)
     amount = Column(Float, nullable=False)
+    concept = Column(String(255), nullable=False)
     observations = Column(Text, nullable=True)
 
     # Relationships

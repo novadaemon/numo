@@ -21,7 +21,8 @@ class TestDebitsEndpoints:
             'category_id': category.id,
             'place_id': place.id,
             'amount': 50.00,
-            'observations': 'Weekly groceries'
+            'concept': 'Weekly groceries',
+            'observations': 'Weekly groceries at the supermarket'
         }
         response = client.post(
             '/debits',
@@ -31,6 +32,7 @@ class TestDebitsEndpoints:
         assert response.status_code == 201
         data = json.loads(response.data)
         assert data['amount'] == 50.00
+        assert data['concept'] == 'Weekly groceries'
         assert data['category']['id'] == category.id
         assert data['place']['id'] == place.id
         assert 'id' in data
@@ -41,7 +43,8 @@ class TestDebitsEndpoints:
         payload = {
             'category_id': category.id,
             'place_id': place.id,
-            'amount': 25.50
+            'amount': 25.50,
+            'concept': 'Bus fare'
         }
         response = client.post(
             '/debits',
@@ -51,6 +54,7 @@ class TestDebitsEndpoints:
         assert response.status_code == 201
         data = json.loads(response.data)
         assert data['amount'] == 25.50
+        assert data['concept'] == 'Bus fare'
 
     def test_create_debit_missing_category_id(self, client, place):
         """Test creating a debit without category_id."""
