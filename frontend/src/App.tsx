@@ -1,17 +1,17 @@
 import { useState, useEffect } from 'react'
+import { apiClient } from '@/services'
 
 function App() {
   const [status, setStatus] = useState<string>('loading')
+  const [apiVersion, setApiVersion] = useState<string>('')
 
   useEffect(() => {
     const checkHealth = async () => {
       try {
-        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080'
-        const response = await fetch(`${apiUrl}/health`)
-        if (response.ok) {
-          setStatus('connected')
-        } else {
-          setStatus('disconnected')
+        const data = await apiClient.health()
+        setStatus('connected')
+        if (data.version) {
+          setApiVersion(data.version)
         }
       } catch (error) {
         setStatus('disconnected')
@@ -46,6 +46,12 @@ function App() {
           <p className="text-center text-sm text-gray-500">
             Welcome! Start tracking your expenses.
           </p>
+          
+          {apiVersion && (
+            <p className="text-center text-xs text-gray-400 mt-6">
+              API v{apiVersion}
+            </p>
+          )}
         </div>
       </div>
     </div>
