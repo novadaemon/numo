@@ -20,4 +20,4 @@ COPY . .
 EXPOSE 8080
 
 # Comando por defecto
-CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--workers", "4", "--timeout", "120", "app.main:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--workers", "4", "--timeout", "120", "wsgi:app"]

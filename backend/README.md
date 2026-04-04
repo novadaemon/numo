@@ -38,7 +38,17 @@ La API estará disponible en `http://localhost:5000` (desarrollo)
 - `GET /health` - Estado del servidor
 - `GET /debits` - Listar gastos
 - `POST /debits` - Crear gasto
+- `GET /debits/:id` - Ver gasto
+- `PUT /debits/:id` - Actualizar gasto
 - `GET /credits` - Listar ingresos
 - `POST /credits` - Crear ingreso
+- `GET /credits/:id` - Ver ingreso
+- `PUT /credits/:id` - Actualizar ingreso
 - `GET /categories` - Listar categorías
+- `POST /categories` - Crear categoría
+- `GET /categories/:id` - Ver categoría
+- `PUT /categories/:id` - Actualizar categoría
 - `GET /places` - Listar lugares
+- `POST /places` - Crear lugar
+- `GET /places/:id` - Ver lugar
+- `PUT /places/:id` - Actualizar lugar

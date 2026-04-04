@@ -128,3 +128,4 @@ The system is designed as a full-stack application with a REST API backend and a
 - Keep the project lightweight (avoid unnecessary dependencies).
 - Follow existing patterns in the codebase before introducing new ones.
 - Ensure consistency in naming and structure across backend and frontend.
+- Use Python version 3

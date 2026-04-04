@@ -1,30 +1,10 @@
-from flask import Flask, jsonify
-from flask_sqlalchemy import SQLAlchemy
-import os
+"""Main routes blueprint for Numo API."""
+from flask import Blueprint, jsonify
 
-db = SQLAlchemy()
+bp = Blueprint('main', __name__)
 
-def create_app():
-    app = Flask(__name__)
-    
-    # Configuration
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///numo.db')
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    
-    # Initialize database
-    db.init_app(app)
-    
-    # Health check endpoint
-    @app.route('/health', methods=['GET'])
-    def health():
-        return jsonify({'status': 'healthy'}), 200
-    
-    with app.app_context():
-        db.create_all()
-    
-    return app
 
-app = create_app()
-
-if __name__ == '__main__':
-    app.run(debug=True)
+@bp.route('/health', methods=['GET'])
+def health():
+    """Health check endpoint."""
+    return jsonify({'status': 'healthy'}), 200
