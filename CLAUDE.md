@@ -68,45 +68,7 @@ The system is designed as a full-stack application with a REST API backend and a
 
 ## Database Schema
 
-### categories
-
-| field | type        | nullable | index   |
-| ----- | ----------- | -------- | ------- |
-| id    | integer     | no       | primary |
-| name  | varchar(50) | no       | unique  |
-
----
-
-### places
-
-| field | type         | nullable | index   |
-| ----- | ------------ | -------- | ------- |
-| id    | integer      | no       | primary |
-| name  | varchar(100) | no       | unique  |
-
----
-
-### debits
-
-| field        | type          | nullable | index   | description               |
-| ------------ | ------------- | -------- | ------- | ------------------------- |
-| id           | integer       | no       | primary | Unique identifier         |
-| category_id  | integer       | no       | index   | Reference to categories   |
-| place_id     | integer       | yes      | index   | Reference to places       |
-| debited_at   | datetime      | no       |         | When the expense occurred |
-| amount       | decimal(10,2) | no       |         | Expense amount            |
-| observations | text          | yes      |         | Optional notes            |
-
----
-
-### credits
-
-| field        | type          | nullable | index   | description              |
-| ------------ | ------------- | -------- | ------- | ------------------------ |
-| id           | integer       | no       | primary | Unique identifier        |
-| credited_at  | datetime      | no       |         | When the income occurred |
-| amount       | decimal(10,2) | no       |         | Income amount            |
-| observations | text          | yes      |         | Optional notes           |
+See [backend/app/models/SCHEMA.md](backend/app/models/SCHEMA.md) for complete database schema documentation.
 
 ---
 
@@ -116,6 +78,19 @@ The system is designed as a full-stack application with a REST API backend and a
 - The OpenAPI specification documents all 4 resources (Categories, Places, Debits, Credits) with 19 endpoints
 - **IMPORTANT**: Whenever the API is modified (new endpoints, schema changes, status code changes), the `numo.yml` file MUST be updated to reflect these changes
 - The specification includes request/response examples, validation rules, and error responses
+
+---
+
+## Documentation References
+
+### Data Layer
+- **Database Schema**: [backend/app/models/SCHEMA.md](backend/app/models/SCHEMA.md) - Complete schema documentation for all tables
+- **Validation Schemas**: [backend/app/http/validation/](backend/app/http/validation/) - Marshmallow validation schemas for request/response handling
+
+### Testing & Fixtures
+- **Test Suite**: [backend/tests/](backend/tests/) - Comprehensive pytest test suite with 62+ tests achieving 80%+ code coverage
+- **Test Fixtures**: [backend/tests/conftest.py](backend/tests/conftest.py) - Pytest fixtures for all models
+- **Factory Helpers**: [backend/tests/factories/](backend/tests/factories/) - Factory-boy fixtures for test data generation
 
 ---
 
