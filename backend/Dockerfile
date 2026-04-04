@@ -16,8 +16,11 @@ RUN pip install --no-cache-dir -r requirements-dev.txt
 # Copiar código de la aplicación
 COPY . .
 
+# Variable de entorno para el puerto
+ENV BACKEND_PORT=8080
+
 # Exponer puerto
-EXPOSE 8080
+EXPOSE ${BACKEND_PORT}
 
 # Comando por defecto
-CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--workers", "4", "--timeout", "120", "wsgi:app"]
+CMD gunicorn --bind 0.0.0.0:${BACKEND_PORT} --workers 4 --timeout 120 wsgi:app
