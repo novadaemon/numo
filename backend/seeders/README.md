@@ -41,8 +41,8 @@ python seeders/seed.py
 
 ```yaml
 debits:
-  - category_idx: 0  # Index in categories.yml
-    place_idx: 0     # Index in places.yml (null = no place)
+  - category_idx: 0 # Index in categories.yml
+    place_idx: 0 # Index in places.yml (null = no place)
     amount: 15.50
     debited_at: 2026-04-02T14:30:00
 ```
