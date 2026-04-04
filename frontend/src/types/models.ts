@@ -37,8 +37,8 @@ export interface Debit {
   id: number;
   category_id: number;
   category: CategoryRef;
-  place_id: number | null;
-  place: PlaceRef | null;
+  place_id: number;
+  place: PlaceRef;
   amount: number;
   created_at: string; // ISO-8601 datetime
   observations?: string | null;

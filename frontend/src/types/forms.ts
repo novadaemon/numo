@@ -17,7 +17,7 @@ export interface PlaceFormData {
  */
 export interface DebitFormData {
   category_id: number;
-  place_id?: number | null;
+  place_id: number;
   amount: number;
   created_at?: string; // ISO-8601 datetime (optional, defaults to now)
   observations?: string | null;

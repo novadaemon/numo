@@ -110,11 +110,10 @@ def create_debit():
         if not category:
             return jsonify({'error': 'category not found'}), 404
 
-        # Verify place exists only if place_id is provided
-        if validated_data.get('place_id'):
-            place = db.query(Place).filter(Place.id == validated_data['place_id']).first()
-            if not place:
-                return jsonify({'error': 'place not found'}), 404
+        # Verify place exists (place_id is required)
+        place = db.query(Place).filter(Place.id == validated_data['place_id']).first()
+        if not place:
+            return jsonify({'error': 'place not found'}), 404
 
         # Create debit with default timestamp if not provided
         if not validated_data.get('created_at'):

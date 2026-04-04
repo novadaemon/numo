@@ -23,7 +23,7 @@ debits:
     created_at: 2026-04-06T10:20:00
 
   - category_idx: 4
-    place_idx: null
+    place_idx: 0
     amount: 55.00
     concept: "Suscripción streaming"
     created_at: 2026-04-07T08:00:00

@@ -109,11 +109,23 @@ export function AddDebitForm({ onOpenChange }: AddDebitFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData.category_id) {
+      alert('Por favor selecciona una categoría');
+      return;
+    }
+    if (!formData.place_id) {
+      alert('Por favor selecciona un lugar/concepto');
+      return;
+    }
+    if (!formData.amount) {
+      alert('Por favor ingresa el monto');
+      return;
+    }
     setLoading(true);
     try {
       await debitsService.create({
         category_id: parseInt(formData.category_id),
-        place_id: formData.place_id ? parseInt(formData.place_id) : undefined,
+        place_id: parseInt(formData.place_id),
         amount: parseFloat(formData.amount),
         observations: formData.observations || undefined,
         created_at: formData.created_at,
@@ -148,7 +160,7 @@ export function AddDebitForm({ onOpenChange }: AddDebitFormProps) {
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <Label htmlFor="place">Lugar/Concepto (opcional)</Label>
+          <Label htmlFor="place">Lugar/Concepto *</Label>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
               <Button type="button" variant="ghost" size="sm" className="h-6 px-2">

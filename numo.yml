@@ -750,11 +750,9 @@ components:
           description: Category details
         place_id:
           type: integer
-          nullable: true
-          description: Reference to place (optional)
+          description: Reference to place
         place:
           type: object
-          nullable: true
           properties:
             id:
               type: integer
@@ -791,8 +789,7 @@ components:
         place_id:
           type: integer
           minimum: 1
-          nullable: true
-          description: Reference to place (optional)
+          description: Reference to place
         amount:
           type: number
           format: float
@@ -810,6 +807,7 @@ components:
           description: Optional notes
       required:
         - category_id
+        - place_id
         - amount
 
     Credit:
