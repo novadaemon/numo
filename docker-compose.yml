@@ -12,14 +12,10 @@ services:
       DATABASE_URL: sqlite:////app/data/numo.db
     volumes:
       - ./backend:/app
-      - backend_data:/app/data
+      - ./backend/data:/app/data
     networks:
       - numo_network
     restart: unless-stopped
-
-volumes:
-  backend_data:
-    driver: local
 
 networks:
   numo_network:
