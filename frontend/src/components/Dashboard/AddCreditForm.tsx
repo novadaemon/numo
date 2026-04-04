@@ -18,6 +18,7 @@ export function AddCreditForm({ onOpenChange, onSuccess }: AddCreditFormProps) {
   const [formData, setFormData] = useState({
     amount: '',
     observations: '',
+    created_at: new Date().toISOString().slice(0, 16),
   });
 
   const handleChange = (
@@ -37,10 +38,12 @@ export function AddCreditForm({ onOpenChange, onSuccess }: AddCreditFormProps) {
       await creditsService.create({
         amount: parseFloat(formData.amount),
         observations: formData.observations || undefined,
+        created_at: formData.created_at,
       });
       setFormData({
         amount: '',
         observations: '',
+        created_at: new Date().toISOString().slice(0, 16),
       });
       onOpenChange(false);
       onSuccess?.();
@@ -79,6 +82,18 @@ export function AddCreditForm({ onOpenChange, onSuccess }: AddCreditFormProps) {
           placeholder="Fuente de ingreso, notas adicionales..."
           maxLength={500}
           rows={3}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="created_at">Fecha y Hora *</Label>
+        <Input
+          id="created_at"
+          type="datetime-local"
+          name="created_at"
+          value={formData.created_at}
+          onChange={handleChange}
+          required
         />
       </div>
 

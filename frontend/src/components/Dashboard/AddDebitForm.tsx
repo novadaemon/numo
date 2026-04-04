@@ -43,6 +43,7 @@ export function AddDebitForm({ onOpenChange, onSuccess }: AddDebitFormProps) {
     amount: '',
     concept: '',
     observations: '',
+    created_at: new Date().toISOString().slice(0, 16),
   });
 
   // Cargar categorías y lugares al montar
@@ -118,6 +119,7 @@ export function AddDebitForm({ onOpenChange, onSuccess }: AddDebitFormProps) {
         amount: parseFloat(formData.amount),
         concept: formData.concept,
         observations: formData.observations || undefined,
+        created_at: formData.created_at,
       });
       setFormData({
         category_id: '',
@@ -125,6 +127,7 @@ export function AddDebitForm({ onOpenChange, onSuccess }: AddDebitFormProps) {
         amount: '',
         concept: '',
         observations: '',
+        created_at: new Date().toISOString().slice(0, 16),
       });
       onOpenChange(false);
       onSuccess?.();
@@ -257,6 +260,18 @@ export function AddDebitForm({ onOpenChange, onSuccess }: AddDebitFormProps) {
           placeholder="Notas adicionales..."
           maxLength={500}
           rows={3}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="created_at">Fecha y Hora *</Label>
+        <Input
+          id="created_at"
+          type="datetime-local"
+          name="created_at"
+          value={formData.created_at}
+          onChange={handleChange}
+          required
         />
       </div>
 
