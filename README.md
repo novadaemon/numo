@@ -1,9 +1,167 @@
-# Numo es una aplicación para llevar el registro de los gastos personales
+# Numo - Personal Expense Tracker
 
-## Arquitectura de desarrollo
+Aplicación full-stack para gestionar gastos e ingresos personales.
 
-Numo está desarrollado con el framework Python **Flask** (https://flask.palletsprojects.com/en/stable/). Como motor de base de datos usa **SQLite**(https://sqlite.org/). El backend consiste en una API REST. El frontend está desarrollado en **React** y **TypeScript**. Se usan las librería **Shadcn** (https://ui.shadcn.com/) para los componentes y Tailwindcss (https://tailwindcss.com/) para la definición de estilos. Los iconos de la aplicación se usan implementando la librería **lucide-react**(https://lucide.dev/guide/react/). Se usa **Vite**(https://vite.dev/) para el build y empaquetado de los assets del front.
+## 🚀 Inicio Rápido
 
-## Entorno de desarrollo
+### Con Docker Backend + Local Frontend (Recomendado)
 
-Para el entorno de desarrollo se usa **Docker**(https://www.docker.com/) con docker-compose. Se utiliza una imagen de Python que implementa **Gunicorn**(https://gunicorn.org/). El contenedor de la API expone el puerto 8080.
+**Terminal 1: Inicia el Backend**
+
+```bash
+# 1. Clona el repositorio
+git clone <repository-url>
+cd numo
+
+# 2. Copia el archivo de configuración
+cp .env.example .env
+
+# 3. Inicia el backend en Docker
+docker-compose up
+```
+
+**Terminal 2: Inicia el Frontend**
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+La aplicación estará disponible en:
+
+- Frontend: `http://localhost:3000`
+- Backend API: `http://localhost:8080`
+
+### Build de Producción
+
+```bash
+# Backend (Docker)
+docker-compose build
+
+# Frontend (estáticos)
+cd frontend
+npm run build
+```
+
+## 📁 Estructura del Proyecto
+
+```
+numo/
+├── backend/                 # API REST (Flask + SQLite)
+│   ├── app/                # Código de aplicación
+│   ├── tests/              # Tests
+│   ├── requirements.txt     # Dependencias Python
+│   ├── Dockerfile
+│   └── README.md
+├── frontend/               # Aplicación React
+│   ├── src/               # Código fuente
+│   ├── public/            # Archivos estáticos
+│   ├── package.json       # Dependencias Node
+│   ├── vite.config.ts
+│   └── README.md
+├── docker-compose.yml      # Orquestación (backend only)
+├── .env.example           # Template de variables de entorno
+└── CLAUDE.md              # Documentación del proyecto
+```
+
+## 🔧 Configuración
+
+Copia `.env.example` a `.env` y ajusta las variables según necesites:
+
+```bash
+cp .env.example .env
+```
+
+Variables disponibles:
+
+- `BACKEND_PORT` - Puerto del backend (default: 8080)
+- `FLASK_ENV` - Ambiente de Flask (development/production)
+- `VITE_API_URL` - URL de la API para el frontend (default: http://localhost:8080)
+
+## 🛠️ Tecnología
+
+### Backend
+
+- Python 3.11
+- Flask (REST API)
+- SQLAlchemy (ORM)
+- SQLite (Base de datos)
+- Gunicorn (WSGI Server)
+
+### Frontend
+
+- React 18
+- TypeScript
+- Vite (Build tool)
+- Tailwind CSS (Styling)
+- Shadcn (Components)
+
+## 📚 Documentación Adicional
+
+- [Backend README](./backend/README.md)
+- [Frontend README](./frontend/README.md)
+- [Guía de Desarrollo](./CLAUDE.md)
+
+## 📝 Licencia
+
+Proyecto personal.
+│ ├── app/ # Código de aplicación
+│ ├── tests/ # Tests
+│ ├── requirements.txt # Dependencias Python
+│ ├── Dockerfile
+│ └── README.md
+├── frontend/ # Aplicación React
+│ ├── src/ # Código fuente
+│ ├── public/ # Archivos estáticos
+│ ├── package.json # Dependencias Node
+│ ├── Dockerfile
+│ └── README.md
+├── docker-compose.yml # Orchestración de servicios
+├── .env.example # Template de variables de entorno
+└── CLAUDE.md # Documentación del proyecto
+
+````
+
+## 🔧 Configuración
+
+Copia `.env.example` a `.env` y ajusta las variables según necesites:
+
+```bash
+cp .env.example .env
+````
+
+Variables disponibles:
+
+- `BACKEND_PORT` - Puerto del backend (default: 8080)
+- `FRONTEND_PORT` - Puerto del frontend (default: 5173)
+- `FLASK_ENV` - Ambiente de Flask (development/production)
+- `VITE_API_URL` - URL de la API para el frontend
+
+## 🛠️ Tecnología
+
+### Backend
+
+- Python 3.11
+- Flask (REST API)
+- SQLAlchemy (ORM)
+- SQLite (Base de datos)
+- Gunicorn (WSGI Server)
+
+### Frontend
+
+- React 18
+- TypeScript
+- Vite (Build tool)
+- Tailwind CSS (Styling)
+- shadcn/ui (UI Components)
+
+## 📚 Documentación Adicional
+
+- [Backend README](./backend/README.md)
+- [Frontend README](./frontend/README.md)
+- [Guía de Desarrollo](./CLAUDE.md)
+
+## 📝 Licencia
+
+Proyecto personal.

@@ -1,0 +1,26 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: numo_backend
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
+    environment:
+      FLASK_APP: app.main
+      FLASK_ENV: ${FLASK_ENV:-development}
+      DATABASE_URL: sqlite:////app/data/numo.db
+    volumes:
+      - ./backend:/app
+      - backend_data:/app/data
+    networks:
+      - numo_network
+    restart: unless-stopped
+
+volumes:
+  backend_data:
+    driver: local
+
+networks:
+  numo_network:
+    driver: bridge

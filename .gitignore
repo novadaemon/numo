@@ -1,0 +1,46 @@
+# Dependencies
+node_modules
+.pnp
+.pnp.js
+__pycache__
+*.py[cod]
+*$py.class
+
+# Testing
+.pytest_cache
+dist
+build
+
+# Misc
+.DS_Store
+.env
+.env.local
+.env.*.local
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# Python virtual environments
+venv
+.venv
+ENV
+env
+
+# Vite
+dist
+.vite
+
+# Database
+*.db
+data/
+
+# IDE
+.history
