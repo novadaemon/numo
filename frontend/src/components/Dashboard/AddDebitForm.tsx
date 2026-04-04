@@ -40,7 +40,6 @@ export function AddDebitForm({ onOpenChange }: AddDebitFormProps) {
     category_id: '',
     place_id: '',
     amount: '',
-    concept: '',
     observations: '',
     created_at: new Date().toISOString().slice(0, 16),
   });
@@ -116,7 +115,6 @@ export function AddDebitForm({ onOpenChange }: AddDebitFormProps) {
         category_id: parseInt(formData.category_id),
         place_id: formData.place_id ? parseInt(formData.place_id) : undefined,
         amount: parseFloat(formData.amount),
-        concept: formData.concept,
         observations: formData.observations || undefined,
         created_at: formData.created_at,
       });
@@ -224,20 +222,6 @@ export function AddDebitForm({ onOpenChange }: AddDebitFormProps) {
           step="0.01"
           min="0.01"
           required
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="concept">Concepto *</Label>
-        <Input
-          id="concept"
-          type="text"
-          name="concept"
-          value={formData.concept}
-          onChange={handleChange}
-          placeholder="Descripción del gasto"
-          required
-          maxLength={255}
         />
       </div>
 

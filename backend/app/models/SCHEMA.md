@@ -27,7 +27,6 @@
 | place_id     | integer       | yes      | index   | Reference to places       |
 | created_at   | datetime      | no       |         | When the expense occurred |
 | amount       | decimal(10,2) | no       |         | Expense amount            |
-| concept      | varchar(255)  | no       |         | Expense concept/title     |
 | observations | text          | yes      |         | Optional notes            |
 
 ---

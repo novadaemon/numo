@@ -82,7 +82,6 @@ export function DebitsTable({
               <TableHead className="text-gray-700">Fecha</TableHead>
               <TableHead className="text-gray-700">Categoría</TableHead>
               <TableHead className="text-gray-700">Lugar</TableHead>
-              <TableHead className="text-gray-700">Concepto</TableHead>
               <TableHead className="text-right text-gray-700">Monto</TableHead>
             </TableRow>
           </TableHeader>
@@ -97,9 +96,6 @@ export function DebitsTable({
                 </TableCell>
                 <TableCell className="text-sm text-gray-600">
                   {debit.place?.name || '-'}
-                </TableCell>
-                <TableCell className="text-sm text-gray-600 max-w-xs truncate">
-                  {debit.concept || debit.observations || '-'}
                 </TableCell>
                 <TableCell className="text-right text-sm font-semibold text-red-600">
                   -{formatCurrency(debit.amount)}

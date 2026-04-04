@@ -41,7 +41,6 @@ export interface Debit {
   place: PlaceRef | null;
   amount: number;
   created_at: string; // ISO-8601 datetime
-  concept?: string | null;
   observations?: string | null;
 }
 

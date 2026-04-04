@@ -770,12 +770,6 @@ components:
           type: string
           format: date-time
           description: When the expense occurred
-        concept:
-          type: string
-          minLength: 1
-          maxLength: 255
-          nullable: false
-          description: Concept or description of the expense
         observations:
           type: string
           maxLength: 500
@@ -786,7 +780,6 @@ components:
         - category_id
         - amount
         - created_at
-        - concept
 
     DebitInput:
       type: object
@@ -810,12 +803,6 @@ components:
           format: date-time
           nullable: true
           description: When the expense occurred (defaults to current time if not provided)
-        concept:
-          type: string
-          minLength: 1
-          maxLength: 255
-          nullable: false
-          description: Concept or description of the expense
         observations:
           type: string
           maxLength: 500
@@ -824,7 +811,6 @@ components:
       required:
         - category_id
         - amount
-        - concept
 
     Credit:
       type: object

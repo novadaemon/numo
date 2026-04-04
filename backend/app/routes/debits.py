@@ -28,7 +28,6 @@ def format_debit(debit):
             'name': debit.place.name
         } if debit.place else None,
         'amount': float(debit.amount),
-        'concept': debit.concept,
         'created_at': debit.created_at.isoformat(),
         'observations': debit.observations,
     }

@@ -32,7 +32,6 @@ class TestDebitsEndpoints:
             'category_id': category.id,
             'place_id': place.id,
             'amount': 50.00,
-            'concept': 'Weekly groceries',
             'observations': 'Weekly groceries at the supermarket'
         }
         response = client.post(
@@ -43,7 +42,6 @@ class TestDebitsEndpoints:
         assert response.status_code == 201
         data = json.loads(response.data)
         assert data['amount'] == 50.00
-        assert data['concept'] == 'Weekly groceries'
         assert data['category']['id'] == category.id
         assert data['place']['id'] == place.id
         assert 'id' in data
@@ -55,7 +53,6 @@ class TestDebitsEndpoints:
             'category_id': category.id,
             'place_id': place.id,
             'amount': 25.50,
-            'concept': 'Bus fare'
         }
         response = client.post(
             '/debits',
@@ -65,7 +62,6 @@ class TestDebitsEndpoints:
         assert response.status_code == 201
         data = json.loads(response.data)
         assert data['amount'] == 25.50
-        assert data['concept'] == 'Bus fare'
 
     def test_create_debit_missing_category_id(self, client, place):
         """Test creating a debit without category_id."""
@@ -88,7 +84,6 @@ class TestDebitsEndpoints:
         payload = {
             'category_id': category.id,
             'amount': 50.00,
-            'concept': 'Test expense without place',
             'observations': 'No specific place'
         }
         response = client.post(
@@ -157,7 +152,6 @@ class TestDebitsEndpoints:
             'category_id': 9999,
             'place_id': place.id,
             'amount': 50.00,
-            'concept': 'Test with invalid category'
         }
         response = client.post(
             '/debits',
@@ -172,7 +166,6 @@ class TestDebitsEndpoints:
             'category_id': category.id,
             'place_id': 9999,
             'amount': 50.00,
-            'concept': 'Test with invalid place'
         }
         response = client.post(
             '/debits',
@@ -188,7 +181,6 @@ class TestDebitsEndpoints:
             'category_id': category.id,
             'place_id': place.id,
             'amount': 50.00,
-            'concept': 'Test with datetime',
             'created_at': now
         }
         response = client.post(

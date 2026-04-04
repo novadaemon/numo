@@ -20,7 +20,6 @@ export interface DebitFormData {
   place_id?: number | null;
   amount: number;
   created_at?: string; // ISO-8601 datetime (optional, defaults to now)
-  concept?: string | null;
   observations?: string | null;
 }
 
