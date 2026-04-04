@@ -107,6 +107,7 @@ export function Dashboard() {
               page={tableData.page}
               size={tableData.size}
               total={tableData.total}
+              loading={tableLoading}
               onPageChange={setCurrentPage}
             />
           ) : (

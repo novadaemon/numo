@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Debit } from '@/types/models';
 import {
   Table,
@@ -15,6 +14,7 @@ interface DebitsTableProps {
   page?: number;
   size?: number;
   total?: number;
+  loading?: boolean;
   onPageChange?: (page: number) => void;
 }
 
@@ -27,9 +27,9 @@ export function DebitsTable({
   page = 0, 
   size = 10, 
   total = 0,
+  loading = false,
   onPageChange 
 }: DebitsTableProps) {
-  const [loading, setLoading] = useState(false);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -55,17 +55,13 @@ export function DebitsTable({
 
   const handlePrevPage = () => {
     if (hasPrevPage && onPageChange) {
-      setLoading(true);
       onPageChange(page - 1);
-      setLoading(false);
     }
   };
 
   const handleNextPage = () => {
     if (hasNextPage && onPageChange) {
-      setLoading(true);
       onPageChange(page + 1);
-      setLoading(false);
     }
   };
 
