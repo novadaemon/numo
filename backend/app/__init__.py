@@ -24,8 +24,13 @@ def create_app():
             print(f"[DB] Error initializing database: {e}")
             raise
 
-    # Register routes
+    # Register main blueprint
     from .main import bp as main_bp
     app.register_blueprint(main_bp)
+
+    # Register API blueprints
+    from .routes import blueprints
+    for bp in blueprints:
+        app.register_blueprint(bp)
 
     return app
