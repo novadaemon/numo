@@ -10,7 +10,7 @@ class Credit(Base):
     __tablename__ = 'credits'
 
     id = Column(Integer, primary_key=True)
-    credited_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
     amount = Column(Float, nullable=False)
     observations = Column(Text, nullable=True)
 

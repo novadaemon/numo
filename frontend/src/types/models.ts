@@ -40,7 +40,7 @@ export interface Debit {
   place_id: number | null;
   place: PlaceRef | null;
   amount: number;
-  debited_at: string; // ISO-8601 datetime
+  created_at: string; // ISO-8601 datetime
   concept?: string | null;
   observations?: string | null;
 }
@@ -51,7 +51,7 @@ export interface Debit {
 export interface Credit {
   id: number;
   amount: number;
-  credited_at: string; // ISO-8601 datetime
+  created_at: string; // ISO-8601 datetime
   observations?: string | null;
 }
 

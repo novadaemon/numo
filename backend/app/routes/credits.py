@@ -16,7 +16,7 @@ def format_credit(credit):
     return {
         'id': credit.id,
         'amount': float(credit.amount),
-        'credited_at': credit.credited_at.isoformat(),
+        'created_at': credit.created_at.isoformat(),
         'observations': credit.observations,
     }
 
@@ -30,20 +30,20 @@ def get_credits():
         from_date = request.args.get('from_date')
         to_date = request.args.get('to_date')
 
-        query = db.query(Credit).order_by(desc(Credit.credited_at))
+        query = db.query(Credit).order_by(desc(Credit.created_at))
 
         # Apply filters
         if from_date:
             try:
                 from_dt = datetime.fromisoformat(from_date)
-                query = query.filter(Credit.credited_at >= from_dt)
+                query = query.filter(Credit.created_at >= from_dt)
             except ValueError:
                 return jsonify({'error': 'invalid from_date format (use ISO format)'}), 400
 
         if to_date:
             try:
                 to_dt = datetime.fromisoformat(to_date)
-                query = query.filter(Credit.credited_at <= to_dt)
+                query = query.filter(Credit.created_at <= to_dt)
             except ValueError:
                 return jsonify({'error': 'invalid to_date format (use ISO format)'}), 400
 
@@ -64,8 +64,8 @@ def create_credit():
     db = SessionLocal()
     try:
         # Create credit with default timestamp if not provided
-        if not validated_data.get('credited_at'):
-            validated_data['credited_at'] = datetime.utcnow()
+        if not validated_data.get('created_at'):
+            validated_data['created_at'] = datetime.utcnow()
 
         credit = Credit(**validated_data)
         db.add(credit)

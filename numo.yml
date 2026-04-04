@@ -439,7 +439,7 @@ paths:
                   type: number
                   format: float
                   minimum: 0.01
-                debited_at:
+                created_at:
                   type: string
                   format: date-time
                 observations:
@@ -577,7 +577,7 @@ paths:
                   type: number
                   format: float
                   minimum: 0.01
-                credited_at:
+                created_at:
                   type: string
                   format: date-time
                 observations:
@@ -713,7 +713,7 @@ components:
           format: float
           minimum: 0.01
           description: Expense amount
-        debited_at:
+        created_at:
           type: string
           format: date-time
           description: When the expense occurred
@@ -731,7 +731,7 @@ components:
         - id
         - category_id
         - amount
-        - debited_at
+        - created_at
 
     DebitInput:
       type: object
@@ -750,7 +750,7 @@ components:
           format: float
           minimum: 0.01
           description: Expense amount
-        debited_at:
+        created_at:
           type: string
           format: date-time
           nullable: true
@@ -780,7 +780,7 @@ components:
           format: float
           minimum: 0.01
           description: Income amount
-        credited_at:
+        created_at:
           type: string
           format: date-time
           description: When the income occurred
@@ -792,7 +792,7 @@ components:
       required:
         - id
         - amount
-        - credited_at
+        - created_at
 
     CreditInput:
       type: object
@@ -802,7 +802,7 @@ components:
           format: float
           minimum: 0.01
           description: Income amount
-        credited_at:
+        created_at:
           type: string
           format: date-time
           nullable: true

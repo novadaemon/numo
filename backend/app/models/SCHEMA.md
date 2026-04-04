@@ -25,7 +25,7 @@
 | id           | integer       | no       | primary | Unique identifier         |
 | category_id  | integer       | no       | index   | Reference to categories   |
 | place_id     | integer       | yes      | index   | Reference to places       |
-| debited_at   | datetime      | no       |         | When the expense occurred |
+| created_at   | datetime      | no       |         | When the expense occurred |
 | amount       | decimal(10,2) | no       |         | Expense amount            |
 | concept      | varchar(255)  | no       |         | Expense concept/title     |
 | observations | text          | yes      |         | Optional notes            |
@@ -37,6 +37,6 @@
 | field        | type          | nullable | index   | description              |
 | ------------ | ------------- | -------- | ------- | ------------------------ |
 | id           | integer       | no       | primary | Unique identifier        |
-| credited_at  | datetime      | no       |         | When the income occurred |
+| created_at   | datetime      | no       |         | When the income occurred |
 | amount       | decimal(10,2) | no       |         | Income amount            |
 | observations | text          | yes      |         | Optional notes           |

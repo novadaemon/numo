@@ -120,7 +120,7 @@ def debit_with_relationships(app, category, place):
             place=place,
             amount=50.00,
             concept="Test expense",
-            debited_at=datetime.now()
+            created_at=datetime.now()
         )
         session.add(debit)
         session.commit()
@@ -137,7 +137,7 @@ def credit(app):
     try:
         credit = CreditFactory.create(
             amount=1500.00,
-            credited_at=datetime.now()
+            created_at=datetime.now()
         )
         session.add(credit)
         session.commit()

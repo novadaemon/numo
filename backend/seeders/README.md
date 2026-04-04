@@ -44,7 +44,7 @@ debits:
   - category_idx: 0 # Index in categories.yml
     place_idx: 0 # Index in places.yml (null = no place)
     amount: 15.50
-    debited_at: 2026-04-02T14:30:00
+    created_at: 2026-04-02T14:30:00
 ```
 
 ### Credits Reference
@@ -52,7 +52,7 @@ debits:
 ```yaml
 credits:
   - amount: 2500.00
-    credited_at: 2026-04-05T09:00:00
+    created_at: 2026-04-05T09:00:00
 ```
 
 ## Modifying Seeders

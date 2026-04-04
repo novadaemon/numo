@@ -36,7 +36,7 @@ class TestDebitsEndpoints:
         assert data['category']['id'] == category.id
         assert data['place']['id'] == place.id
         assert 'id' in data
-        assert 'debited_at' in data
+        assert 'created_at' in data
 
     def test_create_debit_minimal(self, client, category, place):
         """Test creating a debit with minimal required data."""
@@ -178,7 +178,7 @@ class TestDebitsEndpoints:
             'place_id': place.id,
             'amount': 50.00,
             'concept': 'Test with datetime',
-            'debited_at': now
+            'created_at': now
         }
         response = client.post(
             '/debits',

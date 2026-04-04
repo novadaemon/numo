@@ -31,7 +31,7 @@ class TestCreditsEndpoints:
         assert data['amount'] == 1500.00
         assert data['observations'] == 'Monthly salary'
         assert 'id' in data
-        assert 'credited_at' in data
+        assert 'created_at' in data
 
     def test_create_credit_minimal(self, client):
         """Test creating a credit with minimal required data."""
@@ -100,7 +100,7 @@ class TestCreditsEndpoints:
         now = datetime.now().isoformat()
         payload = {
             'amount': 1500.00,
-            'credited_at': now
+            'created_at': now
         }
         response = client.post(
             '/credits',

@@ -81,7 +81,7 @@ export function useDashboardData(period: DatePeriod = 'year'): DashboardData {
           ];
 
           debits.forEach((debit) => {
-            const date = new Date(debit.debited_at);
+            const date = new Date(debit.created_at);
             const month = date.getMonth();
             monthMap.set(month, (monthMap.get(month) || 0) + debit.amount);
           });

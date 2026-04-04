@@ -28,7 +28,7 @@ def format_debit(debit):
         } if debit.place else None,
         'amount': float(debit.amount),
         'concept': debit.concept,
-        'debited_at': debit.debited_at.isoformat(),
+        'created_at': debit.created_at.isoformat(),
         'observations': debit.observations,
     }
 
@@ -44,20 +44,20 @@ def get_debits():
         category_id = request.args.get('category_id', type=int)
         place_id = request.args.get('place_id', type=int)
 
-        query = db.query(Debit).order_by(desc(Debit.debited_at))
+        query = db.query(Debit).order_by(desc(Debit.created_at))
 
         # Apply filters
         if from_date:
             try:
                 from_dt = datetime.fromisoformat(from_date)
-                query = query.filter(Debit.debited_at >= from_dt)
+                query = query.filter(Debit.created_at >= from_dt)
             except ValueError:
                 return jsonify({'error': 'invalid from_date format (use ISO format)'}), 400
 
         if to_date:
             try:
                 to_dt = datetime.fromisoformat(to_date)
-                query = query.filter(Debit.debited_at <= to_dt)
+                query = query.filter(Debit.created_at <= to_dt)
             except ValueError:
                 return jsonify({'error': 'invalid to_date format (use ISO format)'}), 400
 
@@ -95,8 +95,8 @@ def create_debit():
                 return jsonify({'error': 'place not found'}), 404
 
         # Create debit with default timestamp if not provided
-        if not validated_data.get('debited_at'):
-            validated_data['debited_at'] = datetime.utcnow()
+        if not validated_data.get('created_at'):
+            validated_data['created_at'] = datetime.utcnow()
 
         debit = Debit(**validated_data)
         db.add(debit)

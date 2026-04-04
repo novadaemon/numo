@@ -28,10 +28,10 @@ class DebitSchema(Schema):
         validate=validate.Length(min=1, max=255, error="concept must be between 1 and 255 characters"),
         error_messages={'required': 'concept is required'}
     )
-    debited_at = fields.DateTime(
+    created_at = fields.DateTime(
         allow_none=True,
         format='iso',
-        error_messages={'invalid': 'debited_at must be in ISO 8601 format (e.g., 2026-04-04T15:30:00)'}
+        error_messages={'invalid': 'created_at must be in ISO 8601 format (e.g., 2026-04-04T15:30:00)'}
     )
     observations = fields.Str(
         allow_none=True,
@@ -42,7 +42,7 @@ class DebitSchema(Schema):
     place = fields.Str(dump_only=True)
 
     class Meta:
-        fields = ('id', 'category_id', 'place_id', 'amount', 'concept', 'debited_at', 'observations', 'category', 'place')
+        fields = ('id', 'category_id', 'place_id', 'amount', 'concept', 'created_at', 'observations', 'category', 'place')
 
     def validate_amount(self, value):
         """Validate amount is a valid decimal."""
