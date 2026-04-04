@@ -697,15 +697,17 @@ components:
           description: Category details
         place_id:
           type: integer
-          description: Reference to place
+          nullable: true
+          description: Reference to place (optional)
         place:
           type: object
+          nullable: true
           properties:
             id:
               type: integer
             name:
               type: string
-          description: Place details
+          description: Place details (null if not specified)
         amount:
           type: number
           format: float
@@ -723,7 +725,6 @@ components:
       required:
         - id
         - category_id
-        - place_id
         - amount
         - debited_at
 
@@ -737,7 +738,8 @@ components:
         place_id:
           type: integer
           minimum: 1
-          description: Reference to place
+          nullable: true
+          description: Reference to place (optional)
         amount:
           type: number
           format: float
@@ -755,7 +757,6 @@ components:
           description: Optional notes
       required:
         - category_id
-        - place_id
         - amount
 
     Credit:
