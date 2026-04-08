@@ -20,12 +20,12 @@ export const formatDate = (dateString: string): string => {
 }
 
 /**
- * Formato de moneda: EUR con 2 decimales
+ * Formato de moneda: UYU con 2 decimales
  */
 export const formatCurrency = (amount: number): string => {
   return new Intl.NumberFormat('es-ES', {
     style: 'currency',
-    currency: 'EUR',
+    currency: 'UYU',
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(amount)
@@ -89,15 +89,28 @@ export const createDebitsColumns = (
   {
     accessorKey: 'place.name',
     id: 'place',
-    header: ({ column }) => <SortableHeader column={column} title="Lugar/Concepto" />,
+    header: ({ column }) => <SortableHeader column={column} title="Lugar" />,
     cell: ({ row }) => {
       const debit = row.original
-      const displayText = debit.concept || debit.place?.name || '-'
-      const subtitle = debit.concept && debit.place?.name ? `(${debit.place.name})` : ''
+      const displayText =  debit.place?.name || '-'
       return (
         <div className="text-sm">
           <div className="text-gray-900">{displayText}</div>
-          {subtitle && <div className="text-xs text-gray-500">{subtitle}</div>}
+        </div>
+      )
+    },
+    size: 150,
+  },
+  {
+    accessorKey: 'concept',
+    id: 'concept',
+    header: ({ column }) => <SortableHeader column={column} title="Concepto" />,
+    cell: ({ row }) => {
+      const debit = row.original
+      const displayText = debit.concept || '-'
+      return (
+        <div className="text-sm">
+          <div className="text-gray-900">{displayText}</div>
         </div>
       )
     },

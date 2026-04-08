@@ -49,7 +49,7 @@ export function DebitForm({ debit, onOpenChange, onSuccess }: DebitFormProps) {
     place_id: '',
     concept: '',
     amount: '',
-    method: 'cash',
+    method: 'debit',
     observations: '',
     created_at: new Date().toISOString().slice(0, 16),
   });
@@ -62,28 +62,30 @@ export function DebitForm({ debit, onOpenChange, onSuccess }: DebitFormProps) {
         setCategories(cats);
         const placesList = await placesService.getAll();
         setPlaces(placesList);
+        
+        // Pre-poblar form si es modo edición (después de cargar datos)
+        if (isEditMode && debit) {
+          setFormData({
+            category_id: debit.category_id.toString(),
+            place_id: debit.place_id?.toString() || '',
+            concept: debit.concept || '',
+            amount: debit.amount.toString(),
+            method: debit.method,
+            observations: debit.observations || '',
+            created_at: debit.created_at.slice(0, 16),
+          });
+        }
       } catch (error) {
         console.error('Error loading data:', error);
         toast.error('Error al cargar datos');
       }
     };
     loadData();
-  }, []);
+  }, [debit, isEditMode]);
 
-  // Pre-poblar form si es modo edición
+  // Reset form en modo creación
   useEffect(() => {
-    if (isEditMode && debit) {
-      setFormData({
-        category_id: debit.category_id.toString(),
-        place_id: debit.place_id.toString(),
-        concept: debit.concept || '',
-        amount: debit.amount.toString(),
-        method: debit.method,
-        observations: debit.observations || '',
-        created_at: debit.created_at.slice(0, 16),
-      });
-    } else {
-      // Reset form en modo creación
+    if (!isEditMode) {
       setFormData({
         category_id: '',
         place_id: '',
@@ -94,7 +96,7 @@ export function DebitForm({ debit, onOpenChange, onSuccess }: DebitFormProps) {
         created_at: new Date().toISOString().slice(0, 16),
       });
     }
-  }, [debit, isEditMode]);
+  }, [isEditMode]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -158,10 +160,6 @@ export function DebitForm({ debit, onOpenChange, onSuccess }: DebitFormProps) {
       toast.error('Por favor selecciona una categoría');
       return;
     }
-    if (!formData.place_id) {
-      toast.error('Por favor selecciona un lugar/concepto');
-      return;
-    }
     if (!formData.amount) {
       toast.error('Por favor ingresa el monto');
       return;
@@ -205,7 +203,7 @@ export function DebitForm({ debit, onOpenChange, onSuccess }: DebitFormProps) {
         <Label htmlFor="category">Categoría *</Label>
         <Select value={formData.category_id} onValueChange={handleCategoryChange}>
           <SelectTrigger>
-            <SelectValue placeholder="Selecciona una categoría" />
+            <SelectValue placeholder="Selecciona una categoría"  />
           </SelectTrigger>
           <SelectContent>
             {categories.map((cat) => (
@@ -219,7 +217,7 @@ export function DebitForm({ debit, onOpenChange, onSuccess }: DebitFormProps) {
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <Label htmlFor="place">Lugar/Concepto *</Label>
+          <Label htmlFor="place">Lugar (opcional)</Label>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
               <Button type="button" variant="ghost" size="sm" className="h-6 px-2">
@@ -317,8 +315,8 @@ export function DebitForm({ debit, onOpenChange, onSuccess }: DebitFormProps) {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="debit">Débito</SelectItem>
-            <SelectItem value="credit">Crédito</SelectItem>
             <SelectItem value="cash">Efectivo</SelectItem>
+            <SelectItem value="credit">Crédito</SelectItem>
           </SelectContent>
         </Select>
       </div>

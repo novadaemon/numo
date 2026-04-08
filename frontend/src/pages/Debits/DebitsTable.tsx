@@ -8,6 +8,7 @@ import toast from 'react-hot-toast';
 interface DebitsTableProps {
   onEdit?: (debit: Debit) => void;
   onDelete?: (debit: Debit) => void;
+  refreshTrigger?: number;
 }
 
 /**
@@ -18,7 +19,7 @@ interface DebitsTableProps {
  * - Ordenamiento
  * - Acciones (editar, eliminar)
  */
-export function DebitsTable({ onEdit, onDelete }: DebitsTableProps) {
+export function DebitsTable({ onEdit, onDelete, refreshTrigger = 0 }: DebitsTableProps) {
   const [debits, setDebits] = useState<Debit[]>([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalItems, setTotalItems] = useState(0);
@@ -29,7 +30,7 @@ export function DebitsTable({ onEdit, onDelete }: DebitsTableProps) {
   // Fetch debits del mes actual
   useEffect(() => {
     fetchDebits();
-  }, [currentPage, pageSize]);
+  }, [currentPage, pageSize, refreshTrigger]);
 
   const fetchDebits = async () => {
     try {

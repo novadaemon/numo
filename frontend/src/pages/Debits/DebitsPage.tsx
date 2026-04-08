@@ -38,6 +38,9 @@ export function DebitsPage() {
   const [formOpen, setFormOpen] = useState(false);
   const [selectedDebit, setSelectedDebit] = useState<Debit | undefined>();
 
+  // Refresh trigger
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
   // Delete confirmation state
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [debitToDelete, setDebitToDelete] = useState<Debit | null>(null);
@@ -46,6 +49,13 @@ export function DebitsPage() {
   const handleAddClick = () => {
     setSelectedDebit(undefined);
     setFormOpen(true);
+  };
+
+  const handleFormClose = (open: boolean) => {
+    setFormOpen(open);
+    if (!open) {
+      setSelectedDebit(undefined);
+    }
   };
 
   const handleEdit = (debit: Debit) => {
@@ -59,8 +69,9 @@ export function DebitsPage() {
   };
 
   const handleFormSuccess = () => {
-    // Solo cerramos el form, DebitsTable se encarga del refresh
-    setFormOpen(false);
+    // Cierra el form, limpia el debit seleccionado y actualiza la tabla
+    handleFormClose(false);
+    setRefreshTrigger(prev => prev + 1);
   };
 
   const handleConfirmDelete = async () => {
@@ -72,6 +83,7 @@ export function DebitsPage() {
       toast.success('Gasto eliminado exitosamente');
       setDeleteOpen(false);
       setDebitToDelete(null);
+      setRefreshTrigger(prev => prev + 1);
     } catch (error) {
       console.error('Error deleting debit:', error);
       toast.error('Error al eliminar el gasto');
@@ -137,12 +149,13 @@ export function DebitsPage() {
           <DebitsTable
             onEdit={handleEdit}
             onDelete={handleDelete}
+            refreshTrigger={refreshTrigger}
           />
         </div>
       </div>
 
       {/* Form Dialog */}
-      <Dialog open={formOpen} onOpenChange={setFormOpen}>
+      <Dialog open={formOpen} onOpenChange={handleFormClose}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle>
@@ -151,7 +164,7 @@ export function DebitsPage() {
           </DialogHeader>
           <DebitForm 
             debit={selectedDebit}
-            onOpenChange={setFormOpen}
+            onOpenChange={handleFormClose}
             onSuccess={handleFormSuccess}
           />
         </DialogContent>
@@ -161,7 +174,7 @@ export function DebitsPage() {
       <ConfirmationDialog
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
-        title="Eliminar gasto?"
+        title="¿Eliminar gasto?"
         description="Esta acción no se puede deshacer. El gasto será eliminado permanentemente."
         confirmText="Eliminar"
         cancelText="Cancelar"
