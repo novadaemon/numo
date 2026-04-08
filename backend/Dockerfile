@@ -22,5 +22,5 @@ ENV BACKEND_PORT=8080
 # Exponer puerto
 EXPOSE ${BACKEND_PORT}
 
-# Comando por defecto
-CMD gunicorn --bind 0.0.0.0:${BACKEND_PORT} --workers 4 --timeout 120 wsgi:app
+# Comando por defecto - Flask en modo desarrollo con auto-reload
+CMD python -m flask --app wsgi:app run --host=0.0.0.0 --port=${BACKEND_PORT}

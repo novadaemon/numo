@@ -91,10 +91,41 @@ export const createDebitsColumns = (
     id: 'place',
     header: ({ column }) => <SortableHeader column={column} title="Lugar/Concepto" />,
     cell: ({ row }) => {
-      const place = row.original.place
-      return <div className="text-sm text-gray-600">{place?.name || '-'}</div>
+      const debit = row.original
+      const displayText = debit.concept || debit.place?.name || '-'
+      const subtitle = debit.concept && debit.place?.name ? `(${debit.place.name})` : ''
+      return (
+        <div className="text-sm">
+          <div className="text-gray-900">{displayText}</div>
+          {subtitle && <div className="text-xs text-gray-500">{subtitle}</div>}
+        </div>
+      )
     },
     size: 150,
+  },
+  {
+    accessorKey: 'method',
+    id: 'method',
+    header: ({ column }) => <SortableHeader column={column} title="Método" />,
+    cell: ({ row }) => {
+      const method = row.getValue('method') as string
+      const methodLabels: Record<string, string> = {
+        debit: 'Débito',
+        credit: 'Crédito',
+        cash: 'Efectivo',
+      }
+      const methodColors: Record<string, string> = {
+        debit: 'bg-blue-100 text-blue-800',
+        credit: 'bg-purple-100 text-purple-800',
+        cash: 'bg-green-100 text-green-800',
+      }
+      return (
+        <span className={`px-2 py-1 rounded text-xs font-medium ${methodColors[method] || 'bg-gray-100 text-gray-800'}`}>
+          {methodLabels[method] || method}
+        </span>
+      )
+    },
+    size: 100,
   },
   {
     accessorKey: 'amount',

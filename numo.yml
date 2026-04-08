@@ -455,10 +455,19 @@ paths:
                 place_id:
                   type: integer
                   minimum: 1
+                concept:
+                  type: string
+                  maxLength: 255
                 amount:
                   type: number
                   format: float
                   minimum: 0.01
+                method:
+                  type: string
+                  enum:
+                    - debit
+                    - credit
+                    - cash
                 created_at:
                   type: string
                   format: date-time
@@ -750,6 +759,7 @@ components:
           description: Category details
         place_id:
           type: integer
+          nullable: true
           description: Reference to place
         place:
           type: object
@@ -759,11 +769,28 @@ components:
             name:
               type: string
           description: Place details (null if not specified)
+        concept:
+          type: string
+          maxLength: 255
+          nullable: true
+          description: Concept or description of the expense
+        method:
+          type: string
+          maxLength: 255
+          nullable: false
+          description: Payment method used for the transaction
         amount:
           type: number
           format: float
           minimum: 0.01
           description: Expense amount
+        method:
+          type: string
+          enum:
+            - debit
+            - credit
+            - cash
+          description: Payment method used for the transaction
         created_at:
           type: string
           format: date-time
@@ -777,6 +804,7 @@ components:
         - id
         - category_id
         - amount
+        - method
         - created_at
 
     DebitInput:
@@ -787,14 +815,28 @@ components:
           minimum: 1
           description: Reference to category
         place_id:
-          type: integer
+          type:
+            - integer
+            - "null"
           minimum: 1
-          description: Reference to place
+          description: Reference to place (optional, can be null)
+        concept:
+          type: string
+          maxLength: 255
+          nullable: true
+          description: Concept or description of the expense
         amount:
           type: number
           format: float
           minimum: 0.01
           description: Expense amount
+        method:
+          type: string
+          enum:
+            - debit
+            - credit
+            - cash
+          description: Payment method used for the transaction (defaults to 'cash' if not provided)
         created_at:
           type: string
           format: date-time

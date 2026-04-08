@@ -27,6 +27,8 @@ def format_debit(debit):
             'id': debit.place.id,
             'name': debit.place.name
         } if debit.place else None,
+        'concept': debit.concept,
+        'method': debit.method.value,
         'amount': float(debit.amount),
         'created_at': debit.created_at.isoformat(),
         'observations': debit.observations,

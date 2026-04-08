@@ -47,7 +47,9 @@ export function DebitForm({ debit, onOpenChange, onSuccess }: DebitFormProps) {
   const [formData, setFormData] = useState({
     category_id: '',
     place_id: '',
+    concept: '',
     amount: '',
+    method: 'cash',
     observations: '',
     created_at: new Date().toISOString().slice(0, 16),
   });
@@ -74,7 +76,9 @@ export function DebitForm({ debit, onOpenChange, onSuccess }: DebitFormProps) {
       setFormData({
         category_id: debit.category_id.toString(),
         place_id: debit.place_id.toString(),
+        concept: debit.concept || '',
         amount: debit.amount.toString(),
+        method: debit.method,
         observations: debit.observations || '',
         created_at: debit.created_at.slice(0, 16),
       });
@@ -83,7 +87,9 @@ export function DebitForm({ debit, onOpenChange, onSuccess }: DebitFormProps) {
       setFormData({
         category_id: '',
         place_id: '',
+        concept: '',
         amount: '',
+        method: 'cash',
         observations: '',
         created_at: new Date().toISOString().slice(0, 16),
       });
@@ -111,6 +117,13 @@ export function DebitForm({ debit, onOpenChange, onSuccess }: DebitFormProps) {
     setFormData((prev) => ({
       ...prev,
       place_id: value,
+    }));
+  };
+
+  const handleMethodChange = (value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      method: value,
     }));
   };
 
@@ -158,7 +171,9 @@ export function DebitForm({ debit, onOpenChange, onSuccess }: DebitFormProps) {
       const debitData = {
         category_id: parseInt(formData.category_id),
         place_id: parseInt(formData.place_id),
+        concept: formData.concept || undefined,
         amount: parseFloat(formData.amount),
+        method: formData.method,
         observations: formData.observations || undefined,
         created_at: formData.created_at,
       };
@@ -267,6 +282,19 @@ export function DebitForm({ debit, onOpenChange, onSuccess }: DebitFormProps) {
       </div>
 
       <div className="space-y-2">
+        <Label htmlFor="concept">Concepto (opcional)</Label>
+        <Input
+          id="concept"
+          type="text"
+          name="concept"
+          value={formData.concept}
+          onChange={handleChange}
+          placeholder="Ej: Suscripción Netflix, Compra online, etc."
+          maxLength={255}
+        />
+      </div>
+
+      <div className="space-y-2">
         <Label htmlFor="amount">Monto *</Label>
         <Input
           id="amount"
@@ -279,6 +307,20 @@ export function DebitForm({ debit, onOpenChange, onSuccess }: DebitFormProps) {
           min="0.01"
           required
         />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="method">Método de Pago *</Label>
+        <Select value={formData.method} onValueChange={handleMethodChange}>
+          <SelectTrigger>
+            <SelectValue placeholder="Selecciona un método de pago" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="debit">Débito</SelectItem>
+            <SelectItem value="credit">Crédito</SelectItem>
+            <SelectItem value="cash">Efectivo</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="space-y-2">
