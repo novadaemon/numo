@@ -40,8 +40,10 @@ interface DataTableProps<TData, TValue> {
     currentPage: number
     pageSize: number
     totalItems: number
+    currentSorting?: SortingState
     onPageChange: (page: number) => void
     onPageSizeChange?: (pageSize: number) => void
+    onSortingChange?: (sorting: SortingState) => void
     availablePageSizes?: number[]
   }
 }
@@ -82,22 +84,49 @@ export function DataTable<TData, TValue>({
   initialSorting,
   serverSidePagination,
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = React.useState<SortingState>(
+  // For server-side pagination, sorting state is controlled by parent
+  // For client-side, we manage it locally
+  const [internalSorting, setInternalSorting] = React.useState<SortingState>(
     initialSorting || []
   )
+  
+  // Use parent's sorting if available (server-side), otherwise use internal (client-side)
+  const sorting = serverSidePagination?.currentSorting || internalSorting;
+  
   const [columnFilters, setColumnFilters] =
     React.useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = React.useState({})
 
+  // Handle sorting changes - for server-side pagination, delegate to parent
+  const handleSortingChange = (updater: any) => {
+    const newSorting = typeof updater === 'function' ? updater(sorting) : updater
+    
+    // If server-side pagination is enabled, notify parent component
+    if (serverSidePagination?.onSortingChange) {
+      serverSidePagination.onSortingChange(newSorting)
+    } else {
+      // Otherwise manage locally
+      setInternalSorting(newSorting)
+    }
+  }
+
   // Configurar tabla con o sin paginación según el tipo
   const tableConfig = {
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    onSortingChange: setSorting,
-    getSortedRowModel: getSortedRowModel(),
+    onSortingChange: handleSortingChange,
+    ...(serverSidePagination
+      ? {
+          // Server-side sorting: no apply sorting locally, assume data is already sorted
+          manualSorting: true,
+        }
+      : {
+          // Client-side sorting
+          getSortedRowModel: getSortedRowModel(),
+        }),
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,

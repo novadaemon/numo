@@ -32,6 +32,12 @@ export class DebitsService {
     if (params.place_id) {
       query.append('place_id', params.place_id.toString());
     }
+    if (params.sort_field) {
+      query.append('sort_field', params.sort_field);
+    }
+    if (params.sort_order) {
+      query.append('sort_order', params.sort_order);
+    }
 
     const queryString = query.toString();
     return queryString ? `?${queryString}` : '';

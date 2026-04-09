@@ -3,7 +3,8 @@
 import { ColumnDef } from '@tanstack/react-table'
 import { Debit } from '@/types/models'
 import { Button } from '@/components/ui/button'
-import { ArrowUpDown, Edit2, Trash2 } from 'lucide-react'
+import { SortableHeader } from '@/components/ui/sortable-header'
+import { Edit2, Trash2 } from 'lucide-react'
 
 export type DebitColumn = Debit
 
@@ -30,26 +31,6 @@ export const formatCurrency = (amount: number): string => {
     maximumFractionDigits: 2,
   }).format(amount)
 }
-
-/**
- * Encabezado sorteable reutilizable
- */
-export const SortableHeader = ({
-  column,
-  title,
-}: {
-  column: any
-  title: string
-}) => (
-  <Button
-    variant="ghost"
-    onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-    className="h-8 p-0 hover:bg-transparent"
-  >
-    {title}
-    <ArrowUpDown className="ml-2 h-4 w-4" />
-  </Button>
-)
 
 /**
  * Definición de columnas para la tabla de debits

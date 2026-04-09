@@ -4,6 +4,7 @@ import { DataTable } from '@/components/ui/data-table';
 import { createDebitsColumns } from './debits-columns';
 import { debitsService } from '@/services';
 import toast from 'react-hot-toast';
+import { SortingState } from '@tanstack/react-table';
 
 interface DebitsTableProps {
   onEdit?: (debit: Debit) => void;
@@ -12,11 +13,11 @@ interface DebitsTableProps {
 }
 
 /**
- * Tabla de gastos con paginación server-side
+ * Tabla de gastos con paginación y ordenamiento server-side
  * Maneja:
  * - Fetch de datos desde el servidor
- * - Paginación
- * - Ordenamiento
+ * - Paginación server-side
+ * - Ordenamiento server-side
  * - Acciones (editar, eliminar)
  */
 export function DebitsTable({ onEdit, onDelete, refreshTrigger = 0 }: DebitsTableProps) {
@@ -25,12 +26,15 @@ export function DebitsTable({ onEdit, onDelete, refreshTrigger = 0 }: DebitsTabl
   const [totalItems, setTotalItems] = useState(0);
   const [loading, setLoading] = useState(true);
   const [pageSize, setPageSize] = useState(10);
+  const [sorting, setSorting] = useState<SortingState>([
+    { id: 'created_at', desc: true },
+  ]);
   const availablePageSizes = [10, 25, 50, 100];
 
   // Fetch debits del mes actual
   useEffect(() => {
     fetchDebits();
-  }, [currentPage, pageSize, refreshTrigger]);
+  }, [currentPage, pageSize, sorting, refreshTrigger]);
 
   const fetchDebits = async () => {
     try {
@@ -42,11 +46,26 @@ export function DebitsTable({ onEdit, onDelete, refreshTrigger = 0 }: DebitsTabl
       const startDate = new Date(currentYear, currentMonth, 1);
       const endDate = new Date(currentYear, currentMonth + 1, 0);
 
+      // Get sort field and order from React Table sorting state
+      let sortField: 'created_at' | 'category' | 'place' | 'amount' | 'concept' | 'method' = 'created_at';
+      let sortOrder: 'asc' | 'desc' = 'desc';
+      
+      if (sorting.length > 0) {
+        const sortConfig = sorting[0];
+        const validFields = ['created_at', 'category', 'place', 'amount', 'concept', 'method'];
+        if (validFields.includes(sortConfig.id)) {
+          sortField = sortConfig.id as 'created_at' | 'category' | 'place' | 'amount' | 'concept' | 'method';
+        }
+        sortOrder = sortConfig.desc ? 'desc' : 'asc';
+      }
+
       const response = await debitsService.getAll({
         from_date: startDate.toISOString().split('T')[0],
         to_date: endDate.toISOString().split('T')[0],
         page: currentPage,
         size: pageSize,
+        sort_field: sortField,
+        sort_order: sortOrder,
       });
 
       // Handle paginated responses
@@ -76,6 +95,11 @@ export function DebitsTable({ onEdit, onDelete, refreshTrigger = 0 }: DebitsTabl
     setCurrentPage(0); // Resetear a la primera página
   };
 
+  const handleSortingChange = (newSorting: SortingState) => {
+    setSorting(newSorting);
+    setCurrentPage(0); // Resetear a la primera página al cambiar sorting
+  };
+
   if (loading && debits.length === 0) {
     return (
       <div className="rounded-lg border border-gray-200 p-8 text-center">
@@ -96,13 +120,15 @@ export function DebitsTable({ onEdit, onDelete, refreshTrigger = 0 }: DebitsTabl
     <DataTable
       columns={createDebitsColumns(onEdit, onDelete)}
       data={debits}
-      initialSorting={[{ id: 'created_at', desc: true }]}
+      initialSorting={sorting}
       serverSidePagination={{
         currentPage,
         pageSize,
         totalItems,
+        currentSorting: sorting,
         onPageChange: handlePageChange,
         onPageSizeChange: handlePageSizeChange,
+        onSortingChange: handleSortingChange,
         availablePageSizes,
       }}
     />

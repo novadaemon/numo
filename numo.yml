@@ -359,6 +359,20 @@ paths:
           description: Filter by place ID
           schema:
             type: integer
+        - name: sort_field
+          in: query
+          description: Sort field (created_at, category, place, amount, concept, method). Default is created_at
+          schema:
+            type: string
+            enum: [created_at, category, place, amount, concept, method]
+            default: created_at
+        - name: sort_order
+          in: query
+          description: Sort order (asc or desc). Default is desc
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
       responses:
         "200":
           description: List of debits with pagination info

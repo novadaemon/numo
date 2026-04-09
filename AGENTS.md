@@ -12,26 +12,27 @@ The system is designed as a full-stack application with a REST API backend and a
 
 ### Backend
 
-- Python 3.11
-- Flask (REST API)
+- Python 3.11 - https://www.python.org/
+- Flask (REST API) - https://flask.palletsprojects.com/
 - flask-cors (Cross-Origin Resource Sharing)
-- SQLAlchemy (ORM)
-- Marshmallow (Data validation)
-- SQLite (database)
-- Gunicorn (WSGI server)
-- pytest (testing framework)
-- pytest-flask (Flask testing)
-- pytest-cov (coverage reporting)
-- factory-boy (test data generation)
+- SQLAlchemy (ORM) - https://www.sqlalchemy.org/
+- Marshmallow (Data validation) - https://marshmallow.readthedocs.io/en/latest/
+- SQLite (database) - https://sqlite.org/
+- Gunicorn (WSGI server) - https://gunicorn.org/
+- pytest (testing framework) - https://docs.pytest.org/
+- pytest-flask (Flask testing) - https://pypi.org/project/pytest-flask/
+- pytest-cov (coverage reporting) - https://pypi.org/project/pytest-cov/
+- factory-boy (test data generation) - https://factoryboy.readthedocs.io/en/stable/
 
 ### Frontend
 
-- React
-- TypeScript
-- Vite (build tool)
-- Tailwind CSS (styling)
-- shadcn/ui (UI components)
-- lucide-react (icons)
+- React - https://react.dev/
+- TypeScript - https://www.typescriptlang.org/
+- Vite (build tool) - https://vite.dev/
+- Tailwind CSS (styling) - https://tailwindcss.com/
+- shadcn/ui (UI components) - https://ui.shadcn.com/
+- lucide-react (icons) - https://lucide.dev/guide/react/
+- Tanstack (tables) - https://tanstack.com/table/v8/docs/guide/filters
 
 ### Infrastructure
 

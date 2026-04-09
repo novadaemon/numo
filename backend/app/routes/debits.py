@@ -53,14 +53,26 @@ def get_debits():
         to_date = request.args.get('to_date')
         category_id = request.args.get('category_id', type=int)
         place_id = request.args.get('place_id', type=int)
+        sort_field = request.args.get('sort_field', 'created_at')
+        sort_order = request.args.get('sort_order', 'desc')
 
         # Validate date range is provided
         if not from_date or not to_date:
             return jsonify({'error': 'from_date and to_date are required parameters'}), 400
 
-        query = db.query(Debit).order_by(desc(Debit.created_at))
+        # Validate sort parameters
+        valid_sort_fields = ['created_at', 'category', 'place', 'amount', 'concept', 'method']
+        if sort_field not in valid_sort_fields:
+            error_msg = 'sort_field must be one of: ' + ', '.join(valid_sort_fields)
+            return jsonify({'error': error_msg}), 400
+        
+        if sort_order not in ['asc', 'desc']:
+            return jsonify({'error': 'sort_order must be either asc or desc'}), 400
 
-        # Apply date filters (required)
+        # Build query with sorting
+        query = db.query(Debit)
+        
+        # Apply date filters (required) - BEFORE sorting joins
         try:
             from_dt = datetime.fromisoformat(from_date)
             query = query.filter(Debit.created_at >= from_dt)
@@ -72,13 +84,38 @@ def get_debits():
             query = query.filter(Debit.created_at <= to_dt)
         except ValueError:
             return jsonify({'error': 'invalid to_date format (use ISO format)'}), 400
-
+        
         # Apply optional filters
         if category_id:
             query = query.filter(Debit.category_id == category_id)
 
         if place_id:
             query = query.filter(Debit.place_id == place_id)
+
+        # Apply joins and sorting based on sort_field
+        if sort_field == 'created_at':
+            order_by = desc(Debit.created_at) if sort_order == 'desc' else Debit.created_at
+            query = query.order_by(order_by)
+        elif sort_field == 'category':
+            query = query.join(Category, Debit.category_id == Category.id)
+            order_by = desc(Category.name) if sort_order == 'desc' else Category.name
+            query = query.order_by(order_by)
+        elif sort_field == 'place':
+            query = query.outerjoin(Place, Debit.place_id == Place.id)
+            order_by = desc(Place.name) if sort_order == 'desc' else Place.name
+            query = query.order_by(order_by)
+        elif sort_field == 'amount':
+            order_by = desc(Debit.amount) if sort_order == 'desc' else Debit.amount
+            query = query.order_by(order_by)
+        elif sort_field == 'concept':
+            order_by = desc(Debit.concept) if sort_order == 'desc' else Debit.concept
+            query = query.order_by(order_by)
+        elif sort_field == 'method':
+            order_by = desc(Debit.method) if sort_order == 'desc' else Debit.method
+            query = query.order_by(order_by)
+        else:
+            # Default to created_at if invalid field
+            query = query.order_by(desc(Debit.created_at))
 
         # Get total count before pagination
         total = query.count()
