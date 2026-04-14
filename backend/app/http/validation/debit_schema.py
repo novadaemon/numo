@@ -15,7 +15,6 @@ class DebitSchema(Schema):
     )
     place_id = fields.Int(
         required=True,
-        allow_none=True,
         validate=validate.Range(min=1, error="place_id must be a positive integer"),
         error_messages={'required': 'place_id is required'}
     )

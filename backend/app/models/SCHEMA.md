@@ -24,7 +24,7 @@
 | ------------ | ------------- | -------- | ------- | ------------------------------------- |
 | id           | integer       | no       | primary | Unique identifier                     |
 | category_id  | integer       | no       | index   | Reference to categories               |
-| place_id     | integer       | yes      | index   | Reference to places                   |
+| place_id     | integer       | no       | index   | Reference to places                   |
 | concept      | varchar(255)  | yes      |         | Concept or description of the expense |
 | created_at   | datetime      | no       |         | When the expense occurred             |
 | amount       | decimal(10,2) | no       |         | Expense amount                        |

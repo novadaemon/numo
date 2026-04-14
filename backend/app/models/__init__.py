@@ -1,7 +1,7 @@
 """Database models for Numo expense tracking application."""
 from .category import Category
 from .place import Place
-from .debit import Debit
+from .debit import Debit, DebitMethod
 from .credit import Credit
 
-__all__ = ['Category', 'Place', 'Debit', 'Credit']
+__all__ = ['Category', 'Place', 'Debit', 'DebitMethod', 'Credit']

@@ -35,7 +35,7 @@ class TestPlacesEndpoints:
             data=json.dumps(payload),
             content_type='application/json'
         )
-        assert response.status_code == 400
+        assert response.status_code == 422
         data = json.loads(response.data)
         assert 'errors' in data
         assert 'name' in data['errors']
@@ -48,7 +48,7 @@ class TestPlacesEndpoints:
             data=json.dumps(payload),
             content_type='application/json'
         )
-        assert response.status_code == 400
+        assert response.status_code == 422
         data = json.loads(response.data)
         assert 'errors' in data
         assert 'name' in data['errors']
@@ -61,7 +61,7 @@ class TestPlacesEndpoints:
             data=json.dumps(payload),
             content_type='application/json'
         )
-        assert response.status_code == 400
+        assert response.status_code == 422
         data = json.loads(response.data)
         assert 'errors' in data
         assert 'name' in data['errors']
@@ -111,7 +111,7 @@ class TestPlacesEndpoints:
             data=json.dumps(payload),
             content_type='application/json'
         )
-        assert response.status_code == 400
+        assert response.status_code == 422
         data = json.loads(response.data)
         assert 'errors' in data
 

@@ -61,7 +61,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Category"
-        "400":
+        "422":
           description: Invalid input - validation error
           content:
             application/json:
@@ -129,16 +129,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Category"
-        "400":
+        "422":
           description: Invalid input - validation error
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ValidationError"
-        "404":
-          description: Category not found
-          content:
-            application/json:
               schema:
                 $ref: "#/components/schemas/Error"
         "409":
@@ -205,9 +201,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Place"
-        "400":
+        "422":
           description: Invalid input - validation error
-          content:
+          22ntent:
             application/json:
               schema:
                 $ref: "#/components/schemas/ValidationError"
@@ -273,18 +269,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Place"
-        "400":
+        "422":
+          description: Invalid input - validation error
+          22":
           description: Invalid input - validation error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ValidationError"
-        "404":
-          description: Place not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+                $ref: "#/components/schemas/ValidationError"hemas/Error"
         "409":
           description: Place name already exists
           content:
@@ -406,11 +398,11 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Debit"
-        "400":
+        "422":
           description: Invalid input - validation error
           content:
             application/json:
-              schema:
+          22  schema:
                 $ref: "#/components/schemas/ValidationError"
         "404":
           description: Category or place not found
@@ -495,20 +487,16 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Debit"
-        "400":
+        "422":
+          description: Invalid input - validation error
+          content:
+            application/json:
+          22":
           description: Invalid input - validation error
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ValidationError"
-        "404":
-          description: Debit not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-
-    delete:
       summary: Delete a debit
       operationId: deleteDebit
       tags:
@@ -598,13 +586,13 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Credit"
-        "400":
+        "422":
           description: Invalid input - validation error
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ValidationError"
-
+22
   /credits/{creditId}:
     get:
       summary: Get a credit by ID
@@ -666,22 +654,18 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Credit"
-        "400":
+        "422":
           description: Invalid input - validation error
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ValidationError"
-        "404":
-          description: Credit not found
+          22":
+          description: Invalid input - validation error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
-
-    delete:
-      summary: Delete a credit
-      operationId: deleteCredit
+                $ref: "#/components/schemas/ValidationError"
       tags:
         - Credits
       parameters:

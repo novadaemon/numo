@@ -143,32 +143,41 @@ def credit(app):
 
 
 @pytest.fixture
-def debit_factory(app):
+def debit_factory(app, db_session):
     """Factory fixture for creating test debits."""
-    session = SessionLocal()
-    
     class Factory:
         def create(self, category=None, category_id=None, place=None, place_id=None, **kwargs):
             # If category_id is provided, fetch the category object
             if category_id and not category:
-                category = session.query(Category).get(category_id)
+                category = db_session.query(Category).get(category_id)
             
             # If place_id is provided, fetch the place object
             if place_id and not place:
-                place = session.query(Place).get(place_id)
+                place = db_session.query(Place).get(place_id)
+            
+            # If no place is provided, create one
+            if not place:
+                place = PlaceFactory.create()
+                db_session.add(place)
+                db_session.flush()
+            
+            # If no category is provided, create one  
+            if not category:
+                category = CategoryFactory.create()
+                db_session.add(category)
+                db_session.flush()
             
             debit = DebitFactory.create(
                 category=category,
                 place=place,
                 **kwargs
             )
-            session.add(debit)
-            session.commit()
-            session.refresh(debit)
+            db_session.add(debit)
+            db_session.commit()
+            db_session.refresh(debit)
             return debit
     
-    yield Factory()
-    session.close()
+    return Factory()
 
 
 @pytest.fixture

@@ -2,11 +2,17 @@ import { useState } from 'react';
 import { creditsService } from '@/services';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Field, FieldLabel, FieldError, FieldGroup } from '@/components/ui/field';
 
 interface CreditFormProps {
   onOpenChange: (open: boolean) => void;
+}
+
+interface FormErrors {
+  amount?: string[] | string;
+  observations?: string[] | string;
+  created_at?: string[] | string;
 }
 
 /**
@@ -19,6 +25,7 @@ export function CreditForm({ onOpenChange }: CreditFormProps) {
     observations: '',
     created_at: new Date().toISOString().slice(0, 16),
   });
+  const [errors, setErrors] = useState<FormErrors>({});
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -28,11 +35,27 @@ export function CreditForm({ onOpenChange }: CreditFormProps) {
       ...prev,
       [name]: value,
     }));
+    // Clear error for this field when user starts typing
+    if (errors[name as keyof FormErrors]) {
+      setErrors((prev) => ({
+        ...prev,
+        [name]: undefined,
+      }));
+    }
+  };
+
+  const formatError = (error: string[] | string): string => {
+    if (Array.isArray(error)) {
+      return error[0]; // Show first error message
+    }
+    return error;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrors({});
     setLoading(true);
+
     try {
       await creditsService.create({
         amount: parseFloat(formData.amount),
@@ -41,9 +64,24 @@ export function CreditForm({ onOpenChange }: CreditFormProps) {
       });
       // Recargar la página para refrescar todos los datos
       window.location.reload();
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error creating credit:', error);
-      alert('Error al crear el ingreso');
+      
+      // Extract validation errors from backend response
+      const err = error as Error & { data?: { errors?: Record<string, string[]>; error?: string } };
+      if (err.data?.errors) {
+        setErrors(err.data.errors);
+      } else if (err.data?.error) {
+        // Generic error message
+        setErrors({
+          amount: err.data.error,
+        });
+      } else {
+        // Network or other error
+        setErrors({
+          amount: 'Error al crear el ingreso. Por favor intenta nuevamente.',
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -51,45 +89,62 @@ export function CreditForm({ onOpenChange }: CreditFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="amount">Monto *</Label>
-        <Input
-          id="amount"
-          type="number"
-          name="amount"
-          value={formData.amount}
-          onChange={handleChange}
-          placeholder="0.00"
-          step="0.01"
-          min="0.01"
-          required
-        />
-      </div>
+      <FieldGroup>
+        <Field invalid={!!errors.amount}>
+          <FieldLabel htmlFor="amount">Monto *</FieldLabel>
+          <Input
+            id="amount"
+            type="number"
+            name="amount"
+            value={formData.amount}
+            onChange={handleChange}
+            placeholder="0.00"
+            step="0.01"
+            min="0.01"
+            aria-invalid={!!errors.amount}
+          />
+          {errors.amount && (
+            <FieldError>{formatError(errors.amount)}</FieldError>
+          )}
+        </Field>
 
-      <div className="space-y-2">
-        <Label htmlFor="observations">Descripción (opcional)</Label>
-        <Textarea
-          id="observations"
-          name="observations"
-          value={formData.observations}
-          onChange={handleChange}
-          placeholder="Fuente de ingreso, notas adicionales..."
-          maxLength={500}
-          rows={3}
-        />
-      </div>
+        <Field invalid={!!errors.observations}>
+          <FieldLabel htmlFor="observations">Descripción (opcional)</FieldLabel>
+          <Textarea
+            id="observations"
+            name="observations"
+            value={formData.observations}
+            onChange={handleChange}
+            placeholder="Fuente de ingreso, notas adicionales..."
+            maxLength={500}
+            rows={3}
+            aria-invalid={!!errors.observations}
+          />
+          {formData.observations && (
+            <div className="text-xs text-muted-foreground">
+              {formData.observations.length}/500
+            </div>
+          )}
+          {errors.observations && (
+            <FieldError>{formatError(errors.observations)}</FieldError>
+          )}
+        </Field>
 
-      <div className="space-y-2">
-        <Label htmlFor="created_at">Fecha y Hora *</Label>
-        <Input
-          id="created_at"
-          type="datetime-local"
-          name="created_at"
-          value={formData.created_at}
-          onChange={handleChange}
-          required
-        />
-      </div>
+        <Field invalid={!!errors.created_at}>
+          <FieldLabel htmlFor="created_at">Fecha y Hora *</FieldLabel>
+          <Input
+            id="created_at"
+            type="datetime-local"
+            name="created_at"
+            value={formData.created_at}
+            onChange={handleChange}
+            aria-invalid={!!errors.created_at}
+          />
+          {errors.created_at && (
+            <FieldError>{formatError(errors.created_at)}</FieldError>
+          )}
+        </Field>
+      </FieldGroup>
 
       <div className="flex gap-3 pt-4">
         <Button type="submit" disabled={loading} className="flex-1 bg-green-500 hover:bg-green-600">

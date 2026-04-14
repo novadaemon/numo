@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom'
 import { apiClient } from '@/services'
 import { Dashboard, DebitsPage } from '@/pages'
 import { HeaderMenu } from '@/components/layout'
+import { CircleDollarSign } from 'lucide-react'
 
 function App() {
   const [status, setStatus] = useState<string>('loading')
@@ -60,7 +61,7 @@ function App() {
       {/* Header with Navigation */}
       <div className="bg-white border-b border-gray-200">
         <div className="container mx-auto px-4 flex items-center justify-between h-16">
-          <h1 className="text-2xl font-bold text-gray-900">Numo</h1>
+          <h1 className="text-2xl font-bold text-gray-900 flex items-center"><CircleDollarSign className="mr-2" />Numo</h1>
           <HeaderMenu />
         </div>
       </div>

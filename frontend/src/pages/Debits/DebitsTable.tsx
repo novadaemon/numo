@@ -120,7 +120,6 @@ export function DebitsTable({ onEdit, onDelete, refreshTrigger = 0 }: DebitsTabl
     <DataTable
       columns={createDebitsColumns(onEdit, onDelete)}
       data={debits}
-      initialSorting={sorting}
       serverSidePagination={{
         currentPage,
         pageSize,

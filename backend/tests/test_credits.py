@@ -64,7 +64,7 @@ class TestCreditsEndpoints:
             data=json.dumps(payload),
             content_type='application/json'
         )
-        assert response.status_code == 400
+        assert response.status_code == 422
         data = json.loads(response.data)
         assert 'errors' in data
         assert 'amount' in data['errors']
@@ -77,7 +77,7 @@ class TestCreditsEndpoints:
             data=json.dumps(payload),
             content_type='application/json'
         )
-        assert response.status_code == 400
+        assert response.status_code == 422
         data = json.loads(response.data)
         assert 'errors' in data
         assert 'amount' in data['errors']
@@ -90,7 +90,7 @@ class TestCreditsEndpoints:
             data=json.dumps(payload),
             content_type='application/json'
         )
-        assert response.status_code == 400
+        assert response.status_code == 422
         data = json.loads(response.data)
         assert 'errors' in data
 
@@ -167,7 +167,7 @@ class TestCreditsEndpoints:
             data=json.dumps(payload),
             content_type='application/json'
         )
-        assert response.status_code == 400
+        assert response.status_code == 422
 
     def test_update_credit_not_found(self, client):
         """Test updating a non-existent credit."""

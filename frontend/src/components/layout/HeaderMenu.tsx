@@ -54,7 +54,7 @@ export function HeaderMenu() {
               Categorías
             </DropdownMenuItem>
             <DropdownMenuItem onClick={handlePlaces}>
-              Lugares/Conceptos
+              Lugares
             </DropdownMenuItem>
           </DropdownMenuSubContent>
         </DropdownMenuSub>

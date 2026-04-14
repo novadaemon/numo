@@ -81,7 +81,7 @@ def create_credit():
     try:
         validated_data = schema.load(request.get_json())
     except ValidationError as err:
-        return jsonify({'errors': err.messages}), 400
+        return jsonify({'errors': err.messages}), 422
 
     db = SessionLocal()
     try:
@@ -122,7 +122,7 @@ def update_credit(credit_id):
     try:
         validated_data = schema.load(request.get_json(), partial=True)
     except ValidationError as err:
-        return jsonify({'errors': err.messages}), 400
+        return jsonify({'errors': err.messages}), 422
 
     db = SessionLocal()
     try:

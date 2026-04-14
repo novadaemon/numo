@@ -9,4 +9,4 @@ class PlaceFactory(factory.Factory):
     class Meta:
         model = Place
 
-    name = factory.Faker('company')
+    name = factory.Sequence(lambda n: f"Place {n}")
