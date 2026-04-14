@@ -5,6 +5,7 @@ This directory contains YAML seeder files for populating the Numo database with 
 ## Files
 
 - **categories.yml** - Default expense categories
+- **concepts.yml** - Default income/transaction concepts
 - **places.yml** - Sample transaction locations
 - **debits.yml** - Sample expenses (20 entries for April 2026)
 - **credits.yml** - Sample income entries (2 entries for April 2026)
@@ -30,6 +31,7 @@ python seeders/seed.py
 ## Seeder Data Summary
 
 - **5 Categories**: Comida, Ocio, Compras, Transporte, Suscripciones
+- **13 Concepts**: BPS, FONASA, Honorarios Gonzalo, Renta, Gastos comunes, UTE, Internet, Tributos domiciliarios, Cel Claro, Cel Movistar, Gimnasio, Ballet Ana Paula, Tarjeta de crédito
 - **7 Places**: Mercado, Restaurante, Centro Comercial, Cine, Farmacia, Gasolina, Tienda Online
 - **20 Debits**: Total spending ~$814.23 for April 2026
 - **2 Credits**: Total income $3,700.00 for April 2026

@@ -34,7 +34,7 @@ def create_app():
 
     # Import models to ensure they're registered with SQLAlchemy
     # Must import BEFORE init_db() to register models
-    from .models import Category, Place, Debit, Credit  # noqa: F401
+    from .models import Category, Place, Debit, Credit, Concept  # noqa: F401
 
     # Initialize database
     with app.app_context():

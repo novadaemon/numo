@@ -1,5 +1,14 @@
 # Database Schema
 
+## concepts
+
+| field | type        | nullable | index   |
+| ----- | ----------- | -------- | ------- |
+| id    | integer     | no       | primary |
+| name  | varchar(50) | no       | unique  |
+
+---
+
 ## categories
 
 | field | type        | nullable | index   |

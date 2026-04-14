@@ -3,9 +3,9 @@ import os
 import tempfile
 from datetime import datetime, timedelta
 from app import create_app
-from app.models import Category, Place, Debit, Credit
+from app.models import Category, Place, Debit, Credit, Concept
 from app.database import Base, engine, SessionLocal
-from app.factories import CategoryFactory, PlaceFactory, DebitFactory, CreditFactory
+from app.factories import CategoryFactory, PlaceFactory, DebitFactory, CreditFactory, ConceptFactory
 
 
 @pytest.fixture(scope='session')
@@ -97,6 +97,36 @@ def categories(app):
         for cat in categories:
             session.refresh(cat)
         return categories
+    finally:
+        session.close()
+
+
+@pytest.fixture
+def concept(app):
+    """Create a test concept."""
+    session = SessionLocal()
+    try:
+        concept = ConceptFactory.create(name='Investment')
+        session.add(concept)
+        session.commit()
+        session.refresh(concept)
+        return concept
+    finally:
+        session.close()
+
+
+@pytest.fixture
+def concepts(app):
+    """Create multiple test concepts."""
+    session = SessionLocal()
+    try:
+        concepts = ConceptFactory.create_batch(5)
+        for con in concepts:
+            session.add(con)
+        session.commit()
+        for con in concepts:
+            session.refresh(con)
+        return concepts
     finally:
         session.close()
 

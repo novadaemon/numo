@@ -17,6 +17,8 @@ servers:
 tags:
   - name: Categories
     description: Manage expense categories
+  - name: Concepts
+    description: Manage expense concepts
   - name: Places
     description: Manage transaction places/locations
   - name: Debits
@@ -135,8 +137,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ValidationError"
-              schema:
-                $ref: "#/components/schemas/Error"
         "409":
           description: Category name already exists
           content:
@@ -160,6 +160,145 @@ paths:
           description: Category deleted successfully
         "404":
           description: Category not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /concepts:
+    get:
+      summary: Get all concepts
+      operationId: getConcepts
+      tags:
+        - Concepts
+      description: Retrieve a list of all expense concepts
+      responses:
+        "200":
+          description: List of concepts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Concept"
+
+    post:
+      summary: Create a new concept
+      operationId: createConcept
+      tags:
+        - Concepts
+      description: Create a new expense concept
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConceptInput"
+      responses:
+        "201":
+          description: Concept created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Concept"
+        "422":
+          description: Invalid input - validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+        "409":
+          description: Concept name already exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /concepts/{conceptId}:
+    get:
+      summary: Get a specific concept
+      operationId: getConcept
+      tags:
+        - Concepts
+      parameters:
+        - name: conceptId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Concept details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Concept"
+        "404":
+          description: Concept not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    put:
+      summary: Update a concept
+      operationId: updateConcept
+      tags:
+        - Concepts
+      parameters:
+        - name: conceptId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConceptInput"
+      responses:
+        "200":
+          description: Concept updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Concept"
+        "404":
+          description: Concept not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "422":
+          description: Invalid input - validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+        "409":
+          description: Concept name already exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    delete:
+      summary: Delete a concept
+      operationId: deleteConcept
+      tags:
+        - Concepts
+      parameters:
+        - name: conceptId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Concept deleted successfully
+        "404":
+          description: Concept not found
           content:
             application/json:
               schema:
@@ -203,7 +342,7 @@ paths:
                 $ref: "#/components/schemas/Place"
         "422":
           description: Invalid input - validation error
-          22ntent:
+          content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ValidationError"
@@ -271,12 +410,10 @@ paths:
                 $ref: "#/components/schemas/Place"
         "422":
           description: Invalid input - validation error
-          22":
-          description: Invalid input - validation error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ValidationError"hemas/Error"
+                $ref: "#/components/schemas/ValidationError"
         "409":
           description: Place name already exists
           content:
@@ -402,7 +539,7 @@ paths:
           description: Invalid input - validation error
           content:
             application/json:
-          22  schema:
+              schema:
                 $ref: "#/components/schemas/ValidationError"
         "404":
           description: Category or place not found
@@ -491,12 +628,9 @@ paths:
           description: Invalid input - validation error
           content:
             application/json:
-          22":
-          description: Invalid input - validation error
-          content:
-            application/json:
               schema:
                 $ref: "#/components/schemas/ValidationError"
+    delete:
       summary: Delete a debit
       operationId: deleteDebit
       tags:
@@ -592,7 +726,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ValidationError"
-22
+
   /credits/{creditId}:
     get:
       summary: Get a credit by ID
@@ -660,12 +794,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ValidationError"
-          22":
-          description: Invalid input - validation error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ValidationError"
+
+    delete:
+      summary: Delete a credit
+      operationId: deleteCredit
       tags:
         - Credits
       parameters:
@@ -709,6 +841,32 @@ components:
           minLength: 1
           maxLength: 50
           description: Category name (letters, numbers, spaces, hyphens, underscores)
+      required:
+        - name
+
+    Concept:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Unique identifier
+        name:
+          type: string
+          minLength: 1
+          maxLength: 50
+          description: Concept name (letters, numbers, spaces, hyphens, underscores)
+      required:
+        - id
+        - name
+
+    ConceptInput:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 50
+          description: Concept name (letters, numbers, spaces, hyphens, underscores)
       required:
         - name
 
@@ -772,11 +930,6 @@ components:
           maxLength: 255
           nullable: true
           description: Concept or description of the expense
-        method:
-          type: string
-          maxLength: 255
-          nullable: false
-          description: Payment method used for the transaction
         amount:
           type: number
           format: float

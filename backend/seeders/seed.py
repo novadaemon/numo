@@ -15,7 +15,7 @@ backend_dir = Path(__file__).parent.parent
 sys.path.insert(0, str(backend_dir))
 
 from app.database import SessionLocal
-from app.models import Category, Place, Debit, Credit
+from app.models import Category, Place, Debit, Credit, Concept
 
 
 def load_yaml_file(filepath: Path) -> dict:
@@ -53,21 +53,24 @@ def seed_database():
         print("📁 Loading seeder files...")
         
         categories_file = seeders_dir / 'categories.yml'
+        concepts_file = seeders_dir / 'concepts.yml'
         places_file = seeders_dir / 'places.yml'
         debits_file = seeders_dir / 'debits.yml'
         credits_file = seeders_dir / 'credits.yml'
 
-        if not all([categories_file.exists(), places_file.exists(), 
-                    debits_file.exists(), credits_file.exists()]):
+        if not all([categories_file.exists(), concepts_file.exists(),
+                    places_file.exists(), debits_file.exists(), 
+                    credits_file.exists()]):
             print("❌ One or more seeder files are missing")
             missing = []
-            for f in [categories_file, places_file, debits_file, credits_file]:
+            for f in [categories_file, concepts_file, places_file, debits_file, credits_file]:
                 if not f.exists():
                     missing.append(f.name)
             print(f"   Missing: {', '.join(missing)}")
             return
 
         categories_data = load_yaml_file(categories_file)
+        concepts_data = load_yaml_file(concepts_file)
         places_data = load_yaml_file(places_file)
         debits_data = load_yaml_file(debits_file)
         credits_data = load_yaml_file(credits_file)
@@ -85,6 +88,18 @@ def seed_database():
 
         session.flush()  # Get IDs
         print(f"✅ Created {len(categories)} categories\n")
+
+        # Seed concepts
+        print("💡 Creating concepts...")
+        concepts = []
+        for con_data in concepts_data.get('concepts', []):
+            concept = Concept(**con_data)
+            session.add(concept)
+            concepts.append(concept)
+            print(f"   ✓ {con_data['name']}")
+
+        session.flush()  # Get IDs
+        print(f"✅ Created {len(concepts)} concepts\n")
 
         # Seed places
         print("📍 Creating places...")
