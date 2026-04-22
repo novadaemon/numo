@@ -30,6 +30,10 @@ export function HeaderMenu() {
     navigate('/places');
   };
 
+  const handleConcepts = () => {
+    navigate('/concepts');
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -55,6 +59,9 @@ export function HeaderMenu() {
             </DropdownMenuItem>
             <DropdownMenuItem onClick={handlePlaces}>
               Lugares
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleConcepts}>
+              Conceptos
             </DropdownMenuItem>
           </DropdownMenuSubContent>
         </DropdownMenuSub>
