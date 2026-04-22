@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Debit } from '@/types';
 import { DataTable } from '@/components/ui/data-table';
 import { createDebitsColumns } from './debits-columns';
@@ -39,6 +39,9 @@ export function DebitsTable({
     { id: 'expensed_at', desc: true },
   ]);
   const availablePageSizes = [10, 25, 50, 100];
+
+  // Memoize filters to prevent unnecessary re-renders when filters reference changes
+  const memoizedFilters = useMemo(() => filters, [JSON.stringify(filters)]);
 
   // Trigger para refetch cuando hay cambios
   const [internalRefreshTrigger, setInternalRefreshTrigger] = useState(0);
@@ -90,7 +93,7 @@ export function DebitsTable({
 
         // Use filters from FilterBar
         const response = await debitsService.getAllWithFilters(
-          filters,
+          memoizedFilters,
           currentPage,
           pageSize,
           sortField,
@@ -127,7 +130,7 @@ export function DebitsTable({
     return () => {
       isMounted = false;
     };
-  }, [currentPage, pageSize, sorting, refreshTrigger, internalRefreshTrigger]);
+  }, [currentPage, pageSize, sorting, refreshTrigger, internalRefreshTrigger, memoizedFilters]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);

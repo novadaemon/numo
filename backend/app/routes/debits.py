@@ -38,7 +38,7 @@ def format_debit(debit):
 
 @bp.route('', methods=['GET'])
 def get_debits():
-    """Get all debits, optionally filtered by date range with pagination."""
+    """Get all debits with optional filtering and pagination."""
     db = SessionLocal()
     try:
         # Get pagination parameters
@@ -52,10 +52,6 @@ def get_debits():
         # Get query parameters for filtering
         from_date = request.args.get('from_date')
         to_date = request.args.get('to_date')
-        
-        # Validate that date range parameters are provided
-        if not from_date or not to_date:
-            return jsonify({'error': 'from_date and to_date are required parameters'}), 400
         
         category_id = request.args.get('category_id', type=int)
         category_ids_param = request.args.get('category_ids')  # JSON array
@@ -110,18 +106,20 @@ def get_debits():
         # Build query with sorting
         query = db.query(Debit)
         
-        # Apply required date filters  
-        try:
-            from_dt = datetime.fromisoformat(from_date).date()
-            query = query.filter(Debit.expensed_at >= from_dt)
-        except ValueError:
-            return jsonify({'error': 'invalid from_date format (use ISO format)'}), 400
+        # Apply optional date filters
+        if from_date:
+            try:
+                from_dt = datetime.fromisoformat(from_date).date()
+                query = query.filter(Debit.expensed_at >= from_dt)
+            except ValueError:
+                return jsonify({'error': 'invalid from_date format (use ISO format)'}), 400
 
-        try:
-            to_dt = datetime.fromisoformat(to_date).date()
-            query = query.filter(Debit.expensed_at <= to_dt)
-        except ValueError:
-            return jsonify({'error': 'invalid to_date format (use ISO format)'}), 400
+        if to_date:
+            try:
+                to_dt = datetime.fromisoformat(to_date).date()
+                query = query.filter(Debit.expensed_at <= to_dt)
+            except ValueError:
+                return jsonify({'error': 'invalid to_date format (use ISO format)'}), 400
         
         # Apply optional filters
         if category_ids:

@@ -1,4 +1,6 @@
+import { useMemo } from 'react';
 import { TotalsWidget, MonthlyExpensesChart, CategoryExpensesChart, DebitsTable } from '@/components/Dashboard';
+import type { FilterRule } from '@/components/Filters/types';
 
 /**
  * Página principal del Dashboard
@@ -9,6 +11,32 @@ import { TotalsWidget, MonthlyExpensesChart, CategoryExpensesChart, DebitsTable 
  * - Tabla de gastos del mes (DebitsTable maneja paginación server-side)
  */
 export function Dashboard() {
+  // Calcular fechas del mes actual para filtrar gastos
+  const monthFilters = useMemo(() => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth();
+    
+    // Primer día del mes
+    const firstDay = new Date(year, month, 1);
+    const firstDayStr = firstDay.toISOString().split('T')[0];
+    
+    // Último día del mes
+    const lastDay = new Date(year, month + 1, 0);
+    const lastDayStr = lastDay.toISOString().split('T')[0];
+    
+    // Crear filtro de tipo "between" para expensed_at
+    const filters: FilterRule[] = [
+      {
+        id: 'dashboard-month-filter',
+        field: 'expensed_at',
+        operator: 'between',
+        value: [firstDayStr, lastDayStr],
+      },
+    ];
+    
+    return filters;
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -47,7 +75,7 @@ export function Dashboard() {
           <p className="text-sm text-gray-500 font-medium mb-3">
             Gastos del Mes - {new Date().toLocaleString('es-ES', { month: 'long', year: 'numeric' })}
           </p>
-          <DebitsTable />
+          <DebitsTable filters={monthFilters} />
         </div>
       </div>
     </div>

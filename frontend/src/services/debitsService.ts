@@ -91,19 +91,6 @@ export class DebitsService {
       sort_order: sortOrder as any,
     }
 
-    // Default to current month if no date filters are provided
-    // This will be handled by the calling component based on route
-    if (!filterRules.some((r) => r.field === 'expensed_at')) {
-      const now = new Date()
-      const currentYear = now.getFullYear()
-      const currentMonth = String(now.getMonth() + 1).padStart(2, '0')
-      const fromDate = `${currentYear}-${currentMonth}-01`
-      const lastDay = new Date(currentYear, parseInt(currentMonth), 0).getDate()
-      const toDate = `${currentYear}-${currentMonth}-${lastDay}`
-      params.from_date = fromDate
-      params.to_date = toDate
-    }
-
     // Convert FilterRule[] to DebitFilterParams
     filterRules.forEach((rule) => {
       if (rule.operator === 'is_empty' || rule.operator === 'is_not_empty') {

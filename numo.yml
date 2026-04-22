@@ -448,7 +448,7 @@ paths:
       operationId: getDebits
       tags:
         - Debits
-      description: Retrieve a list of all expenses (debits) with pagination support and optional filtering
+      description: Retrieve a list of all expenses (debits) with optional pagination and filtering
       parameters:
         - name: page
           in: query
@@ -466,15 +466,15 @@ paths:
             default: 10
         - name: from_date
           in: query
-          required: true
-          description: Filter debits from this date inclusive (ISO 8601 date format, e.g., 2026-04-01). Required parameter.
+          required: false
+          description: Filter debits from this date inclusive (ISO 8601 date format, e.g., 2026-04-01). Optional parameter.
           schema:
             type: string
             format: date
         - name: to_date
           in: query
-          required: true
-          description: Filter debits until this date inclusive (ISO 8601 date format, e.g., 2026-04-30). Required parameter.
+          required: false
+          description: Filter debits until this date inclusive (ISO 8601 date format, e.g., 2026-04-30). Optional parameter.
           schema:
             type: string
             format: date
