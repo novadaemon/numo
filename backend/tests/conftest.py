@@ -1,9 +1,12 @@
 import pytest
 import os
-import tempfile
-from datetime import datetime, timedelta, date
+from datetime import date
+
+# Set test database BEFORE importing app modules
+os.environ['DATABASE_URL'] = 'sqlite:///:memory:'
+
 from app import create_app
-from app.models import Category, Place, Debit, Credit, Concept
+from app.models import Category, Place
 from app.database import Base, engine, SessionLocal
 from app.factories import CategoryFactory, PlaceFactory, DebitFactory, CreditFactory, ConceptFactory
 
@@ -11,19 +14,10 @@ from app.factories import CategoryFactory, PlaceFactory, DebitFactory, CreditFac
 @pytest.fixture(scope='session')
 def app():
     """Create application for the tests."""
-    # Use in-memory SQLite database for tests (like Pest)
-    os.environ['DATABASE_URL'] = 'sqlite:///:memory:'
-    
     app = create_app()
     app.config['TESTING'] = True
     
-    # Create all tables
-    Base.metadata.create_all(bind=engine)
-    
     yield app
-    
-    # Cleanup
-    Base.metadata.drop_all(bind=engine)
 
 
 @pytest.fixture
