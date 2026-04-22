@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { debitsService } from '@/services';
 import { Debit } from '@/types/models';
+import { useDataRefresh } from '@/contexts';
 
 export type DatePeriod = 'month' | 'year';
 
@@ -48,6 +49,7 @@ function getDateRange(period: DatePeriod): { startDate: string; endDate: string 
 
 /**
  * Hook para obtener y procesar datos del dashboard
+ * Se suscribe a eventos de actualización para refetch automático
  * @param period - 'month' para mes actual, 'year' para año actual
  */
 export function useDashboardData(period: DatePeriod = 'year'): DashboardData {
@@ -60,8 +62,32 @@ export function useDashboardData(period: DatePeriod = 'year'): DashboardData {
     error: null,
   });
 
+  // Trigger para refetch cuando hay cambios
+  const [refetchTrigger, setRefetchTrigger] = useState(0);
+  const { onRefresh } = useDataRefresh();
+
+  // Suscribirse a eventos de actualización de datos
   useEffect(() => {
-    // Crear AbortController para cancelar peticiones si el componente se desmonta
+    const unsubscribe = onRefresh((event) => {
+      // Refetch cuando hay cambios en débitos o créditos
+      if (
+        event === 'debit-created' ||
+        event === 'debit-updated' ||
+        event === 'debit-deleted' ||
+        event === 'credit-created' ||
+        event === 'credit-updated' ||
+        event === 'credit-deleted'
+      ) {
+        // Trigger a refetch
+        setRefetchTrigger((prev) => prev + 1);
+      }
+    });
+
+    return unsubscribe;
+  }, [onRefresh]);
+
+  // Fetch datos cuando period o refetchTrigger cambian
+  useEffect(() => {
     const abortController = new AbortController();
     let isMounted = true;
 
@@ -172,7 +198,7 @@ export function useDashboardData(period: DatePeriod = 'year'): DashboardData {
       isMounted = false;
       abortController.abort();
     };
-  }, [period]);
+  }, [period, refetchTrigger]);
 
   return data;
 }

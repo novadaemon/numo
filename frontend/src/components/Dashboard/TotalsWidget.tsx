@@ -1,6 +1,7 @@
 import { useDashboardData } from '@/hooks';
 import { useState, useEffect } from 'react';
 import { creditsService } from '@/services';
+import { useDataRefresh } from '@/contexts';
 import { Credit } from '@/types';
 import { DebitForm, CreditForm } from '@/components/Forms';
 import { Button } from '@/components/ui/button';
@@ -25,6 +26,27 @@ export function TotalsWidget({ className = '' }: TotalsWidgetProps) {
   const [incomeLoading, setIncomeLoading] = useState(true);
   const [showDebitForm, setShowDebitForm] = useState(false);
   const [showCreditForm, setShowCreditForm] = useState(false);
+  const [refetchTrigger, setRefetchTrigger] = useState(0);
+  const { onRefresh } = useDataRefresh();
+
+  // Suscribirse a eventos de actualización de datos
+  useEffect(() => {
+    const unsubscribe = onRefresh((event) => {
+      // Refetch cuando hay cambios en débitos o créditos
+      if (
+        event === 'debit-created' ||
+        event === 'debit-updated' ||
+        event === 'debit-deleted' ||
+        event === 'credit-created' ||
+        event === 'credit-updated' ||
+        event === 'credit-deleted'
+      ) {
+        setRefetchTrigger((prev) => prev + 1);
+      }
+    });
+
+    return unsubscribe;
+  }, [onRefresh]);
 
   useEffect(() => {
     let isMounted = true;
@@ -80,7 +102,7 @@ export function TotalsWidget({ className = '' }: TotalsWidgetProps) {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [refetchTrigger]);
 
   const balance = totalIncome - totalExpenses;
   const currentMonth = new Date().toLocaleString('es-ES', { month: 'long', year: 'numeric' });

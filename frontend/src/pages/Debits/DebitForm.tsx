@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { debitsService, categoriesService, placesService } from '@/services';
+import { useDataRefresh } from '@/contexts';
 import { Category, Place, Debit } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -54,6 +55,7 @@ export function DebitForm({ debit, onOpenChange, onSuccess }: DebitFormProps) {
   const [newPlaceName, setNewPlaceName] = useState('');
   const [creatingPlace, setCreatingPlace] = useState(false);
   const isEditMode = Boolean(debit);
+  const { triggerRefresh } = useDataRefresh();
   const [formData, setFormData] = useState({
     category_id: '',
     place_id: '',
@@ -218,9 +220,11 @@ export function DebitForm({ debit, onOpenChange, onSuccess }: DebitFormProps) {
       if (isEditMode && debit) {
         result = await debitsService.update(debit.id, debitData);
         toast.success('Gasto actualizado exitosamente');
+        triggerRefresh('debit-updated');
       } else {
         result = await debitsService.create(debitData);
         toast.success('Gasto creado exitosamente');
+        triggerRefresh('debit-created');
       }
 
       onOpenChange(false);

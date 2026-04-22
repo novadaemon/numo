@@ -6,6 +6,7 @@ import { debitsService } from '@/services';
 import type { FilterRule } from '@/components/Filters/types';
 import toast from 'react-hot-toast';
 import { SortingState } from '@tanstack/react-table';
+import { useDataRefresh } from '@/contexts';
 
 interface DebitsTableProps {
   onEdit?: (debit: Debit) => void;
@@ -38,6 +39,28 @@ export function DebitsTable({
     { id: 'expensed_at', desc: true },
   ]);
   const availablePageSizes = [10, 25, 50, 100];
+
+  // Trigger para refetch cuando hay cambios
+  const [internalRefreshTrigger, setInternalRefreshTrigger] = useState(0);
+  const { onRefresh } = useDataRefresh();
+
+  // Suscribirse a eventos de actualización de datos
+  useEffect(() => {
+    const unsubscribe = onRefresh((event) => {
+      // Refetch cuando hay cambios en débitos
+      if (
+        event === 'debit-created' ||
+        event === 'debit-updated' ||
+        event === 'debit-deleted'
+      ) {
+        // Resetear página y triggear refetch
+        setCurrentPage(0);
+        setInternalRefreshTrigger((prev) => prev + 1);
+      }
+    });
+
+    return unsubscribe;
+  }, [onRefresh]);
 
   // Fetch debits con filtros
   useEffect(() => {
@@ -104,7 +127,7 @@ export function DebitsTable({
     return () => {
       isMounted = false;
     };
-  }, [currentPage, pageSize, sorting, refreshTrigger]);
+  }, [currentPage, pageSize, sorting, refreshTrigger, internalRefreshTrigger]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);

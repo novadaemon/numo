@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { creditsService } from '@/services';
+import { useDataRefresh } from '@/contexts';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -20,6 +21,7 @@ interface FormErrors {
  */
 export function CreditForm({ onOpenChange }: CreditFormProps) {
   const [loading, setLoading] = useState(false);
+  const { triggerRefresh } = useDataRefresh();
   const [formData, setFormData] = useState({
     amount: '',
     observations: '',
@@ -62,8 +64,10 @@ export function CreditForm({ onOpenChange }: CreditFormProps) {
         observations: formData.observations || undefined,
         credited_at: formData.credited_at,
       });
-      // Recargar la página para refrescar todos los datos
-      window.location.reload();
+      // Notificar a otros componentes que hay un nuevo crédito
+      triggerRefresh('credit-created');
+      // Cerrar el diálogo
+      onOpenChange(false);
     } catch (error: unknown) {
       console.error('Error creating credit:', error);
       
