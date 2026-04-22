@@ -36,7 +36,7 @@ interface FormErrors {
   concept?: string[] | string;
   method?: string[] | string;
   observations?: string[] | string;
-  created_at?: string[] | string;
+  expensed_at?: string[] | string;
 }
 
 /**
@@ -61,7 +61,7 @@ export function DebitForm({ debit, onOpenChange, onSuccess }: DebitFormProps) {
     amount: '',
     method: 'debit',
     observations: '',
-    created_at: new Date().toISOString().slice(0, 16),
+    expensed_at: new Date().toISOString().slice(0, 10),
   });
   const [errors, setErrors] = useState<FormErrors>({});
 
@@ -83,7 +83,7 @@ export function DebitForm({ debit, onOpenChange, onSuccess }: DebitFormProps) {
             amount: debit.amount.toString(),
             method: debit.method,
             observations: debit.observations || '',
-            created_at: debit.created_at.slice(0, 16),
+            expensed_at: debit.expensed_at,
           });
         }
       } catch (error) {
@@ -104,7 +104,7 @@ export function DebitForm({ debit, onOpenChange, onSuccess }: DebitFormProps) {
         amount: '',
         method: 'debit',
         observations: '',
-        created_at: new Date().toISOString().slice(0, 16),
+        expensed_at: new Date().toISOString().slice(0, 10),
       });
       setErrors({});
     }
@@ -211,7 +211,7 @@ export function DebitForm({ debit, onOpenChange, onSuccess }: DebitFormProps) {
         amount: parseFloat(formData.amount),
         method: formData.method,
         observations: formData.observations || undefined,
-        created_at: formData.created_at,
+        expensed_at: formData.expensed_at,
       };
 
       let result: Debit;
@@ -416,18 +416,18 @@ export function DebitForm({ debit, onOpenChange, onSuccess }: DebitFormProps) {
           )}
         </Field>
 
-        <Field invalid={!!errors.created_at}>
-          <FieldLabel htmlFor="created_at">Fecha y Hora *</FieldLabel>
+        <Field invalid={!!errors.expensed_at}>
+          <FieldLabel htmlFor="expensed_at">Fecha del Gasto *</FieldLabel>
           <Input
-            id="created_at"
-            type="datetime-local"
-            name="created_at"
-            value={formData.created_at}
+            id="expensed_at"
+            type="date"
+            name="expensed_at"
+            value={formData.expensed_at}
             onChange={handleChange}
-            aria-invalid={!!errors.created_at}
+            aria-invalid={!!errors.expensed_at}
           />
-          {errors.created_at && (
-            <FieldError>{formatError(errors.created_at)}</FieldError>
+          {errors.expensed_at && (
+            <FieldError>{formatError(errors.expensed_at)}</FieldError>
           )}
         </Field>
       </FieldGroup>

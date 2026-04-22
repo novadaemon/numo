@@ -61,17 +61,29 @@ export function useDashboardData(period: DatePeriod = 'year'): DashboardData {
   });
 
   useEffect(() => {
+    // Crear AbortController para cancelar peticiones si el componente se desmonta
+    const abortController = new AbortController();
+    let isMounted = true;
+
     const fetchData = async () => {
       try {
+        setData((prev) => ({ ...prev, loading: true, error: null }));
+        
         const { startDate, endDate } = getDateRange(period);
 
-        // Obtener gastos del período (sin requerir page/size, el backend usa defaults)
-        // Pero como necesitamos todos los datos del año, usamos size=100
+        // Obtener gastos del período con paginación
+        // Necesitamos todos los datos del período, así que usamos size=100
         const response = await debitsService.getAll({ 
+          page: 0,
           from_date: startDate, 
           to_date: endDate,
-          size: 100  // Solo especificar size, backend usa page=0 por defecto
+          size: 100
         });
+        
+        // Verificar que el componente aún está montado antes de updatear estado
+        if (!isMounted) {
+          return;
+        }
         
         // Validar respuesta y extraer debits
         let debits: Debit[] = [];
@@ -96,7 +108,7 @@ export function useDashboardData(period: DatePeriod = 'year'): DashboardData {
           ];
 
           debits.forEach((debit) => {
-            const date = new Date(debit.created_at);
+            const date = new Date(debit.expensed_at);
             const month = date.getMonth();
             monthMap.set(month, (monthMap.get(month) || 0) + debit.amount);
           });
@@ -127,24 +139,39 @@ export function useDashboardData(period: DatePeriod = 'year'): DashboardData {
           }))
           .sort((a, b) => b.value - a.value); // Ordenar por mayor gasto
 
-        setData({
-          totalExpenses,
-          debits,
-          expensesByMonth,
-          expensesByCategory,
-          loading: false,
-          error: null,
-        });
+        if (isMounted) {
+          setData({
+            totalExpenses,
+            debits,
+            expensesByMonth,
+            expensesByCategory,
+            loading: false,
+            error: null,
+          });
+        }
       } catch (err) {
-        setData((prev) => ({
-          ...prev,
-          loading: false,
-          error: err instanceof Error ? err.message : 'Error al cargar datos',
-        }));
+        // Ignorar errores de abort
+        if (err instanceof Error && err.name === 'AbortError') {
+          return;
+        }
+        
+        if (isMounted) {
+          setData((prev) => ({
+            ...prev,
+            loading: false,
+            error: err instanceof Error ? err.message : 'Error al cargar datos',
+          }));
+        }
       }
     };
 
     fetchData();
+
+    // Cleanup: cancelar petición si el componente se desmonta o period cambia
+    return () => {
+      isMounted = false;
+      abortController.abort();
+    };
   }, [period]);
 
   return data;

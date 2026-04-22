@@ -81,7 +81,7 @@ export class DebitsService {
     filterRules: FilterRule[],
     page: number = 0,
     size: number = 25,
-    sortField: string = 'created_at',
+    sortField: string = 'expensed_at',
     sortOrder: string = 'desc'
   ): Promise<PaginatedResponse<Debit>> {
     const params: DebitFilterParams = {
@@ -93,7 +93,7 @@ export class DebitsService {
 
     // Default to current month if no date filters are provided
     // This will be handled by the calling component based on route
-    if (!filterRules.some((r) => r.field === 'created_at')) {
+    if (!filterRules.some((r) => r.field === 'expensed_at')) {
       const now = new Date()
       const currentYear = now.getFullYear()
       const currentMonth = String(now.getMonth() + 1).padStart(2, '0')
@@ -111,7 +111,7 @@ export class DebitsService {
       }
 
       switch (rule.field) {
-        case 'created_at':
+        case 'expensed_at':
           if (rule.operator === 'equals' && rule.value) {
             params.from_date = rule.value
             params.to_date = rule.value

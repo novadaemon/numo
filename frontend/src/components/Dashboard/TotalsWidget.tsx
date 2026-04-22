@@ -1,5 +1,5 @@
 import { useDashboardData } from '@/hooks';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { creditsService } from '@/services';
 import { Credit } from '@/types';
 import { DebitForm, CreditForm } from '@/components/Forms';
@@ -26,45 +26,61 @@ export function TotalsWidget({ className = '' }: TotalsWidgetProps) {
   const [showDebitForm, setShowDebitForm] = useState(false);
   const [showCreditForm, setShowCreditForm] = useState(false);
 
-  const fetchIncome = useCallback(async () => {
-    try {
-      const now = new Date();
-      const currentYear = now.getFullYear();
-      const currentMonth = now.getMonth();
+  useEffect(() => {
+    let isMounted = true;
 
-      // Crear rango para el mes actual
-      const startDate = new Date(currentYear, currentMonth, 1);
-      const endDate = new Date(currentYear, currentMonth + 1, 0);
+    const fetchIncome = async () => {
+      try {
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        const currentMonth = now.getMonth();
 
-      // Obtener ingresos del mes con fechas requeridas
-      const response = await creditsService.getAll({ 
-        from_date: startDate.toISOString().split('T')[0],
-        to_date: endDate.toISOString().split('T')[0],
-        size: 100
-      });
-      
-      // Validar respuesta y extraer credits
-      let allCredits: Credit[] = [];
-      if (response && typeof response === 'object') {
-        if ('data' in response && Array.isArray(response.data)) {
-          allCredits = response.data;
-        } else if (Array.isArray(response)) {
-          allCredits = response;
+        // Crear rango para el mes actual
+        const startDate = new Date(currentYear, currentMonth, 1);
+        const endDate = new Date(currentYear, currentMonth + 1, 0);
+
+        // Obtener ingresos del mes con fechas requeridas
+        const response = await creditsService.getAll({ 
+          page: 0,
+          from_date: startDate.toISOString().split('T')[0],
+          to_date: endDate.toISOString().split('T')[0],
+          size: 100
+        });
+        
+        if (!isMounted) {
+          return;
+        }
+        
+        // Validar respuesta y extraer credits
+        let allCredits: Credit[] = [];
+        if (response && typeof response === 'object') {
+          if ('data' in response && Array.isArray(response.data)) {
+            allCredits = response.data;
+          } else if (Array.isArray(response)) {
+            allCredits = response;
+          }
+        }
+
+        const total = allCredits.reduce((sum, credit) => sum + credit.amount, 0);
+        if (isMounted) {
+          setTotalIncome(total);
+        }
+      } catch (err) {
+        console.error('Error loading income:', err);
+      } finally {
+        if (isMounted) {
+          setIncomeLoading(false);
         }
       }
+    };
 
-      const total = allCredits.reduce((sum, credit) => sum + credit.amount, 0);
-      setTotalIncome(total);
-    } catch (err) {
-      console.error('Error loading income:', err);
-    } finally {
-      setIncomeLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
     fetchIncome();
-  }, [fetchIncome]);
+
+    // Cleanup: prevenir setState si el componente se desmonta
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const balance = totalIncome - totalExpenses;
   const currentMonth = new Date().toLocaleString('es-ES', { month: 'long', year: 'numeric' });

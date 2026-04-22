@@ -28,11 +28,13 @@ class TestDebitsEndpoints:
 
     def test_create_debit_valid(self, client, category, place):
         """Test creating a debit with valid data."""
+        from datetime import date
         payload = {
             'category_id': category.id,
             'place_id': place.id,
             'amount': 50.00,
-            'observations': 'Weekly groceries at the supermarket'
+            'observations': 'Weekly groceries at the supermarket',
+            'expensed_at': date.today().isoformat(),
         }
         response = client.post(
             '/debits',
@@ -45,14 +47,16 @@ class TestDebitsEndpoints:
         assert data['category']['id'] == category.id
         assert data['place']['id'] == place.id
         assert 'id' in data
-        assert 'created_at' in data
+        assert 'expensed_at' in data
 
     def test_create_debit_minimal(self, client, category, place):
         """Test creating a debit with minimal required data."""
+        from datetime import date
         payload = {
             'category_id': category.id,
             'place_id': place.id,
             'amount': 25.50,
+            'expensed_at': date.today().isoformat()
         }
         response = client.post(
             '/debits',
@@ -97,9 +101,11 @@ class TestDebitsEndpoints:
 
     def test_create_debit_missing_amount(self, client, category, place):
         """Test creating a debit without amount."""
+        from datetime import date
         payload = {
             'category_id': category.id,
-            'place_id': place.id
+            'place_id': place.id,
+            'expensed_at': date.today().isoformat()
         }
         response = client.post(
             '/debits',
@@ -113,10 +119,12 @@ class TestDebitsEndpoints:
 
     def test_create_debit_negative_amount(self, client, category, place):
         """Test creating a debit with negative amount."""
+        from datetime import date
         payload = {
             'category_id': category.id,
             'place_id': place.id,
-            'amount': -50.00
+            'amount': -50.00,
+            'expensed_at': date.today().isoformat()
         }
         response = client.post(
             '/debits',
@@ -130,10 +138,12 @@ class TestDebitsEndpoints:
 
     def test_create_debit_zero_amount(self, client, category, place):
         """Test creating a debit with zero amount."""
+        from datetime import date
         payload = {
             'category_id': category.id,
             'place_id': place.id,
-            'amount': 0
+            'amount': 0,
+            'expensed_at': date.today().isoformat()
         }
         response = client.post(
             '/debits',
@@ -146,10 +156,12 @@ class TestDebitsEndpoints:
 
     def test_create_debit_invalid_category_id(self, client, place):
         """Test creating a debit with non-existent category."""
+        from datetime import date
         payload = {
             'category_id': 9999,
             'place_id': place.id,
             'amount': 50.00,
+            'expensed_at': date.today().isoformat()
         }
         response = client.post(
             '/debits',
@@ -160,10 +172,12 @@ class TestDebitsEndpoints:
 
     def test_create_debit_invalid_place_id(self, client, category):
         """Test creating a debit with non-existent place."""
+        from datetime import date
         payload = {
             'category_id': category.id,
             'place_id': 9999,
             'amount': 50.00,
+            'expensed_at': date.today().isoformat()
         }
         response = client.post(
             '/debits',
@@ -172,14 +186,15 @@ class TestDebitsEndpoints:
         )
         assert response.status_code == 404
 
-    def test_create_debit_with_datetime(self, client, category, place):
-        """Test creating a debit with custom datetime."""
-        now = datetime.now().isoformat()
+    def test_create_debit_with_date(self, client, category, place):
+        """Test creating a debit with custom date."""
+        from datetime import date
+        today = date.today().isoformat()
         payload = {
             'category_id': category.id,
             'place_id': place.id,
             'amount': 50.00,
-            'created_at': now
+            'expensed_at': today
         }
         response = client.post(
             '/debits',
@@ -274,12 +289,12 @@ class TestDebitsPaginationEndpoints:
         """Test getting debits with default pagination (page=0, size=10)."""
         # Create 15 debits
         from datetime import datetime, timedelta, date
-        base_date = datetime(2025, 6, 1)
+        base_date = date(2025, 6, 1)
         for i in range(15):
             debit_factory.create(
                 category_id=category.id,
                 amount=float(i + 1),
-                created_at=base_date + timedelta(days=i)
+                expensed_at=base_date + timedelta(days=i)
             )
         
         # Query with date range
@@ -297,12 +312,12 @@ class TestDebitsPaginationEndpoints:
         """Test getting debits on page 1."""
         # Create 15 debits
         from datetime import datetime, timedelta, date
-        base_date = datetime(2025, 6, 1)
+        base_date = date(2025, 6, 1)
         for i in range(15):
             debit_factory.create(
                 category_id=category.id,
                 amount=float(i + 1),
-                created_at=base_date + timedelta(days=i)
+                expensed_at=base_date + timedelta(days=i)
             )
         
         from_date = date(2025, 6, 1).isoformat()
@@ -319,12 +334,12 @@ class TestDebitsPaginationEndpoints:
         """Test getting debits with size=25."""
         # Create 50 debits - use same category to avoid unique constraint on name
         from datetime import datetime, timedelta, date
-        base_date = datetime(2025, 6, 1)
+        base_date = date(2025, 6, 1)
         for i in range(50):
             debit_factory.create(
                 category_id=category.id,
                 amount=float(i + 1),
-                created_at=base_date + timedelta(days=i % 30)
+                expensed_at=base_date + timedelta(days=i % 30)
             )
         
         from_date = date(2025, 6, 1).isoformat()
@@ -341,12 +356,12 @@ class TestDebitsPaginationEndpoints:
         """Test getting debits with size=50."""
         # Create 100 debits
         from datetime import datetime, timedelta, date
-        base_date = datetime(2025, 6, 1)
+        base_date = date(2025, 6, 1)
         for i in range(100):
             debit_factory.create(
                 category_id=category.id,
                 amount=float(i + 1),
-                created_at=base_date + timedelta(days=i % 30)
+                expensed_at=base_date + timedelta(days=i % 30)
             )
         
         from_date = date(2025, 6, 1).isoformat()
@@ -361,12 +376,12 @@ class TestDebitsPaginationEndpoints:
         """Test getting debits with size=100."""
         # Create 150 debits
         from datetime import datetime, timedelta, date
-        base_date = datetime(2025, 6, 1)
+        base_date = date(2025, 6, 1)
         for i in range(150):
             debit_factory.create(
                 category_id=category.id,
                 amount=float(i + 1),
-                created_at=base_date + timedelta(days=i % 30)
+                expensed_at=base_date + timedelta(days=i % 30)
             )
         
         from_date = date(2025, 6, 1).isoformat()
@@ -410,33 +425,33 @@ class TestDebitsPaginationEndpoints:
     def test_get_debits_with_filter_and_pagination(self, client, debit_factory, category):
         """Test getting debits with filters and pagination."""
         # Use specific dates to isolate this test from others
-        from datetime import datetime
-        specific_date = datetime(2025, 6, 15, 12, 0, 0)
-        current_month_start = specific_date.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-        current_month_end = specific_date.replace(day=30, hour=23, minute=59, second=59, microsecond=999999)
-        next_month_start = (current_month_start + timedelta(days=32)).replace(day=1)
+        from datetime import datetime, date
+        specific_date = date(2025, 6, 15)
+        current_month_start = specific_date.replace(day=1)
+        current_month_end = specific_date.replace(day=30)
+        next_month_start = date(2025, 7, 1)
         
         # Create 20 debits in June 2025
         for i in range(20):
-            created_at = current_month_start + timedelta(days=i)
+            expensed_at = current_month_start + timedelta(days=i)
             debit_factory.create(
                 category_id=category.id,
                 amount=float(i + 1),
-                created_at=created_at
+                expensed_at=expensed_at
             )
         
         # Create 10 debits in July 2025
         for i in range(10):
-            created_at = next_month_start + timedelta(days=i)
+            expensed_at = next_month_start + timedelta(days=i)
             debit_factory.create(
                 category_id=category.id,
                 amount=float(i + 1),
-                created_at=created_at
+                expensed_at=expensed_at
             )
         
         # Filter by June 2025 only (avoid inclusive range issues)
-        from_date = current_month_start.date().isoformat()
-        to_date = current_month_end.date().isoformat()
+        from_date = current_month_start.isoformat()
+        to_date = current_month_end.isoformat()
         response = client.get(f'/debits?from_date={from_date}&to_date={to_date}&page=0&size=10')
         
         assert response.status_code == 200
@@ -452,12 +467,12 @@ class TestDebitsPaginationEndpoints:
         
         # Create 15 debits in first category
         from datetime import datetime, timedelta, date
-        base_date = datetime(2025, 6, 1)
+        base_date = date(2025, 6, 1)
         for i in range(15):
             debit_factory.create(
                 category_id=category.id,
                 amount=float(i + 1),
-                created_at=base_date + timedelta(days=i)
+                expensed_at=base_date + timedelta(days=i)
             )
         
         # Create 10 debits in other category
@@ -465,7 +480,7 @@ class TestDebitsPaginationEndpoints:
             debit_factory.create(
                 category_id=other_category.id,
                 amount=float(i + 1),
-                created_at=base_date + timedelta(days=15 + i)
+                expensed_at=base_date + timedelta(days=15 + i)
             )
         
         # Filter by first category
@@ -480,7 +495,7 @@ class TestDebitsPaginationEndpoints:
     def test_get_debits_pagination_structure(self, client, debit_factory, category):
         """Test that pagination response has correct structure."""
         from datetime import datetime, date
-        debit_factory.create(category_id=category.id, amount=100.00, created_at=datetime(2025, 6, 15))
+        debit_factory.create(category_id=category.id, amount=100.00, expensed_at=date(2025, 6, 15))
         
         from_date = date(2025, 6, 1).isoformat()
         to_date = date(2025, 6, 30).isoformat()

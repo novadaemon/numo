@@ -35,58 +35,76 @@ export function DebitsTable({
   const [loading, setLoading] = useState(true);
   const [pageSize, setPageSize] = useState(10);
   const [sorting, setSorting] = useState<SortingState>([
-    { id: 'created_at', desc: true },
+    { id: 'expensed_at', desc: true },
   ]);
   const availablePageSizes = [10, 25, 50, 100];
 
   // Fetch debits con filtros
   useEffect(() => {
-    fetchDebits();
-  }, [currentPage, pageSize, sorting, refreshTrigger, filters]);
+    let isMounted = true;
+    let isRunning = false; // Prevenir fetches concurrentes
 
-  const fetchDebits = async () => {
-    try {
-      setLoading(true);
-
-      // Get sort field and order from React Table sorting state
-      let sortField: 'created_at' | 'category' | 'place' | 'amount' | 'concept' | 'method' = 'created_at';
-      let sortOrder: 'asc' | 'desc' = 'desc';
+    const fetchDebits = async () => {
+      // Prevenir múltiples fetches simultáneos
+      if (isRunning) return;
       
-      if (sorting.length > 0) {
-        const sortConfig = sorting[0];
-        const validFields = ['created_at', 'category', 'place', 'amount', 'concept', 'method'];
-        if (validFields.includes(sortConfig.id)) {
-          sortField = sortConfig.id as 'created_at' | 'category' | 'place' | 'amount' | 'concept' | 'method';
+      try {
+        isRunning = true;
+        setLoading(true);
+
+        // Get sort field and order from React Table sorting state
+        let sortField: 'expensed_at' | 'category' | 'place' | 'amount' | 'concept' | 'method' = 'expensed_at';
+        let sortOrder: 'asc' | 'desc' = 'desc';
+        
+        if (sorting.length > 0) {
+          const sortConfig = sorting[0];
+          const validFields = ['expensed_at', 'category', 'place', 'amount', 'concept', 'method'];
+          if (validFields.includes(sortConfig.id)) {
+            sortField = sortConfig.id as 'expensed_at' | 'category' | 'place' | 'amount' | 'concept' | 'method';
+          }
+          sortOrder = sortConfig.desc ? 'desc' : 'asc';
         }
-        sortOrder = sortConfig.desc ? 'desc' : 'asc';
-      }
 
-      // Use filters from FilterBar
-      const response = await debitsService.getAllWithFilters(
-        filters,
-        currentPage,
-        pageSize,
-        sortField,
-        sortOrder
-      );
+        // Use filters from FilterBar
+        const response = await debitsService.getAllWithFilters(
+          filters,
+          currentPage,
+          pageSize,
+          sortField,
+          sortOrder
+        );
 
-      // Handle paginated responses
-      if (Array.isArray(response)) {
-        setDebits(response);
-        setTotalItems(response.length);
-      } else {
-        setDebits(response.data || []);
-        setTotalItems(response.total || 0);
+        if (!isMounted) return;
+
+        // Handle paginated responses
+        if (Array.isArray(response)) {
+          setDebits(response);
+          setTotalItems(response.length);
+        } else {
+          setDebits(response.data || []);
+          setTotalItems(response.total || 0);
+        }
+      } catch (error) {
+        if (isMounted) {
+          console.error('Error fetching table data:', error);
+          toast.error('Error al cargar los gastos');
+          setDebits([]);
+          setTotalItems(0);
+        }
+      } finally {
+        isRunning = false;
+        if (isMounted) {
+          setLoading(false);
+        }
       }
-    } catch (error) {
-      console.error('Error fetching table data:', error);
-      toast.error('Error al cargar los gastos');
-      setDebits([]);
-      setTotalItems(0);
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
+
+    fetchDebits();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [currentPage, pageSize, sorting, refreshTrigger]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);

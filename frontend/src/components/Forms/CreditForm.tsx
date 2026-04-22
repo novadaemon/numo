@@ -12,7 +12,7 @@ interface CreditFormProps {
 interface FormErrors {
   amount?: string[] | string;
   observations?: string[] | string;
-  created_at?: string[] | string;
+  credited_at?: string[] | string;
 }
 
 /**
@@ -23,7 +23,7 @@ export function CreditForm({ onOpenChange }: CreditFormProps) {
   const [formData, setFormData] = useState({
     amount: '',
     observations: '',
-    created_at: new Date().toISOString().slice(0, 16),
+    credited_at: new Date().toISOString().slice(0, 10),
   });
   const [errors, setErrors] = useState<FormErrors>({});
 
@@ -60,7 +60,7 @@ export function CreditForm({ onOpenChange }: CreditFormProps) {
       await creditsService.create({
         amount: parseFloat(formData.amount),
         observations: formData.observations || undefined,
-        created_at: formData.created_at,
+        credited_at: formData.credited_at,
       });
       // Recargar la página para refrescar todos los datos
       window.location.reload();
@@ -130,18 +130,18 @@ export function CreditForm({ onOpenChange }: CreditFormProps) {
           )}
         </Field>
 
-        <Field invalid={!!errors.created_at}>
-          <FieldLabel htmlFor="created_at">Fecha y Hora *</FieldLabel>
+        <Field invalid={!!errors.credited_at}>
+          <FieldLabel htmlFor="credited_at">Fecha del Ingreso *</FieldLabel>
           <Input
-            id="created_at"
-            type="datetime-local"
-            name="created_at"
-            value={formData.created_at}
+            id="credited_at"
+            type="date"
+            name="credited_at"
+            value={formData.credited_at}
             onChange={handleChange}
-            aria-invalid={!!errors.created_at}
+            aria-invalid={!!errors.credited_at}
           />
-          {errors.created_at && (
-            <FieldError>{formatError(errors.created_at)}</FieldError>
+          {errors.credited_at && (
+            <FieldError>{formatError(errors.credited_at)}</FieldError>
           )}
         </Field>
       </FieldGroup>

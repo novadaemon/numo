@@ -19,7 +19,7 @@ export interface DebitFormData {
   category_id: number;
   place_id: number;
   amount: number;
-  created_at?: string; // ISO-8601 datetime (optional, defaults to now)
+  expensed_at: string; // ISO-8601 date
   observations?: string | null;
 }
 
@@ -28,6 +28,6 @@ export interface DebitFormData {
  */
 export interface CreditFormData {
   amount: number;
-  created_at?: string; // ISO-8601 datetime (optional, defaults to now)
+  credited_at: string; // ISO-8601 date
   observations?: string | null;
 }

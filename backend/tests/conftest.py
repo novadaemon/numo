@@ -1,7 +1,7 @@
 import pytest
 import os
 import tempfile
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from app import create_app
 from app.models import Category, Place, Debit, Credit, Concept
 from app.database import Base, engine, SessionLocal
@@ -145,7 +145,7 @@ def debit_with_relationships(app, category, place):
             place=place,
             amount=50.00,
             concept="Test expense",
-            created_at=datetime.now()
+            expensed_at=date.today()
         )
         session.add(debit)
         session.commit()
@@ -162,7 +162,7 @@ def credit(app):
     try:
         credit = CreditFactory.create(
             amount=1500.00,
-            created_at=datetime.now()
+            credited_at=date.today()
         )
         session.add(credit)
         session.commit()

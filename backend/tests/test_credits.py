@@ -28,9 +28,11 @@ class TestCreditsEndpoints:
 
     def test_create_credit_valid(self, client):
         """Test creating a credit with valid data."""
+        from datetime import date
         payload = {
             'amount': 1500.00,
-            'observations': 'Monthly salary'
+            'observations': 'Monthly salary',
+            'credited_at': date.today().isoformat(),
         }
         response = client.post(
             '/credits',
@@ -42,11 +44,12 @@ class TestCreditsEndpoints:
         assert data['amount'] == 1500.00
         assert data['observations'] == 'Monthly salary'
         assert 'id' in data
-        assert 'created_at' in data
+        assert 'credited_at' in data
 
     def test_create_credit_minimal(self, client):
         """Test creating a credit with minimal required data."""
-        payload = {'amount': 100.00}
+        from datetime import date
+        payload = {'amount': 100.00, 'credited_at': date.today().isoformat()}
         response = client.post(
             '/credits',
             data=json.dumps(payload),
@@ -71,7 +74,8 @@ class TestCreditsEndpoints:
 
     def test_create_credit_negative_amount(self, client):
         """Test creating a credit with negative amount."""
-        payload = {'amount': -100.00}
+        from datetime import date
+        payload = {'amount': -100.00, 'credited_at': date.today().isoformat()}
         response = client.post(
             '/credits',
             data=json.dumps(payload),
@@ -84,7 +88,8 @@ class TestCreditsEndpoints:
 
     def test_create_credit_zero_amount(self, client):
         """Test creating a credit with zero amount."""
-        payload = {'amount': 0}
+        from datetime import date
+        payload = {'amount': 0, 'credited_at': date.today().isoformat()}
         response = client.post(
             '/credits',
             data=json.dumps(payload),
@@ -96,7 +101,8 @@ class TestCreditsEndpoints:
 
     def test_create_credit_string_amount(self, client):
         """Test creating a credit with string amount (should be coerced)."""
-        payload = {'amount': '250.50'}
+        from datetime import date
+        payload = {'amount': '250.50', 'credited_at': date.today().isoformat()}
         response = client.post(
             '/credits',
             data=json.dumps(payload),
@@ -106,12 +112,13 @@ class TestCreditsEndpoints:
         data = json.loads(response.data)
         assert data['amount'] == 250.50
 
-    def test_create_credit_with_datetime(self, client):
-        """Test creating a credit with custom datetime."""
-        now = datetime.now().isoformat()
+    def test_create_credit_with_date(self, client):
+        """Test creating a credit with custom date."""
+        from datetime import date
+        today = date.today().isoformat()
         payload = {
             'amount': 1500.00,
-            'created_at': now
+            'credited_at': today
         }
         response = client.post(
             '/credits',
@@ -218,9 +225,9 @@ class TestCreditsPaginationEndpoints:
         """Test getting credits with default pagination (page=0, size=10)."""
         # Create 15 credits
         from datetime import date
-        base_date = datetime(2025, 7, 1)
+        base_date = date(2025, 7, 1)
         for i in range(15):
-            credit_factory.create(amount=float(i + 1), created_at=base_date + timedelta(days=i))
+            credit_factory.create(amount=float(i + 1), credited_at=base_date + timedelta(days=i))
         
         from_date = date(2025, 7, 1).isoformat()
         to_date = date(2025, 7, 31).isoformat()
@@ -236,9 +243,9 @@ class TestCreditsPaginationEndpoints:
         """Test getting credits on page 1."""
         # Create 15 credits
         from datetime import date
-        base_date = datetime(2025, 7, 1)
+        base_date = date(2025, 7, 1)
         for i in range(15):
-            credit_factory.create(amount=float(i + 1), created_at=base_date + timedelta(days=i))
+            credit_factory.create(amount=float(i + 1), credited_at=base_date + timedelta(days=i))
         
         from_date = date(2025, 7, 1).isoformat()
         to_date = date(2025, 7, 31).isoformat()
@@ -254,9 +261,9 @@ class TestCreditsPaginationEndpoints:
         """Test getting credits with size=25."""
         # Create 50 credits
         from datetime import date
-        base_date = datetime(2025, 7, 1)
+        base_date = date(2025, 7, 1)
         for i in range(50):
-            credit_factory.create(amount=float(i + 1), created_at=base_date + timedelta(days=i % 31))
+            credit_factory.create(amount=float(i + 1), credited_at=base_date + timedelta(days=i % 31))
         
         from_date = date(2025, 7, 1).isoformat()
         to_date = date(2025, 7, 31).isoformat()
@@ -272,9 +279,9 @@ class TestCreditsPaginationEndpoints:
         """Test getting credits with size=50."""
         # Create 100 credits
         from datetime import date
-        base_date = datetime(2025, 7, 1)
+        base_date = date(2025, 7, 1)
         for i in range(100):
-            credit_factory.create(amount=float(i + 1), created_at=base_date + timedelta(days=i % 31))
+            credit_factory.create(amount=float(i + 1), credited_at=base_date + timedelta(days=i % 31))
         
         from_date = date(2025, 7, 1).isoformat()
         to_date = date(2025, 8, 31).isoformat()
@@ -288,9 +295,9 @@ class TestCreditsPaginationEndpoints:
         """Test getting credits with size=100."""
         # Create 150 credits
         from datetime import date
-        base_date = datetime(2025, 7, 1)
+        base_date = date(2025, 7, 1)
         for i in range(150):
-            credit_factory.create(amount=float(i + 1), created_at=base_date + timedelta(days=i % 31))
+            credit_factory.create(amount=float(i + 1), credited_at=base_date + timedelta(days=i % 31))
         
         from_date = date(2025, 7, 1).isoformat()
         to_date = date(2025, 8, 31).isoformat()
@@ -333,31 +340,31 @@ class TestCreditsPaginationEndpoints:
     def test_get_credits_with_filter_and_pagination(self, client, credit_factory):
         """Test getting credits with filters and pagination."""
         # Use specific dates to isolate this test from others
-        from datetime import datetime
-        specific_date = datetime(2025, 7, 15, 12, 0, 0)
-        current_month_start = specific_date.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-        current_month_end = specific_date.replace(day=31, hour=23, minute=59, second=59, microsecond=999999)
-        next_month_start = (current_month_start + timedelta(days=32)).replace(day=1)
+        from datetime import datetime, date
+        specific_date = date(2025, 7, 15)
+        current_month_start = specific_date.replace(day=1)
+        current_month_end = specific_date.replace(day=31)
+        next_month_start = date(2025, 8, 1)
         
         # Create 20 credits in July 2025
         for i in range(20):
-            created_at = current_month_start + timedelta(days=i)
+            credited_at = current_month_start + timedelta(days=i)
             credit_factory.create(
                 amount=float(i + 1),
-                created_at=created_at
+                credited_at=credited_at
             )
         
         # Create 10 credits in August 2025
         for i in range(10):
-            created_at = next_month_start + timedelta(days=i)
+            credited_at = next_month_start + timedelta(days=i)
             credit_factory.create(
                 amount=float(i + 1),
-                created_at=created_at
+                credited_at=credited_at
             )
         
         # Filter by July 2025 only (avoid inclusive range issues)
-        from_date = current_month_start.date().isoformat()
-        to_date = current_month_end.date().isoformat()
+        from_date = current_month_start.isoformat()
+        to_date = current_month_end.isoformat()
         response = client.get(f'/credits?from_date={from_date}&to_date={to_date}&page=0&size=10')
         
         assert response.status_code == 200
@@ -369,7 +376,7 @@ class TestCreditsPaginationEndpoints:
     def test_get_credits_pagination_structure(self, client, credit_factory):
         """Test that pagination response has correct structure."""
         from datetime import date
-        credit_factory.create(amount=100.00, created_at=datetime(2025, 7, 15))
+        credit_factory.create(amount=100.00, credited_at=date(2025, 7, 15))
         
         from_date = date(2025, 7, 1).isoformat()
         to_date = date(2025, 7, 31).isoformat()

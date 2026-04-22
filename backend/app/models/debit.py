@@ -1,7 +1,7 @@
 """Debit model for expense tracking."""
-from datetime import datetime
+from datetime import datetime, date
 from enum import Enum
-from sqlalchemy import Column, Integer, Float, String, DateTime, ForeignKey, Text, Enum as SQLEnum
+from sqlalchemy import Column, Integer, Float, String, DateTime, Date, ForeignKey, Text, Enum as SQLEnum
 from sqlalchemy.orm import relationship
 from ..database import Base
 
@@ -22,10 +22,11 @@ class Debit(Base):
     category_id = Column(Integer, ForeignKey('categories.id'), nullable=False, index=True)
     place_id = Column(Integer, ForeignKey('places.id'), nullable=False, index=True)
     concept = Column(String(255), nullable=True)
-    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
     amount = Column(Float, nullable=False)
     method = Column(SQLEnum(DebitMethod), nullable=False, default=DebitMethod.CASH)
     observations = Column(Text, nullable=True)
+    expensed_at = Column(Date, nullable=False)
+    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
 
     # Relationships
     category = relationship('Category', back_populates='debits')

@@ -5,7 +5,7 @@ import { placesService } from '@/services/placesService'
 /**
  * Build the list of filterable fields for Debits.
  *
- * Core fields: created_at, category_id, place_id, concept, method, amount.
+ * Core fields: expensed_at, category_id, place_id, concept, method, amount.
  */
 export async function getDebitsFilterFields(): Promise<FilterFieldConfig[]> {
   const fields: FilterFieldConfig[] = []
@@ -39,7 +39,7 @@ export async function getDebitsFilterFields(): Promise<FilterFieldConfig[]> {
 
   // 1. Date field
   fields.push({
-    name: 'created_at',
+    name: 'expensed_at',
     label: 'Date',
     type: 'date',
     operators: dateOperators,

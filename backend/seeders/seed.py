@@ -31,17 +31,15 @@ def seed_database():
     try:
         print("🌱 Starting database seeding from YAML files...\n")
 
-        # Create all tables first
-        print("📊 Creating database tables...")
+        # Drop all existing tables and create new ones
+        print("📊 Dropping existing database tables...")
         from app.database import Base, engine
+        Base.metadata.drop_all(bind=engine)
+        print("✅ Tables dropped\n")
+
+        print("📊 Creating database tables...")
         Base.metadata.create_all(bind=engine)
         print("✅ Database tables created\n")
-
-        # Check if data already exists
-        existing_categories = session.query(Category).count()
-        if existing_categories > 0:
-            print("⚠️  Database already has data. Skipping seed.")
-            return
 
         seeders_dir = Path(__file__).parent
         

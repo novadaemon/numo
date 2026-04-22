@@ -43,6 +43,7 @@ export interface Debit {
   amount: number;
   method: 'debit' | 'credit' | 'cash';
   created_at: string; // ISO-8601 datetime
+  expensed_at: string; // ISO-8601 date
   observations?: string | null;
 }
 
@@ -53,6 +54,7 @@ export interface Credit {
   id: number;
   amount: number;
   created_at: string; // ISO-8601 datetime
+  credited_at: string; // ISO-8601 date
   observations?: string | null;
 }
 

@@ -31,8 +31,8 @@ def format_debit(debit):
         'concept': debit.concept,
         'method': debit.method.value,
         'amount': float(debit.amount),
-        'created_at': debit.created_at.isoformat(),
         'observations': debit.observations,
+        'expensed_at': debit.expensed_at.isoformat(),
     }
 
 
@@ -52,6 +52,11 @@ def get_debits():
         # Get query parameters for filtering
         from_date = request.args.get('from_date')
         to_date = request.args.get('to_date')
+        
+        # Validate that date range parameters are provided
+        if not from_date or not to_date:
+            return jsonify({'error': 'from_date and to_date are required parameters'}), 400
+        
         category_id = request.args.get('category_id', type=int)
         category_ids_param = request.args.get('category_ids')  # JSON array
         place_id = request.args.get('place_id', type=int)
@@ -61,7 +66,7 @@ def get_debits():
         method_values_param = request.args.get('method_values')  # JSON array
         amount_gt = request.args.get('amount_gt', type=float)
         amount_lt = request.args.get('amount_lt', type=float)
-        sort_field = request.args.get('sort_field', 'created_at')
+        sort_field = request.args.get('sort_field', 'expensed_at')
         sort_order = request.args.get('sort_order', 'desc')
 
         # Parse JSON parameters for multiple values
@@ -94,7 +99,7 @@ def get_debits():
                 return jsonify({'error': 'invalid method_values JSON format'}), 400
 
         # Validate sort parameters
-        valid_sort_fields = ['created_at', 'category', 'place', 'amount', 'concept', 'method']
+        valid_sort_fields = ['expensed_at', 'category', 'place', 'amount', 'concept', 'method']
         if sort_field not in valid_sort_fields:
             error_msg = 'sort_field must be one of: ' + ', '.join(valid_sort_fields)
             return jsonify({'error': error_msg}), 400
@@ -105,25 +110,18 @@ def get_debits():
         # Build query with sorting
         query = db.query(Debit)
         
-        # Apply optional date filters
-        if from_date:
-            try:
-                from_dt = datetime.fromisoformat(from_date)
-                query = query.filter(Debit.created_at >= from_dt)
-            except ValueError:
-                return jsonify({'error': 'invalid from_date format (use ISO format)'}), 400
+        # Apply required date filters  
+        try:
+            from_dt = datetime.fromisoformat(from_date).date()
+            query = query.filter(Debit.expensed_at >= from_dt)
+        except ValueError:
+            return jsonify({'error': 'invalid from_date format (use ISO format)'}), 400
 
-        if to_date:
-            try:
-                to_dt = datetime.fromisoformat(to_date)
-                # If to_date is just a date (no time component), adjust to end of day
-                # This makes "On 2026-04-18" match any time during that day
-                if to_dt.hour == 0 and to_dt.minute == 0 and to_dt.second == 0:
-                    # Replace time with 23:59:59 to include all of that day
-                    to_dt = to_dt.replace(hour=23, minute=59, second=59)
-                query = query.filter(Debit.created_at <= to_dt)
-            except ValueError:
-                return jsonify({'error': 'invalid to_date format (use ISO format)'}), 400
+        try:
+            to_dt = datetime.fromisoformat(to_date).date()
+            query = query.filter(Debit.expensed_at <= to_dt)
+        except ValueError:
+            return jsonify({'error': 'invalid to_date format (use ISO format)'}), 400
         
         # Apply optional filters
         if category_ids:
@@ -164,8 +162,8 @@ def get_debits():
             query = query.filter(Debit.amount < amount_lt)
 
         # Apply joins and sorting based on sort_field
-        if sort_field == 'created_at':
-            order_by = desc(Debit.created_at) if sort_order == 'desc' else Debit.created_at
+        if sort_field == 'expensed_at':
+            order_by = desc(Debit.expensed_at) if sort_order == 'desc' else Debit.expensed_at
             query = query.order_by(order_by)
         elif sort_field == 'category':
             query = query.join(Category, Debit.category_id == Category.id)
@@ -185,8 +183,8 @@ def get_debits():
             order_by = desc(Debit.method) if sort_order == 'desc' else Debit.method
             query = query.order_by(order_by)
         else:
-            # Default to created_at if invalid field
-            query = query.order_by(desc(Debit.created_at))
+            # Default to expensed_at if invalid field
+            query = query.order_by(desc(Debit.expensed_at))
 
         # Get total count before pagination
         total = query.count()

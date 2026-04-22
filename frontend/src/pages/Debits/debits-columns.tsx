@@ -10,9 +10,16 @@ export type DebitColumn = Debit
 
 /**
  * Formato de fecha: DD/MM/YYYY (es-ES)
+ * 
+ * IMPORTANTE: Parsear manualmente para evitar problemas de zona horaria.
+ * new Date("2026-04-29") en UTC-3 sería "2026-04-28" porque asume UTC.
+ * Solución: crear Date desde componentes de año/mes/día
  */
 export const formatDate = (dateString: string): string => {
-  const date = new Date(dateString)
+  // Parsear "2026-04-29" a componentes
+  const [year, month, day] = dateString.split('-').map(Number)
+  // Crear Date con zona horaria local (no UTC)
+  const date = new Date(year, month - 1, day)
   return date.toLocaleDateString('es-ES', {
     year: 'numeric',
     month: '2-digit',
@@ -44,11 +51,11 @@ export const createDebitsColumns = (
 ): ColumnDef<DebitColumn>[] => {
   const columns: ColumnDef<DebitColumn>[] = [
     {
-      accessorKey: 'created_at',
-      id: 'created_at',
+      accessorKey: 'expensed_at',
+      id: 'expensed_at',
       header: ({ column }) => <SortableHeader column={column} title="Fecha" />,
       cell: ({ row }) => {
-        const date = row.getValue('created_at') as string
+        const date = row.getValue('expensed_at') as string
         return <div className="text-sm text-gray-900">{formatDate(date)}</div>
       },
       sortingFn: 'datetime',

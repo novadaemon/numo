@@ -467,14 +467,14 @@ paths:
         - name: from_date
           in: query
           required: true
-          description: Filter debits from this date (ISO 8601 format). Required parameter.
+          description: Filter debits from this date inclusive (ISO 8601 date format, e.g., 2026-04-01). Required parameter.
           schema:
             type: string
             format: date
         - name: to_date
           in: query
           required: true
-          description: Filter debits until this date (ISO 8601 format). Required parameter.
+          description: Filter debits until this date inclusive (ISO 8601 date format, e.g., 2026-04-30). Required parameter.
           schema:
             type: string
             format: date
@@ -536,11 +536,11 @@ paths:
             minimum: 0.01
         - name: sort_field
           in: query
-          description: Sort field (created_at, category, place, amount, concept, method). Default is created_at
+          description: Sort field (expensed_at, category, place, amount, concept, method). Default is expensed_at
           schema:
             type: string
-            enum: [created_at, category, place, amount, concept, method]
-            default: created_at
+            enum: [expensed_at, category, place, amount, concept, method]
+            default: expensed_at
         - name: sort_order
           in: query
           description: Sort order (asc or desc). Default is desc
@@ -657,12 +657,13 @@ paths:
                     - debit
                     - credit
                     - cash
-                created_at:
-                  type: string
-                  format: date-time
                 observations:
                   type: string
                   maxLength: 500
+                expensed_at:
+                  type: string
+                  format: date
+                  description: When the expense occurred
       responses:
         "200":
           description: Debit updated successfully
@@ -722,14 +723,14 @@ paths:
         - name: from_date
           in: query
           required: true
-          description: Filter credits from this date (ISO 8601 format). Required parameter.
+          description: Filter credits from this date inclusive (ISO 8601 date format, e.g., 2026-04-01). Required parameter.
           schema:
             type: string
             format: date
         - name: to_date
           in: query
           required: true
-          description: Filter credits until this date (ISO 8601 format). Required parameter.
+          description: Filter credits until this date inclusive (ISO 8601 date format, e.g., 2026-04-30). Required parameter.
           schema:
             type: string
             format: date
@@ -821,12 +822,13 @@ paths:
                   type: number
                   format: float
                   minimum: 0.01
-                created_at:
-                  type: string
-                  format: date-time
                 observations:
                   type: string
                   maxLength: 500
+                credited_at:
+                  type: string
+                  format: date
+                  description: When the income occurred
       responses:
         "200":
           description: Credit updated successfully
@@ -991,6 +993,10 @@ components:
         created_at:
           type: string
           format: date-time
+          description: When the record was created
+        expensed_at:
+          type: string
+          format: date
           description: When the expense occurred
         observations:
           type: string
@@ -1003,6 +1009,7 @@ components:
         - amount
         - method
         - created_at
+        - expensed_at
 
     DebitInput:
       type: object
@@ -1034,20 +1041,20 @@ components:
             - credit
             - cash
           description: Payment method used for the transaction (defaults to 'cash' if not provided)
-        created_at:
-          type: string
-          format: date-time
-          nullable: true
-          description: When the expense occurred (defaults to current time if not provided)
         observations:
           type: string
           maxLength: 500
           nullable: true
           description: Optional notes
+        expensed_at:
+          type: string
+          format: date
+          description: When the expense occurred
       required:
         - category_id
         - place_id
         - amount
+        - expensed_at
 
     Credit:
       type: object
@@ -1063,16 +1070,21 @@ components:
         created_at:
           type: string
           format: date-time
-          description: When the income occurred
+          description: When the record was created
         observations:
           type: string
           maxLength: 500
           nullable: true
           description: Optional notes
+        credited_at:
+          type: string
+          format: date
+          description: When the income occurred
       required:
         - id
         - amount
         - created_at
+        - credited_at
 
     CreditInput:
       type: object
@@ -1082,11 +1094,10 @@ components:
           format: float
           minimum: 0.01
           description: Income amount
-        created_at:
+        credited_at:
           type: string
-          format: date-time
-          nullable: true
-          description: When the income occurred (defaults to current time if not provided)
+          format: date
+          description: When the income occurred
         observations:
           type: string
           maxLength: 500
@@ -1094,6 +1105,7 @@ components:
           description: Optional notes
       required:
         - amount
+        - credited_at
 
     Error:
       type: object

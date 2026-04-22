@@ -11,19 +11,23 @@ class CreditSchema(Schema):
         validate=validate.Range(min=0.01, error="amount must be greater than 0"),
         error_messages={'required': 'amount is required'}
     )
-    created_at = fields.DateTime(
-        allow_none=True,
-        format='iso',
-        error_messages={'invalid': 'created_at must be in ISO 8601 format (e.g., 2026-04-04T15:30:00)'}
-    )
     observations = fields.Str(
         allow_none=True,
         validate=validate.Length(max=500, error="observations must not exceed 500 characters"),
         load_default=None
     )
+    credited_at = fields.Date(
+        required=True,
+        format='iso',
+        error_messages={'required': 'credited_at is required', 'invalid': 'credited_at must be in ISO 8601 format (e.g., 2026-04-04)'}
+    )
+    created_at = fields.DateTime(
+        dump_only=True,
+        format='iso'
+    )
 
     class Meta:
-        fields = ('id', 'amount', 'created_at', 'observations')
+        fields = ('id', 'amount', 'observations', 'credited_at', 'created_at')
 
     def validate_amount(self, value):
         """Validate amount is a valid decimal."""
