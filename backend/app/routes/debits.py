@@ -1,6 +1,7 @@
 """Routes for debit (expense) management."""
 from flask import Blueprint, request, jsonify
 from datetime import datetime
+import json
 from sqlalchemy import desc
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from marshmallow import ValidationError
@@ -52,13 +53,45 @@ def get_debits():
         from_date = request.args.get('from_date')
         to_date = request.args.get('to_date')
         category_id = request.args.get('category_id', type=int)
+        category_ids_param = request.args.get('category_ids')  # JSON array
         place_id = request.args.get('place_id', type=int)
+        place_ids_param = request.args.get('place_ids')  # JSON array
+        concept = request.args.get('concept')
+        method = request.args.get('method')
+        method_values_param = request.args.get('method_values')  # JSON array
+        amount_gt = request.args.get('amount_gt', type=float)
+        amount_lt = request.args.get('amount_lt', type=float)
         sort_field = request.args.get('sort_field', 'created_at')
         sort_order = request.args.get('sort_order', 'desc')
 
-        # Validate date range is provided
-        if not from_date or not to_date:
-            return jsonify({'error': 'from_date and to_date are required parameters'}), 400
+        # Parse JSON parameters for multiple values
+        category_ids = None
+        place_ids = None
+        method_values = None
+        
+        if category_ids_param:
+            try:
+                category_ids = json.loads(category_ids_param)
+                if not isinstance(category_ids, list):
+                    return jsonify({'error': 'category_ids must be a JSON array'}), 400
+            except json.JSONDecodeError:
+                return jsonify({'error': 'invalid category_ids JSON format'}), 400
+        
+        if place_ids_param:
+            try:
+                place_ids = json.loads(place_ids_param)
+                if not isinstance(place_ids, list):
+                    return jsonify({'error': 'place_ids must be a JSON array'}), 400
+            except json.JSONDecodeError:
+                return jsonify({'error': 'invalid place_ids JSON format'}), 400
+        
+        if method_values_param:
+            try:
+                method_values = json.loads(method_values_param)
+                if not isinstance(method_values, list):
+                    return jsonify({'error': 'method_values must be a JSON array'}), 400
+            except json.JSONDecodeError:
+                return jsonify({'error': 'invalid method_values JSON format'}), 400
 
         # Validate sort parameters
         valid_sort_fields = ['created_at', 'category', 'place', 'amount', 'concept', 'method']
@@ -72,25 +105,63 @@ def get_debits():
         # Build query with sorting
         query = db.query(Debit)
         
-        # Apply date filters (required) - BEFORE sorting joins
-        try:
-            from_dt = datetime.fromisoformat(from_date)
-            query = query.filter(Debit.created_at >= from_dt)
-        except ValueError:
-            return jsonify({'error': 'invalid from_date format (use ISO format)'}), 400
+        # Apply optional date filters
+        if from_date:
+            try:
+                from_dt = datetime.fromisoformat(from_date)
+                query = query.filter(Debit.created_at >= from_dt)
+            except ValueError:
+                return jsonify({'error': 'invalid from_date format (use ISO format)'}), 400
 
-        try:
-            to_dt = datetime.fromisoformat(to_date)
-            query = query.filter(Debit.created_at <= to_dt)
-        except ValueError:
-            return jsonify({'error': 'invalid to_date format (use ISO format)'}), 400
+        if to_date:
+            try:
+                to_dt = datetime.fromisoformat(to_date)
+                # If to_date is just a date (no time component), adjust to end of day
+                # This makes "On 2026-04-18" match any time during that day
+                if to_dt.hour == 0 and to_dt.minute == 0 and to_dt.second == 0:
+                    # Replace time with 23:59:59 to include all of that day
+                    to_dt = to_dt.replace(hour=23, minute=59, second=59)
+                query = query.filter(Debit.created_at <= to_dt)
+            except ValueError:
+                return jsonify({'error': 'invalid to_date format (use ISO format)'}), 400
         
         # Apply optional filters
-        if category_id:
+        if category_ids:
+            query = query.filter(Debit.category_id.in_(category_ids))
+        elif category_id:
             query = query.filter(Debit.category_id == category_id)
 
-        if place_id:
+        if place_ids:
+            query = query.filter(Debit.place_id.in_(place_ids))
+        elif place_id:
             query = query.filter(Debit.place_id == place_id)
+
+        if concept:
+            query = query.filter(Debit.concept.ilike(f'%{concept}%'))
+
+        if method_values:
+            # Validate all methods are valid enum values
+            valid_methods = ['debit', 'credit', 'cash']
+            for m in method_values:
+                if m not in valid_methods:
+                    return jsonify({'error': f'method must be one of: {", ".join(valid_methods)}'}), 400
+            query = query.filter(Debit.method.in_(method_values))
+        elif method:
+            # Validate method is one of the enum values
+            valid_methods = ['debit', 'credit', 'cash']
+            if method not in valid_methods:
+                return jsonify({'error': f'method must be one of: {", ".join(valid_methods)}'}), 400
+            query = query.filter(Debit.method == method)
+
+        if amount_gt is not None:
+            if amount_gt <= 0:
+                return jsonify({'error': 'amount_gt must be greater than 0'}), 400
+            query = query.filter(Debit.amount > amount_gt)
+
+        if amount_lt is not None:
+            if amount_lt <= 0:
+                return jsonify({'error': 'amount_lt must be greater than 0'}), 400
+            query = query.filter(Debit.amount < amount_lt)
 
         # Apply joins and sorting based on sort_field
         if sort_field == 'created_at':

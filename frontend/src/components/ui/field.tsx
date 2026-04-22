@@ -8,14 +8,6 @@ interface FieldContextValue {
 
 const FieldContext = React.createContext<FieldContextValue | undefined>(undefined)
 
-function useField() {
-  const context = React.useContext(FieldContext)
-  if (!context) {
-    throw new Error("Field components must be used within a Field provider")
-  }
-  return context
-}
-
 interface FieldProps extends React.HTMLAttributes<HTMLDivElement> {
   invalid?: boolean
 }
@@ -47,7 +39,7 @@ const FieldGroup = React.forwardRef<HTMLDivElement, FieldGroupProps>(
 )
 FieldGroup.displayName = "FieldGroup"
 
-interface FieldSetProps extends React.FieldSetHTMLAttributes<HTMLFieldSetElement> {}
+interface FieldSetProps extends React.FieldsetHTMLAttributes<HTMLFieldSetElement> {}
 
 const FieldSet = React.forwardRef<HTMLFieldSetElement, FieldSetProps>(
   ({ className, ...props }, ref) => (
@@ -60,7 +52,7 @@ const FieldSet = React.forwardRef<HTMLFieldSetElement, FieldSetProps>(
 )
 FieldSet.displayName = "FieldSet"
 
-interface FieldLegendProps extends React.LegendHTMLAttributes<HTMLLegendElement> {
+interface FieldLegendProps extends React.HTMLAttributes<HTMLLegendElement> {
   variant?: "legend" | "label"
 }
 

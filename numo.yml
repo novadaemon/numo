@@ -448,7 +448,7 @@ paths:
       operationId: getDebits
       tags:
         - Debits
-      description: Retrieve a list of all expenses (debits) with pagination support
+      description: Retrieve a list of all expenses (debits) with pagination support and optional filtering
       parameters:
         - name: page
           in: query
@@ -480,14 +480,60 @@ paths:
             format: date
         - name: category_id
           in: query
-          description: Filter by category ID
+          description: Filter by category ID (optional, deprecated - use category_ids for multiple values)
           schema:
             type: integer
+            minimum: 1
+        - name: category_ids
+          in: query
+          description: Filter by multiple category IDs (JSON array format, optional). Example - category_ids=["1","2","3"]
+          schema:
+            type: string
+            example: '["1","2","3"]'
         - name: place_id
           in: query
-          description: Filter by place ID
+          description: Filter by place ID (optional, deprecated - use place_ids for multiple values)
           schema:
             type: integer
+            minimum: 1
+        - name: place_ids
+          in: query
+          description: Filter by multiple place IDs (JSON array format, optional). Example - place_ids=["1","2","3"]
+          schema:
+            type: string
+            example: '["1","2","3"]'
+        - name: concept
+          in: query
+          description: Filter by concept (partial text match, case-insensitive, optional)
+          schema:
+            type: string
+            maxLength: 255
+        - name: method
+          in: query
+          description: Filter by payment method (optional, deprecated - use method_values for multiple values)
+          schema:
+            type: string
+            enum: [debit, credit, cash]
+        - name: method_values
+          in: query
+          description: Filter by multiple payment methods (JSON array format, optional). Example - method_values=["debit","cash"]
+          schema:
+            type: string
+            example: '["debit","cash"]'
+        - name: amount_gt
+          in: query
+          description: Filter debits with amount greater than this value (optional)
+          schema:
+            type: number
+            format: float
+            minimum: 0.01
+        - name: amount_lt
+          in: query
+          description: Filter debits with amount less than this value (optional)
+          schema:
+            type: number
+            format: float
+            minimum: 0.01
         - name: sort_field
           in: query
           description: Sort field (created_at, category, place, amount, concept, method). Default is created_at

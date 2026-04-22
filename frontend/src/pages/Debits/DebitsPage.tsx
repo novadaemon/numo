@@ -1,7 +1,11 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { DebitsTable } from './DebitsTable';
 import { DebitForm } from './DebitForm';
+import { getDebitsFilterFields } from './debitsFilterFields';
+import { FilterBar, deserializeFilters, serializeFilters } from '@/components/Filters/FilterBar';
+import type { FilterRule } from '@/components/Filters/types';
+import type { FilterFieldConfig } from '@/types/filters';
 import { ConfirmationDialog } from '@/components/ui/ConfirmationDialog';
 import { Button } from '@/components/ui/button';
 import {
@@ -26,6 +30,7 @@ import toast from 'react-hot-toast';
 /**
  * Página CRUD para gestión de gastos (debits)
  * Renderiza:
+ * - Barra de filtros Notion-style
  * - Tabla de gastos con paginación server-side
  * - Breadcrumb de navegación
  * - Form para crear/editar
@@ -33,6 +38,23 @@ import toast from 'react-hot-toast';
  */
 export function DebitsPage() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Filter state
+  const [filters, setFilters] = useState<FilterRule[]>(() => {
+    const filtersParam = searchParams.get('filters');
+    if (filtersParam) {
+      try {
+        return deserializeFilters(JSON.parse(filtersParam));
+      } catch {
+        return [];
+      }
+    }
+    return [];
+  });
+
+  const [filterFields, setFilterFields] = useState<FilterFieldConfig[]>([]);
+  const [loadingFields, setLoadingFields] = useState(true);
 
   // Form state
   const [formOpen, setFormOpen] = useState(false);
@@ -45,6 +67,37 @@ export function DebitsPage() {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [debitToDelete, setDebitToDelete] = useState<Debit | null>(null);
   const [deleting, setDeleting] = useState(false);
+
+  // Load filter fields on mount
+  useEffect(() => {
+    const loadFields = async () => {
+      try {
+        const fields = await getDebitsFilterFields();
+        setFilterFields(fields);
+      } catch (error) {
+        console.error('Error loading filter fields:', error);
+        toast.error('Error loading filters');
+      } finally {
+        setLoadingFields(false);
+      }
+    };
+
+    loadFields();
+  }, []);
+
+  // Sync filters to URL params
+  useEffect(() => {
+    const serialized = serializeFilters(filters);
+    if (serialized.length > 0) {
+      setSearchParams({ filters: JSON.stringify(serialized) });
+    } else {
+      setSearchParams({});
+    }
+  }, [filters, setSearchParams]);
+
+  const handleFiltersChange = (newFilters: FilterRule[]) => {
+    setFilters(newFilters);
+  };
 
   const handleAddClick = () => {
     setSelectedDebit(undefined);
@@ -125,7 +178,7 @@ export function DebitsPage() {
               Gestión de Gastos
             </h1>
             <p className="text-gray-600">
-              Administra todos tus gastos del mes
+              Administra todos tus gastos
             </p>
           </div>
         </div>
@@ -143,13 +196,20 @@ export function DebitsPage() {
 
         {/* Table */}
         <div>
-          <p className="text-sm text-gray-500 font-medium mb-3">
-            Gastos del Mes - {new Date().toLocaleString('es-ES', { month: 'long', year: 'numeric' })}
-          </p>
+          {!loadingFields && (
+            <>
+              <FilterBar 
+                fields={filterFields}
+                value={filters}
+                onChange={handleFiltersChange}
+              />
+            </>
+          )}
           <DebitsTable
             onEdit={handleEdit}
             onDelete={handleDelete}
             refreshTrigger={refreshTrigger}
+            filters={filters}
           />
         </div>
       </div>
