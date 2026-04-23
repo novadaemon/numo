@@ -33,7 +33,22 @@ paths:
       operationId: getCategories
       tags:
         - Categories
-      description: Retrieve a list of all expense categories
+      description: Retrieve a list of all expense categories with optional pagination
+      parameters:
+        - name: page
+          in: query
+          description: Page number (0-indexed, default 0)
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+        - name: size
+          in: query
+          description: Number of items per page (allowed values 10, 25, 50, 100, default 10)
+          schema:
+            type: integer
+            enum: [10, 25, 50, 100]
+            default: 10
       responses:
         "200":
           description: List of categories
@@ -320,7 +335,22 @@ paths:
       operationId: getPlaces
       tags:
         - Places
-      description: Retrieve a list of all transaction places/locations
+      description: Retrieve a list of all transaction places/locations with optional pagination
+      parameters:
+        - name: page
+          in: query
+          description: Page number (0-indexed, default 0)
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+        - name: size
+          in: query
+          description: Number of items per page (allowed values 10, 25, 50, 100, default 10)
+          schema:
+            type: integer
+            enum: [10, 25, 50, 100]
+            default: 10
       responses:
         "200":
           description: List of places
