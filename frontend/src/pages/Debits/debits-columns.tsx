@@ -1,16 +1,16 @@
 'use client'
 
-import { ColumnDef } from '@tanstack/react-table'
-import { Debit } from '@/types/models'
 import { Button } from '@/components/ui/button'
 import { SortableHeader } from '@/components/ui/sortable-header'
+import { Debit } from '@/types/models'
+import { ColumnDef } from '@tanstack/react-table'
 import { Edit2, Trash2 } from 'lucide-react'
 
 export type DebitColumn = Debit
 
 /**
  * Formato de fecha: DD/MM/YYYY (es-ES)
- * 
+ *
  * IMPORTANTE: Parsear manualmente para evitar problemas de zona horaria.
  * new Date("2026-04-29") en UTC-3 sería "2026-04-28" porque asume UTC.
  * Solución: crear Date desde componentes de año/mes/día
@@ -67,11 +67,7 @@ export const createDebitsColumns = (
       header: ({ column }) => <SortableHeader column={column} title="Categoría" />,
       cell: ({ row }) => {
         const category = row.original.category
-        return (
-          <div className="text-sm text-gray-900">
-            {category?.name || 'Sin categoría'}
-          </div>
-        )
+        return <div className="text-sm text-gray-900">{category?.name || 'Sin categoría'}</div>
       },
       size: 150,
     },
@@ -81,7 +77,7 @@ export const createDebitsColumns = (
       header: ({ column }) => <SortableHeader column={column} title="Lugar" />,
       cell: ({ row }) => {
         const debit = row.original
-        const displayText =  debit.place?.name || '-'
+        const displayText = debit.place?.name || '-'
         return (
           <div className="text-sm">
             <div className="text-gray-900">{displayText}</div>
@@ -103,7 +99,7 @@ export const createDebitsColumns = (
           </div>
         )
       },
-      size: 150,
+      size: 500,
     },
     {
       accessorKey: 'method',
@@ -122,7 +118,8 @@ export const createDebitsColumns = (
           cash: 'bg-green-100 text-green-800',
         }
         return (
-          <span className={`px-2 py-1 rounded text-xs font-medium ${methodColors[method] || 'bg-gray-100 text-gray-800'}`}>
+          <span
+            className={`rounded px-2 py-1 text-xs font-medium ${methodColors[method] || 'bg-gray-100 text-gray-800'}`}>
             {methodLabels[method] || method}
           </span>
         )
@@ -132,11 +129,7 @@ export const createDebitsColumns = (
     {
       accessorKey: 'amount',
       id: 'amount',
-      header: ({ column }) => (
-        <div className="text-right">
-          <SortableHeader column={column} title="Monto" />
-        </div>
-      ),
+      header: ({ column }) => <SortableHeader column={column} title="Monto" />,
       cell: ({ row }) => {
         const amount = row.getValue('amount') as number
         return (
@@ -153,7 +146,7 @@ export const createDebitsColumns = (
   if (onEdit || onDelete) {
     columns.push({
       id: 'actions',
-      header: () => <div className="text-center text-sm font-medium">Acciones</div>,
+      header: () => <div className="w-full text-center text-sm font-medium">Acciones</div>,
       cell: ({ row }) => {
         const debit = row.original
         return (
@@ -164,9 +157,8 @@ export const createDebitsColumns = (
                 size="sm"
                 onClick={() => onEdit(debit)}
                 title="Editar gasto"
-                className="h-8 w-8 p-0"
-              >
-                <Edit2 className="w-4 h-4 text-blue-600 hover:text-blue-800" />
+                className="h-8 w-8 p-0">
+                <Edit2 className="h-4 w-4 text-blue-600 hover:text-blue-800" />
               </Button>
             )}
             {onDelete && (
@@ -175,9 +167,8 @@ export const createDebitsColumns = (
                 size="sm"
                 onClick={() => onDelete(debit)}
                 title="Eliminar gasto"
-                className="h-8 w-8 p-0"
-              >
-                <Trash2 className="w-4 h-4 text-red-600 hover:text-red-800" />
+                className="h-8 w-8 p-0">
+                <Trash2 className="h-4 w-4 text-red-600 hover:text-red-800" />
               </Button>
             )}
           </div>

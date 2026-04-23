@@ -78,3 +78,24 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Table column resizing - Smooth and fluid */
+@layer utilities {
+  /* Prevent text selection during column resize */
+  body.resizing {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+  }
+
+  /* Make resize handle more responsive */
+  th div[class*='cursor-col-resize'] {
+    transition: background-color 0.15s ease;
+  }
+
+  /* Improve performance during resize */
+  table {
+    border-collapse: collapse;
+  }
+}

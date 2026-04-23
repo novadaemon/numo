@@ -1,2 +1,3 @@
-export { Dashboard } from './Dashboard';
-export { DebitsPage } from './Debits/DebitsPage';
+export { CreditsPage } from './Credits/CreditsPage'
+export { Dashboard } from './Dashboard'
+export { DebitsPage } from './Debits/DebitsPage'

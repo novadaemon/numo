@@ -1,22 +1,22 @@
 import type { FilterRule } from '@/components/Filters/types'
 import { DataTable } from '@/components/ui/data-table'
 import { useDataRefresh } from '@/contexts'
-import { debitsService } from '@/services'
-import { Debit } from '@/types'
+import { creditsService } from '@/services'
+import { Credit } from '@/types'
 import { SortingState } from '@tanstack/react-table'
 import { useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
-import { createDebitsColumns } from './debits-columns'
+import { createCreditsColumns } from './credits-columns'
 
-interface DebitsTableProps {
-  onEdit?: (debit: Debit) => void
-  onDelete?: (debit: Debit) => void
+interface CreditsTableProps {
+  onEdit?: (credit: Credit) => void
+  onDelete?: (credit: Credit) => void
   refreshTrigger?: number
   filters?: FilterRule[]
 }
 
 /**
- * Tabla de gastos con paginación y ordenamiento server-side
+ * Tabla de ingresos con paginación y ordenamiento server-side
  * Maneja:
  * - Fetch de datos desde el servidor
  * - Filtrado Notion-style
@@ -24,22 +24,22 @@ interface DebitsTableProps {
  * - Ordenamiento server-side
  * - Acciones (editar, eliminar)
  */
-export function DebitsTable({
+export function CreditsTable({
   onEdit,
   onDelete,
   refreshTrigger = 0,
   filters = [],
-}: DebitsTableProps) {
-  const [debits, setDebits] = useState<Debit[]>([])
+}: CreditsTableProps) {
+  const [credits, setCredits] = useState<Credit[]>([])
   const [currentPage, setCurrentPage] = useState(0)
   const [totalItems, setTotalItems] = useState(0)
   const [loading, setLoading] = useState(true)
   const [pageSize, setPageSize] = useState(10)
-  const [sorting, setSorting] = useState<SortingState>([{ id: 'expensed_at', desc: true }])
+  const [sorting, setSorting] = useState<SortingState>([{ id: 'credited_at', desc: true }])
   const availablePageSizes = [10, 25, 50, 100]
 
   // Memoize filters to prevent unnecessary re-renders when filters reference changes
-  const memoizedFilters = useMemo(() => filters, [JSON.stringify(filters)])
+  const memoizedFilters = useMemo(() => filters, [filters])
 
   // Trigger para refetch cuando hay cambios
   const [internalRefreshTrigger, setInternalRefreshTrigger] = useState(0)
@@ -48,8 +48,8 @@ export function DebitsTable({
   // Suscribirse a eventos de actualización de datos
   useEffect(() => {
     const unsubscribe = onRefresh((event) => {
-      // Refetch cuando hay cambios en débitos
-      if (event === 'debit-created' || event === 'debit-updated' || event === 'debit-deleted') {
+      // Refetch cuando hay cambios en créditos
+      if (event === 'credit-created' || event === 'credit-updated' || event === 'credit-deleted') {
         // Resetear página y triggear refetch
         setCurrentPage(0)
         setInternalRefreshTrigger((prev) => prev + 1)
@@ -59,12 +59,12 @@ export function DebitsTable({
     return unsubscribe
   }, [onRefresh])
 
-  // Fetch debits con filtros
+  // Fetch credits con filtros
   useEffect(() => {
     let isMounted = true
     let isRunning = false // Prevenir fetches concurrentes
 
-    const fetchDebits = async () => {
+    const fetchCredits = async () => {
       // Prevenir múltiples fetches simultáneos
       if (isRunning) return
 
@@ -73,27 +73,20 @@ export function DebitsTable({
         setLoading(true)
 
         // Get sort field and order from React Table sorting state
-        let sortField: 'expensed_at' | 'category' | 'place' | 'amount' | 'concept' | 'method' =
-          'expensed_at'
+        let sortField: 'credited_at' | 'amount' | 'observations' = 'credited_at'
         let sortOrder: 'asc' | 'desc' = 'desc'
 
         if (sorting.length > 0) {
           const sortConfig = sorting[0]
-          const validFields = ['expensed_at', 'category', 'place', 'amount', 'concept', 'method']
+          const validFields = ['credited_at', 'amount', 'observations']
           if (validFields.includes(sortConfig.id)) {
-            sortField = sortConfig.id as
-              | 'expensed_at'
-              | 'category'
-              | 'place'
-              | 'amount'
-              | 'concept'
-              | 'method'
+            sortField = sortConfig.id as 'credited_at' | 'amount' | 'observations'
           }
           sortOrder = sortConfig.desc ? 'desc' : 'asc'
         }
 
         // Use filters from FilterBar
-        const response = await debitsService.getAllWithFilters(
+        const response = await creditsService.getAllWithFilters(
           memoizedFilters,
           currentPage,
           pageSize,
@@ -105,17 +98,17 @@ export function DebitsTable({
 
         // Handle paginated responses
         if (Array.isArray(response)) {
-          setDebits(response)
+          setCredits(response)
           setTotalItems(response.length)
         } else {
-          setDebits(response.data || [])
+          setCredits(response.data || [])
           setTotalItems(response.total || 0)
         }
       } catch (error) {
         if (isMounted) {
           console.error('Error fetching table data:', error)
-          toast.error('Error al cargar los gastos')
-          setDebits([])
+          toast.error('Error al cargar los ingresos')
+          setCredits([])
           setTotalItems(0)
         }
       } finally {
@@ -126,7 +119,7 @@ export function DebitsTable({
       }
     }
 
-    fetchDebits()
+    fetchCredits()
 
     return () => {
       isMounted = false
@@ -147,26 +140,26 @@ export function DebitsTable({
     setCurrentPage(0) // Resetear a la primera página al cambiar sorting
   }
 
-  if (loading && debits.length === 0) {
+  if (loading && credits.length === 0) {
     return (
       <div className="rounded-lg border border-gray-200 p-8 text-center">
-        <p className="text-gray-500">Cargando gastos...</p>
+        <p className="text-gray-500">Cargando ingresos...</p>
       </div>
     )
   }
 
-  if (!loading && debits.length === 0) {
+  if (!loading && credits.length === 0) {
     return (
       <div className="rounded-lg border border-gray-200 p-8 text-center">
-        <p className="text-gray-500">No hay gastos registrados para este período</p>
+        <p className="text-gray-500">No hay ingresos registrados para este período</p>
       </div>
     )
   }
 
   return (
     <DataTable
-      columns={createDebitsColumns(onEdit, onDelete)}
-      data={debits}
+      columns={createCreditsColumns(onEdit, onDelete)}
+      data={credits}
       serverSidePagination={{
         currentPage,
         pageSize,

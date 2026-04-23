@@ -24,7 +24,7 @@ def format_credit(credit):
 
 @bp.route('', methods=['GET'])
 def get_credits():
-    """Get all credits, optionally filtered by date range with pagination."""
+    """Get all credits, optionally filtered by date range, amount, observations with pagination."""
     db = SessionLocal()
     try:
         # Get pagination parameters
@@ -38,25 +38,54 @@ def get_credits():
         # Get query parameters for filtering
         from_date = request.args.get('from_date')
         to_date = request.args.get('to_date')
+        observations = request.args.get('observations')
+        amount_gt = request.args.get('amount_gt', type=float)
+        amount_lt = request.args.get('amount_lt', type=float)
+        sort_field = request.args.get('sort_field', 'credited_at')
+        sort_order = request.args.get('sort_order', 'desc')
 
-        # Validate date range is provided
-        if not from_date or not to_date:
-            return jsonify({'error': 'from_date and to_date are required parameters'}), 400
+        # Validate sort field and order
+        valid_sort_fields = ['credited_at', 'amount', 'observations']
+        if sort_field not in valid_sort_fields:
+            sort_field = 'credited_at'
+        
+        if sort_order not in ['asc', 'desc']:
+            sort_order = 'desc'
 
-        query = db.query(Credit).order_by(desc(Credit.credited_at))
+        # Build base query
+        query = db.query(Credit)
 
-        # Apply date filters (required)
-        try:
-            from_dt = datetime.fromisoformat(from_date).date()
-            query = query.filter(Credit.credited_at >= from_dt)
-        except ValueError:
-            return jsonify({'error': 'invalid from_date format (use ISO format)'}), 400
+        # Apply sorting
+        if sort_order == 'desc':
+            query = query.order_by(desc(getattr(Credit, sort_field)))
+        else:
+            query = query.order_by(getattr(Credit, sort_field))
 
-        try:
-            to_dt = datetime.fromisoformat(to_date).date()
-            query = query.filter(Credit.credited_at <= to_dt)
-        except ValueError:
-            return jsonify({'error': 'invalid to_date format (use ISO format)'}), 400
+        # Apply optional date filters
+        if from_date:
+            try:
+                from_dt = datetime.fromisoformat(from_date).date()
+                query = query.filter(Credit.credited_at >= from_dt)
+            except ValueError:
+                return jsonify({'error': 'invalid from_date format (use ISO format)'}), 400
+
+        if to_date:
+            try:
+                to_dt = datetime.fromisoformat(to_date).date()
+                query = query.filter(Credit.credited_at <= to_dt)
+            except ValueError:
+                return jsonify({'error': 'invalid to_date format (use ISO format)'}), 400
+
+        # Apply observations filter (text search)
+        if observations:
+            query = query.filter(Credit.observations.ilike(f'%{observations}%'))
+
+        # Apply amount filters
+        if amount_gt is not None:
+            query = query.filter(Credit.amount > amount_gt)
+        
+        if amount_lt is not None:
+            query = query.filter(Credit.amount < amount_lt)
 
         # Get total count before pagination
         total = query.count()
