@@ -171,14 +171,24 @@ paths:
       operationId: getConcepts
       tags:
         - Concepts
-      description: Retrieve a list of all expense concepts
+      description: Retrieve a list of all expense concepts with optional search filtering
+      parameters:
+        - name: q
+          in: query
+          required: false
+          description: Search keyword to filter concepts by partial name match (case-insensitive, accent-insensitive). Optional parameter.
+          schema:
+            type: string
+            maxLength: 255
       responses:
         "200":
-          description: List of concepts
+          description: List of concepts matching the search query (if provided) or all concepts
           content:
             application/json:
               schema:
                 type: array
+                items:
+                  $ref: "#/components/schemas/Concept"
                 items:
                   $ref: "#/components/schemas/Concept"
 
