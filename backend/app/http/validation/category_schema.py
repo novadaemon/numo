@@ -10,10 +10,6 @@ class CategorySchema(Schema):
         required=True,
         validate=[
             validate.Length(min=1, max=50, error="Name must be between 1 and 50 characters"),
-            validate.Regexp(
-                r'^[a-zA-Z0-9\s\-_]+$',
-                error="Name can only contain letters, numbers, spaces, hyphens, and underscores"
-            )
         ],
         error_messages={'required': 'Name is required'}
     )

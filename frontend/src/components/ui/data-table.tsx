@@ -49,7 +49,6 @@ interface DataTableProps<TData, TValue> {
     onSortingChange?: (sorting: SortingState) => void
     availablePageSizes?: number[]
   }
-  onRowClick?: (row: TData) => void
 }
 
 /**
@@ -88,7 +87,6 @@ export function DataTable<TData, TValue>({
   data,
   initialSorting,
   serverSidePagination,
-  onRowClick,
 }: DataTableProps<TData, TValue>) {
   // For server-side pagination, sorting state is controlled by parent
   // For client-side, we manage it locally
@@ -228,10 +226,8 @@ export function DataTable<TData, TValue>({
                           style={{ width: cell.column.getSize() }}
                           className={cn(
                             'h-12 overflow-hidden whitespace-nowrap border-r p-2',
-                            'last:border-r-0',
-                            onRowClick && 'cursor-pointer'
-                          )}
-                          onClick={() => onRowClick?.(row.original)}>
+                            'last:border-r-0'
+                          )}>
                           {flexRender(cell.column.columnDef.cell, cell.getContext())}
                         </TableCell>
                       </Fragment>

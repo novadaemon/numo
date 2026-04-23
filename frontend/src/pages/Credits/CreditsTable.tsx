@@ -170,7 +170,6 @@ export function CreditsTable({
         onSortingChange: handleSortingChange,
         availablePageSizes,
       }}
-      onRowClick={onEdit ? (row) => onEdit(row) : undefined}
     />
   )
 }

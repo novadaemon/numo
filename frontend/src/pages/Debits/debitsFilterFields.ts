@@ -1,6 +1,6 @@
-import type { FilterFieldConfig } from '@/types/filters'
 import { categoriesService } from '@/services/categoriesService'
 import { placesService } from '@/services/placesService'
+import type { FilterFieldConfig } from '@/types/filters'
 
 /**
  * Build the list of filterable fields for Debits.
@@ -11,7 +11,7 @@ export async function getDebitsFilterFields(): Promise<FilterFieldConfig[]> {
   const fields: FilterFieldConfig[] = []
 
   // Load dynamic options
-  const categories = await categoriesService.getAll()
+  const categories = await categoriesService.getAllSimple()
   const places = await placesService.getAll()
 
   const textOperators = [
@@ -33,9 +33,7 @@ export async function getDebitsFilterFields(): Promise<FilterFieldConfig[]> {
     { value: 'between', label: 'Between' },
   ]
 
-  const containsOperators = [
-    { value: 'contains', label: 'Contains' },
-  ]
+  const containsOperators = [{ value: 'contains', label: 'Contains' }]
 
   // 1. Date field
   fields.push({

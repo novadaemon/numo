@@ -175,7 +175,7 @@ export function CreditsPage() {
 
         {/* Add Button */}
         <div className="mb-6 flex justify-end">
-          <Button onClick={handleAddClick} className="bg-green-500 text-white hover:bg-green-600">
+          <Button onClick={handleAddClick}>
             <Plus className="mr-2 h-4 w-4" />
             Agregar Ingreso
           </Button>

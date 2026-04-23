@@ -11,16 +11,23 @@ class TestCategoriesEndpoints:
         response = client.get('/categories')
         assert response.status_code == 200
         data = json.loads(response.data)
-        assert isinstance(data, list)
-        assert len(data) == 0
+        assert isinstance(data, dict)
+        assert 'data' in data
+        assert isinstance(data['data'], list)
+        assert len(data['data']) == 0
+        assert data['total'] == 0
+        assert data['page'] == 0
 
     def test_get_all_categories_with_data(self, client, categories):
         """Test getting all categories when data exists."""
         response = client.get('/categories')
         assert response.status_code == 200
         data = json.loads(response.data)
-        assert isinstance(data, list)
-        assert len(data) == 5
+        assert isinstance(data, dict)
+        assert 'data' in data
+        assert isinstance(data['data'], list)
+        assert len(data['data']) == 5
+        assert data['total'] == 5
 
     def test_create_category_valid(self, client):
         """Test creating a category with valid data."""

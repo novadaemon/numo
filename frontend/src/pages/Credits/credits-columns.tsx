@@ -105,7 +105,10 @@ export const createCreditsColumns = (
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => onEdit(credit)}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onEdit(credit)
+                }}
                 title="Editar ingreso"
                 className="h-8 w-8 p-0">
                 <Edit2 className="h-4 w-4 text-blue-600 hover:text-blue-800" />
@@ -115,7 +118,10 @@ export const createCreditsColumns = (
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => onDelete(credit)}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onDelete(credit)
+                }}
                 title="Eliminar ingreso"
                 className="h-8 w-8 p-0">
                 <Trash2 className="h-4 w-4 text-red-600 hover:text-red-800" />

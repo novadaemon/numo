@@ -1,31 +1,26 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { DebitsTable } from './DebitsTable';
-import { DebitForm } from './DebitForm';
-import { getDebitsFilterFields } from './debitsFilterFields';
-import { FilterBar, deserializeFilters, serializeFilters } from '@/components/Filters/FilterBar';
-import type { FilterRule } from '@/components/Filters/types';
-import type { FilterFieldConfig } from '@/types/filters';
-import { ConfirmationDialog } from '@/components/ui/ConfirmationDialog';
-import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { FilterBar, deserializeFilters, serializeFilters } from '@/components/Filters/FilterBar'
+import type { FilterRule } from '@/components/Filters/types'
+import { ConfirmationDialog } from '@/components/ui/ConfirmationDialog'
 import {
   Breadcrumb,
-  BreadcrumbList,
   BreadcrumbItem,
   BreadcrumbLink,
-  BreadcrumbSeparator,
+  BreadcrumbList,
   BreadcrumbPage,
-} from '@/components/ui/breadcrumb';
-import { debitsService } from '@/services';
-import { Debit } from '@/types';
-import { Plus } from 'lucide-react';
-import toast from 'react-hot-toast';
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb'
+import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { debitsService } from '@/services'
+import { Debit } from '@/types'
+import type { FilterFieldConfig } from '@/types/filters'
+import { Plus } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import toast from 'react-hot-toast'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import { DebitForm } from './DebitForm'
+import { DebitsTable } from './DebitsTable'
+import { getDebitsFilterFields } from './debitsFilterFields'
 
 /**
  * Página CRUD para gestión de gastos (debits)
@@ -37,113 +32,113 @@ import toast from 'react-hot-toast';
  * - Dialogs de confirmación
  */
 export function DebitsPage() {
-  const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
 
   // Filter state
   const [filters, setFilters] = useState<FilterRule[]>(() => {
-    const filtersParam = searchParams.get('filters');
+    const filtersParam = searchParams.get('filters')
     if (filtersParam) {
       try {
-        return deserializeFilters(JSON.parse(filtersParam));
+        return deserializeFilters(JSON.parse(filtersParam))
       } catch {
-        return [];
+        return []
       }
     }
-    return [];
-  });
+    return []
+  })
 
-  const [filterFields, setFilterFields] = useState<FilterFieldConfig[]>([]);
-  const [loadingFields, setLoadingFields] = useState(true);
+  const [filterFields, setFilterFields] = useState<FilterFieldConfig[]>([])
+  const [loadingFields, setLoadingFields] = useState(true)
 
   // Form state
-  const [formOpen, setFormOpen] = useState(false);
-  const [selectedDebit, setSelectedDebit] = useState<Debit | undefined>();
+  const [formOpen, setFormOpen] = useState(false)
+  const [selectedDebit, setSelectedDebit] = useState<Debit | undefined>()
 
   // Refresh trigger
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [refreshTrigger, setRefreshTrigger] = useState(0)
 
   // Delete confirmation state
-  const [deleteOpen, setDeleteOpen] = useState(false);
-  const [debitToDelete, setDebitToDelete] = useState<Debit | null>(null);
-  const [deleting, setDeleting] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false)
+  const [debitToDelete, setDebitToDelete] = useState<Debit | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   // Load filter fields on mount
   useEffect(() => {
     const loadFields = async () => {
       try {
-        const fields = await getDebitsFilterFields();
-        setFilterFields(fields);
+        const fields = await getDebitsFilterFields()
+        setFilterFields(fields)
       } catch (error) {
-        console.error('Error loading filter fields:', error);
-        toast.error('Error loading filters');
+        console.error('Error loading filter fields:', error)
+        toast.error('Error loading filters')
       } finally {
-        setLoadingFields(false);
+        setLoadingFields(false)
       }
-    };
+    }
 
-    loadFields();
-  }, []);
+    loadFields()
+  }, [])
 
   // Sync filters to URL params
   useEffect(() => {
-    const serialized = serializeFilters(filters);
+    const serialized = serializeFilters(filters)
     if (serialized.length > 0) {
-      setSearchParams({ filters: JSON.stringify(serialized) });
+      setSearchParams({ filters: JSON.stringify(serialized) })
     } else {
-      setSearchParams({});
+      setSearchParams({})
     }
-  }, [filters, setSearchParams]);
+  }, [filters, setSearchParams])
 
   const handleFiltersChange = (newFilters: FilterRule[]) => {
-    setFilters(newFilters);
-  };
+    setFilters(newFilters)
+  }
 
   const handleAddClick = () => {
-    setSelectedDebit(undefined);
-    setFormOpen(true);
-  };
+    setSelectedDebit(undefined)
+    setFormOpen(true)
+  }
 
   const handleFormClose = (open: boolean) => {
-    setFormOpen(open);
+    setFormOpen(open)
     if (!open) {
-      setSelectedDebit(undefined);
+      setSelectedDebit(undefined)
     }
-  };
+  }
 
   const handleEdit = (debit: Debit) => {
-    setSelectedDebit(debit);
-    setFormOpen(true);
-  };
+    setSelectedDebit(debit)
+    setFormOpen(true)
+  }
 
   const handleDelete = (debit: Debit) => {
-    setDebitToDelete(debit);
-    setDeleteOpen(true);
-  };
+    setDebitToDelete(debit)
+    setDeleteOpen(true)
+  }
 
   const handleFormSuccess = () => {
     // Cierra el form, limpia el debit seleccionado y actualiza la tabla
-    handleFormClose(false);
-    setRefreshTrigger(prev => prev + 1);
-  };
+    handleFormClose(false)
+    setRefreshTrigger((prev) => prev + 1)
+  }
 
   const handleConfirmDelete = async () => {
-    if (!debitToDelete) return;
+    if (!debitToDelete) return
 
-    setDeleting(true);
+    setDeleting(true)
     try {
-      await debitsService.delete(debitToDelete.id);
-      toast.success('Gasto eliminado exitosamente');
-      setDeleteOpen(false);
-      setDebitToDelete(null);
-      setRefreshTrigger(prev => prev + 1);
+      await debitsService.delete(debitToDelete.id)
+      toast.success('Gasto eliminado exitosamente')
+      setDeleteOpen(false)
+      setDebitToDelete(null)
+      setRefreshTrigger((prev) => prev + 1)
     } catch (error) {
-      console.error('Error deleting debit:', error);
-      toast.error('Error al eliminar el gasto');
+      console.error('Error deleting debit:', error)
+      toast.error('Error al eliminar el gasto')
     } finally {
-      setDeleting(false);
+      setDeleting(false)
     }
-  };
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -153,13 +148,12 @@ export function DebitsPage() {
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem>
-                <BreadcrumbLink 
+                <BreadcrumbLink
                   href="#"
                   onClick={(e) => {
-                    e.preventDefault();
-                    navigate('/');
-                  }}
-                >
+                    e.preventDefault()
+                    navigate('/')
+                  }}>
                   Dashboard
                 </BreadcrumbLink>
               </BreadcrumbItem>
@@ -174,22 +168,15 @@ export function DebitsPage() {
         {/* Header */}
         <div className="mb-8 flex items-start justify-between">
           <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">
-              Gestión de Gastos
-            </h1>
-            <p className="text-gray-600">
-              Administra todos tus gastos
-            </p>
+            <h1 className="mb-2 text-4xl font-bold text-gray-900">Gestión de Gastos</h1>
+            <p className="text-gray-600">Administra todos tus gastos</p>
           </div>
         </div>
 
         {/* Add Button */}
         <div className="mb-6 flex justify-end">
-          <Button 
-            onClick={handleAddClick}
-            className="bg-red-500 hover:bg-red-600 text-white"
-          >
-            <Plus className="w-4 h-4 mr-2" />
+          <Button onClick={handleAddClick}>
+            <Plus className="mr-2 h-4 w-4" />
             Agregar Gasto
           </Button>
         </div>
@@ -198,11 +185,7 @@ export function DebitsPage() {
         <div>
           {!loadingFields && (
             <>
-              <FilterBar 
-                fields={filterFields}
-                value={filters}
-                onChange={handleFiltersChange}
-              />
+              <FilterBar fields={filterFields} value={filters} onChange={handleFiltersChange} />
             </>
           )}
           <DebitsTable
@@ -218,11 +201,9 @@ export function DebitsPage() {
       <Dialog open={formOpen} onOpenChange={handleFormClose}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>
-              {selectedDebit ? 'Editar Gasto' : 'Nuevo Gasto'}
-            </DialogTitle>
+            <DialogTitle>{selectedDebit ? 'Editar Gasto' : 'Nuevo Gasto'}</DialogTitle>
           </DialogHeader>
-          <DebitForm 
+          <DebitForm
             debit={selectedDebit}
             onOpenChange={handleFormClose}
             onSuccess={handleFormSuccess}
@@ -243,5 +224,5 @@ export function DebitsPage() {
         onConfirm={handleConfirmDelete}
       />
     </div>
-  );
+  )
 }

@@ -155,7 +155,10 @@ export const createDebitsColumns = (
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => onEdit(debit)}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onEdit(debit)
+                }}
                 title="Editar gasto"
                 className="h-8 w-8 p-0">
                 <Edit2 className="h-4 w-4 text-blue-600 hover:text-blue-800" />
@@ -165,7 +168,10 @@ export const createDebitsColumns = (
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => onDelete(debit)}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onDelete(debit)
+                }}
                 title="Eliminar gasto"
                 className="h-8 w-8 p-0">
                 <Trash2 className="h-4 w-4 text-red-600 hover:text-red-800" />
