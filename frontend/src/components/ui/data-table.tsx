@@ -152,7 +152,7 @@ export function DataTable<TData, TValue>({
     <div className="space-y-4">
       {/* Table */}
       <div
-        className="overflow-hidden border border-gray-200"
+        className="overflow-hidden rounded-lg border border-gray-200"
         style={{ userSelect: 'none' }}
         onMouseUp={() => (document.body.style.cursor = 'auto')}
         onMouseLeave={() => (document.body.style.cursor = 'auto')}>

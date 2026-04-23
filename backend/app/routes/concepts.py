@@ -1,12 +1,13 @@
 """Routes for concept management."""
 from flask import Blueprint, request, jsonify
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy import func
+from sqlalchemy import func, desc
 from marshmallow import ValidationError
 import unicodedata
 from ..database import SessionLocal
 from ..models import Concept
 from ..http.validation import ConceptSchema
+from ..http.pagination import validate_pagination_params, apply_pagination
 
 bp = Blueprint('concepts', __name__, url_prefix='/concepts')
 schema = ConceptSchema()
@@ -24,29 +25,60 @@ def normalize_text(text):
 
 @bp.route('', methods=['GET'])
 def get_concepts():
-    """Get all concepts or search by name.
+    """Get all concepts with optional pagination, sorting, or search by name.
     
     Query Parameters:
-        q (str, optional): Search query string for concept names (case-insensitive, accent-insensitive partial match)
+        q (str, optional): Search query string for concept names (case-insensitive, accent-insensitive partial match).
+            When provided, returns a flat array (no pagination).
+        page (int, optional): Page number (0-indexed, default 0)
+        size (int, optional): Page size (default 10)
+        sort_field (str, optional): Field to sort by (default 'name')
+        sort_order (str, optional): Sort order 'asc' or 'desc' (default 'asc')
     """
     db = SessionLocal()
     try:
-        query = db.query(Concept)
-        
-        # Add search filter if q parameter is provided
+        # Search mode: return flat array for autocomplete/combobox usage
         search_query = request.args.get('q', '').strip()
         if search_query:
+            query = db.query(Concept)
             normalized_query = normalize_text(search_query)
-            # Get all concepts and filter in Python for accent-insensitive search
             concepts = query.all()
             concepts = [c for c in concepts if normalized_query in normalize_text(c.name)]
-        else:
-            concepts = query.all()
-        
-        return jsonify([
-            {'id': c.id, 'name': c.name}
-            for c in concepts
-        ]), 200
+            return jsonify([{'id': c.id, 'name': c.name} for c in concepts]), 200
+
+        # Paginated mode
+        page = request.args.get('page', type=int)
+        size = request.args.get('size', type=int)
+
+        page, size, error = validate_pagination_params(page, size)
+        if error:
+            return jsonify({'error': error}), 400
+
+        sort_field = request.args.get('sort_field', 'name')
+        sort_order = request.args.get('sort_order', 'asc')
+
+        valid_sort_fields = ['name']
+        if sort_field not in valid_sort_fields:
+            error_msg = 'sort_field must be one of: ' + ', '.join(valid_sort_fields)
+            return jsonify({'error': error_msg}), 400
+
+        if sort_order not in ['asc', 'desc']:
+            return jsonify({'error': 'sort_order must be either asc or desc'}), 400
+
+        query = db.query(Concept)
+        order_by = desc(Concept.name) if sort_order == 'desc' else Concept.name
+        query = query.order_by(order_by)
+
+        total = query.count()
+        query = apply_pagination(query, page, size)
+        concepts = query.all()
+
+        return jsonify({
+            'data': [{'id': c.id, 'name': c.name} for c in concepts],
+            'page': page,
+            'size': size,
+            'total': total
+        }), 200
     finally:
         db.close()
 
