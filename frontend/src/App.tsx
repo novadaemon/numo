@@ -1,6 +1,6 @@
 import { HeaderMenu } from '@/components/layout'
 import { DataRefreshProvider } from '@/contexts'
-import { CategoriesPage, CreditsPage, Dashboard, DebitsPage } from '@/pages'
+import { CategoriesPage, CreditsPage, Dashboard, DebitsPage, PlacesPage } from '@/pages'
 import { apiClient } from '@/services'
 import { CircleDollarSign } from 'lucide-react'
 import { useEffect, useState } from 'react'
@@ -76,6 +76,7 @@ function App() {
             <Route path="/categories" element={<CategoriesPage />} />
             <Route path="/debits" element={<DebitsPage />} />
             <Route path="/credits" element={<CreditsPage />} />
+            <Route path="/places" element={<PlacesPage />} />
           </Routes>
         </div>
       </div>

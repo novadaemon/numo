@@ -79,7 +79,7 @@ export function DebitForm({ debit, onOpenChange, onSuccess }: DebitFormProps) {
       try {
         const cats = await categoriesService.getAllSimple()
         setCategories(cats)
-        const placesList = await placesService.getAll()
+        const placesList = await placesService.getAllSimple()
         setPlaces(placesList)
 
         // Pre-poblar form si es modo edición (después de cargar datos)

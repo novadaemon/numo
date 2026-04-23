@@ -11,8 +11,14 @@ class TestPlacesEndpoints:
         response = client.get('/places')
         assert response.status_code == 200
         data = json.loads(response.data)
-        assert isinstance(data, list)
-        assert len(data) == 0
+        assert isinstance(data, dict)
+        assert 'data' in data
+        assert 'page' in data
+        assert 'size' in data
+        assert 'total' in data
+        assert isinstance(data['data'], list)
+        assert len(data['data']) == 0
+        assert data['total'] == 0
 
     def test_create_place_valid(self, client):
         """Test creating a place with valid data."""

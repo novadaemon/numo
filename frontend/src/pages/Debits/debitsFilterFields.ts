@@ -12,7 +12,7 @@ export async function getDebitsFilterFields(): Promise<FilterFieldConfig[]> {
 
   // Load dynamic options
   const categories = await categoriesService.getAllSimple()
-  const places = await placesService.getAll()
+  const places = await placesService.getAllSimple()
 
   const textOperators = [
     { value: 'contains', label: 'Contains' },
