@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { debitsService, categoriesService, placesService } from '@/services';
+import { debitsService, categoriesService, placesService, conceptsService } from '@/services';
 import { useDataRefresh } from '@/contexts';
-import { Category, Place, Debit } from '@/types';
+import { Category, Place, Debit, Concept } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Autocomplete } from '@/components/ui/autocomplete';
 import {
   Select,
   SelectContent,
@@ -54,6 +55,11 @@ export function DebitForm({ debit, onOpenChange, onSuccess }: DebitFormProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [newPlaceName, setNewPlaceName] = useState('');
   const [creatingPlace, setCreatingPlace] = useState(false);
+  
+  // Concept autocomplete states
+  const [conceptSearchValue, setConceptSearchValue] = useState('');
+  const [conceptSuggestions, setConceptSuggestions] = useState<Concept[]>([]);
+  
   const isEditMode = Boolean(debit);
   const { triggerRefresh } = useDataRefresh();
   const [formData, setFormData] = useState({
@@ -87,6 +93,10 @@ export function DebitForm({ debit, onOpenChange, onSuccess }: DebitFormProps) {
             observations: debit.observations || '',
             expensed_at: debit.expensed_at,
           });
+          // Sincronizar conceptSearchValue para modo edición
+          if (debit.concept) {
+            setConceptSearchValue(debit.concept);
+          }
         }
       } catch (error) {
         console.error('Error loading data:', error);
@@ -111,6 +121,52 @@ export function DebitForm({ debit, onOpenChange, onSuccess }: DebitFormProps) {
       setErrors({});
     }
   }, [isEditMode]);
+
+  // Limpiar error cuando el usuario interactúa con el campo concepto
+  useEffect(() => {
+    if (errors.concept && conceptSearchValue) {
+      setErrors((prev) => ({
+        ...prev,
+        concept: undefined,
+      }));
+    }
+  }, [conceptSearchValue, errors.concept]);
+
+  // Search concepts with debounce
+  useEffect(() => {
+    // Si el campo está vacío, limpiar concept
+    if (!conceptSearchValue.trim()) {
+      setConceptSuggestions([]);
+      setFormData((prev) => ({ ...prev, concept: '' }));
+      return;
+    }
+
+    const timeoutId = setTimeout(async () => {
+      try {
+        const results = await conceptsService.search(conceptSearchValue);
+        
+        // If exactly one match and it's an exact match, treat as selection
+        if (results.length === 1 && results[0].name === conceptSearchValue) {
+          // Auto-select this concept
+          setConceptSuggestions([]);
+          setFormData((prev) => ({ ...prev, concept: conceptSearchValue }));
+        } else {
+          // Show suggestions
+          setConceptSuggestions(results);
+          
+          // If no sugerencias, confirmar el valor actual
+          if (results.length === 0) {
+            setFormData((prev) => ({ ...prev, concept: conceptSearchValue }));
+          }
+        }
+      } catch (error) {
+        console.error('Error searching concepts:', error);
+        setConceptSuggestions([]);
+      }
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [conceptSearchValue]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -343,21 +399,13 @@ export function DebitForm({ debit, onOpenChange, onSuccess }: DebitFormProps) {
 
         <Field invalid={!!errors.concept}>
           <FieldLabel htmlFor="concept">Concepto (opcional)</FieldLabel>
-          <Input
-            id="concept"
-            type="text"
-            name="concept"
-            value={formData.concept}
-            onChange={handleChange}
+          <Autocomplete
+            searchValue={conceptSearchValue}
+            onSearchValueChange={setConceptSearchValue}
+            items={conceptSuggestions}
             placeholder="Ej: Suscripción Netflix, Compra online, etc."
             maxLength={255}
-            aria-invalid={!!errors.concept}
           />
-          {formData.concept && (
-            <div className="text-xs text-muted-foreground">
-              {formData.concept.length}/255
-            </div>
-          )}
           {errors.concept && (
             <FieldError>{formatError(errors.concept)}</FieldError>
           )}

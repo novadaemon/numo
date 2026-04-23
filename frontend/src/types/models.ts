@@ -15,6 +15,14 @@ export interface Place {
 }
 
 /**
+ * Concept model - represents an expense concept
+ */
+export interface Concept {
+  id: number;
+  name: string;
+}
+
+/**
  * Embedded category reference in Debit response
  */
 export interface CategoryRef {

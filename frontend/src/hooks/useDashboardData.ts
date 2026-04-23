@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { debitsService } from '@/services';
 import { Debit } from '@/types/models';
 import { useDataRefresh } from '@/contexts';
