@@ -1,2 +1,2 @@
-export { DebitForm } from '../../pages/Debits/DebitForm';
-export { CreditForm } from './CreditForm';
+export { CreditForm } from '../../pages/Credits/CreditForm'
+export { DebitForm } from '../../pages/Debits/DebitForm'

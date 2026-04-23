@@ -145,7 +145,7 @@ export function CreditForm({ credit, onOpenChange, onSuccess }: CreditFormProps)
         </Field>
 
         <Field invalid={!!errors.observations}>
-          <FieldLabel htmlFor="observations">Descripción (opcional)</FieldLabel>
+          <FieldLabel htmlFor="observations">Observaciones (opcional)</FieldLabel>
           <Textarea
             id="observations"
             name="observations"

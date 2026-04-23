@@ -1,6 +1,5 @@
 import { FilterBar, deserializeFilters, serializeFilters } from '@/components/Filters/FilterBar'
 import type { FilterRule } from '@/components/Filters/types'
-import { CreditForm } from '@/components/Forms/CreditForm'
 import { ConfirmationDialog } from '@/components/ui/ConfirmationDialog'
 import {
   Breadcrumb,
@@ -19,6 +18,7 @@ import { Plus } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+import { CreditForm } from './CreditForm'
 import { CreditsTable } from './CreditsTable'
 import { getCreditsFilterFields } from './creditsFilterFields'
 
