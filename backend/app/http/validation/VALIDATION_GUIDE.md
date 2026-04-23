@@ -57,8 +57,8 @@ Validates debit (expense) creation and update requests.
 - `amount` (required, float): Expense amount (must be > 0)
 - `concept` (optional, str): Concept or description of the expense (max 255 chars)
 - `method` (optional, str): Payment method - one of `debit`, `credit`, `cash` (defaults to 'cash')
-- `expensed_at` (required, date): When the expense occurred (ISO 8601 date format: YYYY-MM-DD)
 - `observations` (optional, str): Notes about the expense (max 500 chars)
+- `expensed_at` (required, date): When the expense occurred (ISO 8601 date format: YYYY-MM-DD)
 - `created_at` (read-only, datetime): Auto-generated timestamp when record was created (ISO 8601 format)
 
 **Example:**
@@ -73,8 +73,8 @@ data = schema.load({
     'amount': 45.50,
     'concept': 'Groceries',
     'method': 'cash',
-    'expensed_at': '2026-04-04',
     'observations': 'Weekly grocery shopping'
+    'expensed_at': '2026-04-04',
 })
 ```
 
@@ -85,8 +85,8 @@ Validates credit (income) creation and update requests.
 **Fields:**
 
 - `amount` (required, float): Income amount (must be > 0)
-- `credited_at` (required, date): When the income occurred (ISO 8601 date format: YYYY-MM-DD)
 - `observations` (optional, str): Notes about the income (max 500 chars)
+- `credited_at` (required, date): When the income occurred (ISO 8601 date format: YYYY-MM-DD)
 - `created_at` (read-only, datetime): Auto-generated timestamp when record was created (ISO 8601 format)
 
 **Example:**
@@ -97,8 +97,8 @@ from app.http.validation import CreditSchema
 schema = CreditSchema()
 data = schema.load({
     'amount': 1500.00,
-    'credited_at': '2026-04-04',
     'observations': 'Monthly salary'
+    'credited_at': '2026-04-04',
 })
 ```
 

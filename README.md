@@ -18,6 +18,9 @@ cp .env.example .env
 
 # 3. Inicia el backend en Docker
 docker-compose up
+
+# 4. Ejecuta los seeders para crear la base de datos
+docker-compose exec -T backend python seeders/seed.py
 ```
 
 **Terminal 2: Inicia el Frontend**
@@ -103,33 +106,13 @@ Variables disponibles:
 - [Frontend README](./frontend/README.md)
 - [Guía de Desarrollo](./CLAUDE.md)
 
-## 📝 Licencia
-
-Proyecto personal.
-│ ├── app/ # Código de aplicación
-│ ├── tests/ # Tests
-│ ├── requirements.txt # Dependencias Python
-│ ├── Dockerfile
-│ └── README.md
-├── frontend/ # Aplicación React
-│ ├── src/ # Código fuente
-│ ├── public/ # Archivos estáticos
-│ ├── package.json # Dependencias Node
-│ ├── Dockerfile
-│ └── README.md
-├── docker-compose.yml # Orchestración de servicios
-├── .env.example # Template de variables de entorno
-└── CLAUDE.md # Documentación del proyecto
-
-````
-
 ## 🔧 Configuración
 
 Copia `.env.example` a `.env` y ajusta las variables según necesites:
 
 ```bash
 cp .env.example .env
-````
+```
 
 Variables disponibles:
 

@@ -4,13 +4,52 @@ Servicio backend de la aplicación Numo. Expone una API REST para gestionar gast
 
 ## Con Docker (Recomendado)
 
+### Iniciar el contenedor
+
 ```bash
 docker-compose up
 ```
 
 La API estará disponible en `http://localhost:8080`
 
+### Ejecutar comandos en el contenedor
+
+Todos los comandos deben ejecutarse dentro del contenedor backend usando `docker-compose exec`:
+
+#### Instalar dependencias
+
+```bash
+docker-compose exec -T backend pip install -r requirements.txt
+```
+
+#### Ejecutar tests
+
+```bash
+# Ejecutar todos los tests
+docker-compose exec -T backend pytest tests/ -v
+
+# Ejecutar tests con cobertura
+docker-compose exec -T backend pytest tests/ -v --cov=app
+
+# Ejecutar un test específico
+docker-compose exec -T backend pytest tests/test_debits.py -v
+```
+
+#### Ejecutar seeders
+
+```bash
+docker-compose exec -T backend python seeders/seed.py
+```
+
+#### Acceder al shell interactivo
+
+```bash
+docker-compose exec backend bash
+```
+
 ## Instalación Local
+
+Si prefieres ejecutar la aplicación localmente sin Docker:
 
 1. Crea un entorno virtual:
 
