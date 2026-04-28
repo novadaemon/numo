@@ -8,13 +8,14 @@ Esta guía te lleva a través del proceso completo de hacer tu primer release co
 
 ✅ Proyecto Numo con workflows de CI/CD configurados  
 ✅ Rama `main` y `develop` existentes en GitHub  
-✅ `.version` archivo con versión actual (0.1.0)  
+✅ `.version` archivo con versión actual (0.1.0)
 
 ---
 
 ## 🎯 Objetivo
 
 Hacer un release v0.1.0 con:
+
 - Tag automático en GitHub
 - Release notes automáticas
 - CI/CD pasando todos los tests
@@ -58,7 +59,7 @@ git push origin main
 1. 🤖 **create-version-tag.yml** se activa:
    - Lee `.version` (encuentra 0.1.0)
    - Verifica si tag `v0.1.0` existe (no existe)
-   - Crea tag `v0.1.0` 
+   - Crea tag `v0.1.0`
    - Pushea tag a origin
 
 2. 🤖 **create-release.yml** se activa:
@@ -80,6 +81,7 @@ git push origin main
    - ✅ `Release Automation`
 
 ### Ver Tags Credos workflows ejecutándose:
+
 ```bash
 # En terminal (en tu repo local)
 git fetch origin --tags
@@ -179,25 +181,33 @@ git push origin develop
 - [ ] Anunciar release a equipo
 
 ---
+
 ## 🐛 Troubleshooting
 
 ### ❌ Workflow falla con "Permission denied"
+
 **Solución**: GitHub → Settings → Actions → General → Workflow permissions
+
 - Cambiar a "Read and write permissions"
 
 ### ❌ Tag no se crea
-**Solución**: 
+
+**Solución**:
+
 1. Verificar `.version` fue modificado en el commit
 2. Ejecutar workflow manualmente: Actions → Select workflow → Run workflow
 
 ### ❌ Tests fallan en workflow
+
 **Solución**:
+
 1. Ver logs en GitHub Actions
 2. Corregir localmente
 3. Push nuevamente
 4. Workflow se ejecuta automáticamente
 
 ### ❌ Release notes están vacías
+
 **Solución**: Es normal si no hay commits desde último tag. Puedes editar manualmente la release en GitHub.
 
 ---

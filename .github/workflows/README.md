@@ -5,6 +5,7 @@ Este directorio contiene los workflows de CI/CD automáticos para el proyecto Nu
 ## 📋 Workflows
 
 ### `validation.yml`
+
 **Validación continua** de backend y frontend.
 
 - Ejecuta tests backend (pytest con coverage)
@@ -14,6 +15,7 @@ Este directorio contiene los workflows de CI/CD automáticos para el proyecto Nu
 **Requisito**: Debe pasar antes de mergear a main
 
 ### `create-version-tag.yml`
+
 **Creación automática de tags** cuando se mergea a `main`.
 
 - Lee versión de `.version`
@@ -24,12 +26,14 @@ Este directorio contiene los workflows de CI/CD automáticos para el proyecto Nu
 **Resultado**: Tag automático, no requiere intervención
 
 ### `create-release.yml`
+
 **Creación automática de releases** cuando se mergea a `main`.
 
 - Lee versión de `.version`
 - Genera changelog desde commits
 - Crea GitHub Release con notas
-Automáticamente: `validation.yml` corre tests y lint ✅
+  Automáticamente: `validation.yml` corre tests y lint ✅
+
 3. Mergear a `develop`
 4. Bump versión: `python bump_version.py patch`
 5. PR a `main` → Automáticamente: `validation.yml` corre nuevamente ✅
@@ -37,7 +41,8 @@ Automáticamente: `validation.yml` corre tests y lint ✅
    - ✅ Tag creado
    - ✅ Release creada
 
-**Todos los cambios están validados antes de mergear
+\*\*Todos los cambios están validados antes de mergear
+
 1. Hacer features en rama feature
 2. Mergear a `develop`
 3. Bump versión: `python bump_version.py patch`
@@ -76,6 +81,7 @@ Automáticamente: `validation.yml` corre tests y lint ✅
 Los workflows usan `GITHUB_TOKEN` con permisos automáticos.
 
 Para agregar integraciones (Slack, Discord, etc), agregar secrets:
+
 1. GitHub → Settings → Secrets and variables → Actions
 2. New secret
 3. Usar en workflows: `${{ secrets.NOMBRE_SECRET }}`

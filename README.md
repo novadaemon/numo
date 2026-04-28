@@ -160,6 +160,7 @@ Ejemplo: 0.1.0
 ### Automatización con GitHub Actions
 
 Los workflows automatizan en la rama `main`:
+
 - ✅ Validación automática (tests + lint)
 - ✅ Tag automático cuando se mergea
 - ✅ Release notes automáticas

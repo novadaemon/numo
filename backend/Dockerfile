@@ -16,6 +16,9 @@ RUN pip install --no-cache-dir -r requirements.txt -r requirements-dev.txt
 # Copiar código de la aplicación
 COPY . .
 
+# Crear directorio de datos con permisos apropiados
+RUN mkdir -p /app/data && chmod 755 /app/data
+
 # Variable de entorno para el puerto
 ENV BACKEND_PORT=8080
 

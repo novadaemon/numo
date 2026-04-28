@@ -30,7 +30,8 @@ def create_app():
     })
 
     # Ensure data directory exists for SQLite
-    os.makedirs('/app/data', exist_ok=True)
+    data_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data')
+    os.makedirs(data_dir, exist_ok=True)
 
     # Import models to ensure they're registered with SQLAlchemy
     # Must import BEFORE init_db() to register models

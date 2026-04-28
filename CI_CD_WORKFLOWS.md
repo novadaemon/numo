@@ -7,6 +7,7 @@ Este documento describe los workflows de CI/CD automáticos configurados para el
 ## 📋 Workflows Disponibles
 
 ### 1. **validation.yml** — Validación Continua
+
 **Trigger**: Push a `main`, PR abierto a `main`
 
 ```yaml
@@ -25,6 +26,7 @@ Event: push/pull_request → main
 ---
 
 ### 2. **create-version-tag.yml** — Crear Tags de Versión
+
 **Trigger**: Push a `main` con cambios en `.version`
 
 ```yaml
@@ -35,6 +37,7 @@ Event: push → main (archivo .version modificado)
 ```
 
 **Ejemplo**:
+
 ```bash
 # Cuando hagas merge a main con .version = 0.1.0
 # Automáticamente se crea tag: v0.1.0
@@ -46,6 +49,7 @@ git push origin main
 ---
 
 ### 3. **create-release.yml** — Crear GitHub Release
+
 **Trigger**: PR merged a `main`
 
 ```yaml
@@ -56,6 +60,7 @@ Event: pull_request → merged → main
 ```
 
 **Resultado**:
+
 - Release en GitHub con notas de cambios automáticas
 - Visible en: GitHub → Releases
 
@@ -64,6 +69,7 @@ Event: pull_request → merged → main
 ## 🔄 Flujo de Desarrollo Recomendado
 
 ### Fase 1: Desarrollo en Feature Branch
+
 ```bash
 git checkout -b feat/nueva-funcionalidad
 
@@ -74,6 +80,7 @@ git push origin feat/nueva-funcionalidad
 ```
 
 ### Fase 2: Merge a Develop
+
 ```bash
 git checkout develop
 git merge feat/nueva-funcionalidad
@@ -83,7 +90,8 @@ git push origin develop
 ```
 
 ### Fase 3: Preparar Release
-```bash
+
+````bash
 # En rama develop
 python bump_version.py patch
 # Esto actualiza: .version y frontend/package.json
@@ -108,7 +116,7 @@ git push origin main
 # Automáticamente:
 # 1. create-version-tag.yml crea tag v0.1.1 ✅
 # 2. create-release.yml crea GitHub Release ✅
-```
+````
 
 ---
 
@@ -155,17 +163,20 @@ git push origin main
 ## 🔍 Monitorear Workflows
 
 ### En GitHub Web
+
 1. Ir a tu repositorio
 2. Pestaña **Actions** en la parte superior
 3. Ver workflows en ejecución
 4. Clickear para ver detalles y logs
 
 ### Campos a Revisar
+
 - **Status**: ✅ Success o ❌ Failed
 - **Commit**: Qué commit generó la ejecución
 - **Logs**: Detalles de qué falló
 
 ### Acciones si Falla
+
 1. Revisar logs del workflow
 2. Identificar qué falló
 3. Corregir en feature branch
@@ -177,11 +188,14 @@ git push origin main
 ## 🛠️ Customizar Workflows
 
 ### Deshabilitar un Workflow
+
 - En `.github/workflows/`, renombrar archivo o cambiar `on:`
 - O desde GitHub: Actions → Seleccionar workflow → Disable
 
 ### Añadir Notificaciones
+
 Edita el workflow YAML:
+
 ```yaml
 - name: Send Slack notification
   uses: slackapi/slack-github-action@v1
@@ -190,6 +204,7 @@ Edita el workflow YAML:
 ```
 
 ### Agregar Secrets (para APIs)
+
 - GitHub → Settings → Secrets and variables → Actions
 - Crear new secret (ej: SLACK_WEBHOOK)
 - Usar en workflow: `${{ secrets.SLACK_WEBHOOK }}`
@@ -199,7 +214,9 @@ Edita el workflow YAML:
 ## ⚙️ Configuración Actual
 
 ### Branch Protection Rules
+
 Se recomienda configurar para `main`:
+
 1. GitHub → Settings → Branches
 2. Add rule for `main`
 3. Habilitar:
@@ -233,11 +250,13 @@ git commit -m "chore: actualizar dependencias"
 ## 🚨 Troubleshooting
 
 ### Workflow no se ejecuta
+
 - [ ] Verificar que el evento trigger coincida (`on: push, branches: [main]`)
 - [ ] Verificar que haya cambios en los paths monitoreados
 - [ ] Ir a Actions → Re-run workflow
 
 ### Tag no se crea
+
 - [ ] Verificar `.version` fue modificado en commit
 - [ ] Verificar permisos del token (GITHUB_TOKEN tiene acceso)
 - [ ] Manual: `git tag -a v0.1.0 -m "Release" && git push origin v0.1.0`
@@ -254,6 +273,7 @@ git commit -m "chore: actualizar dependencias"
 ---
 
 ## 📚 Referencias
+
 - [GitHub Actions Documentation](https://docs.github.com/en/actions)
 - [Workflow Syntax Reference](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions)
 - [Conventional Commits](https://www.conventionalcommits.org/)

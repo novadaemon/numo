@@ -11,13 +11,13 @@ Ejemplo: 1.2.3-beta.1+20260428
 
 ### Componentes
 
-| Componente | Descripción | Ejemplo |
-|-----------|-----------|---------|
-| **MAJOR** | Breaking changes (incompatibles) | Cambio en estructura de API, migración de BD |
-| **MINOR** | Nuevas características compatibles | Nuevo endpoint, nuevo campo opcional |
-| **PATCH** | Bug fixes y parches | Fix de validación, mejora de performance |
-| **PRERELEASE** | Versión no lista para producción | `alpha`, `beta.1`, `rc.2` |
-| **BUILD** | Metadata de construcción | Fecha, commit hash |
+| Componente     | Descripción                        | Ejemplo                                      |
+| -------------- | ---------------------------------- | -------------------------------------------- |
+| **MAJOR**      | Breaking changes (incompatibles)   | Cambio en estructura de API, migración de BD |
+| **MINOR**      | Nuevas características compatibles | Nuevo endpoint, nuevo campo opcional         |
+| **PATCH**      | Bug fixes y parches                | Fix de validación, mejora de performance     |
+| **PRERELEASE** | Versión no lista para producción   | `alpha`, `beta.1`, `rc.2`                    |
+| **BUILD**      | Metadata de construcción           | Fecha, commit hash                           |
 
 ---
 
@@ -176,12 +176,12 @@ Futuro: Agregar endpoint `/api/version` para verificar versión del backend.
 
 ## 📊 Tabla de Cambios por Versión
 
-| Versión | Tipo | Cambio |
-|---------|------|--------|
-| 0.1.0 | MINOR | Feature inicial: dashboard con gráficos |
-| 0.1.1 | PATCH | Fix: validación de fechas |
-| 0.2.0 | MINOR | Feature: export de datos |
-| 1.0.0 | MAJOR | API v1 estable, Breaking changes |
+| Versión | Tipo  | Cambio                                  |
+| ------- | ----- | --------------------------------------- |
+| 0.1.0   | MINOR | Feature inicial: dashboard con gráficos |
+| 0.1.1   | PATCH | Fix: validación de fechas               |
+| 0.2.0   | MINOR | Feature: export de datos                |
+| 1.0.0   | MAJOR | API v1 estable, Breaking changes        |
 
 ---
 
@@ -205,7 +205,7 @@ El proyecto incluye workflows de CI/CD que automatizan:
 ✅ **Crear tags** cuando se mergea a `main`  
 ✅ **Crear GitHub Releases** automáticamente  
 ✅ **Validar tests** antes de mergear  
-✅ **Linter y build** frontend/backend  
+✅ **Linter y build** frontend/backend
 
 **→ Ver [CI_CD_WORKFLOWS.md](CI_CD_WORKFLOWS.md) para detalles completos**
 
@@ -242,4 +242,3 @@ git push origin develop
 - [x] Integrar versionado con CI/CD ✅
 - [ ] Crear `CHANGELOG.md` automático desde commits (futuro)
 - [ ] Considerar herramientas como semantic-release (futuro)
-
