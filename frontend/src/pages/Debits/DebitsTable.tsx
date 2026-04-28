@@ -39,7 +39,7 @@ export function DebitsTable({
   const availablePageSizes = [10, 25, 50, 100]
 
   // Memoize filters to prevent unnecessary re-renders when filters reference changes
-  const memoizedFilters = useMemo(() => filters, [JSON.stringify(filters)])
+  const memoizedFilters = useMemo(() => filters, [filters])
 
   // Trigger para refetch cuando hay cambios
   const [internalRefreshTrigger, setInternalRefreshTrigger] = useState(0)

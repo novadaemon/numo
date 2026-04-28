@@ -87,7 +87,7 @@ export class DebitsService {
     const params: DebitFilterParams = {
       page,
       size,
-      sort_field: sortField as any as
+      sort_field: sortField as
         | 'expensed_at'
         | 'category'
         | 'place'
@@ -95,7 +95,7 @@ export class DebitsService {
         | 'concept'
         | 'method'
         | undefined,
-      sort_order: sortOrder as any as 'asc' | 'desc' | undefined,
+      sort_order: sortOrder as 'asc' | 'desc' | undefined,
     }
 
     // Convert FilterRule[] to DebitFilterParams

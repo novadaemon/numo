@@ -117,7 +117,7 @@ export function PopoverContent({
         document.removeEventListener('keydown', handleKeyDown)
       }
     }
-  }, [context.open, context.onOpenChange])
+  }, [context])
 
   if (!context.open) return null
 
