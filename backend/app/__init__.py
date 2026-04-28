@@ -18,7 +18,7 @@ def create_app():
 
     # Configure CORS for frontend development
     CORS(app, resources={
-        r"/api/*": {
+        r"/*": {
             "origins": allowed_origins,
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
             "allow_headers": ["Content-Type"],

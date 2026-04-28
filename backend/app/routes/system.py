@@ -10,7 +10,7 @@ from pathlib import Path
 # Agregar raíz del proyecto al path para importar version.py
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-system_bp = Blueprint("system", __name__, url_prefix="/api/system")
+system_bp = Blueprint("system", __name__, url_prefix="")
 
 
 def get_version() -> str:
@@ -38,22 +38,4 @@ def get_system_version():
         "version": get_version(),
         "name": "numo",
         "environment": os.getenv("FLASK_ENV", "production")
-    })
-
-
-@system_bp.route("/health", methods=["GET"])
-def health_check():
-    """
-    Health check del servidor.
-    
-    Returns:
-        JSON con estado del sistema:
-        {
-            "status": "ok",
-            "version": "0.1.0"
-        }
-    """
-    return jsonify({
-        "status": "ok",
-        "version": get_version()
     })

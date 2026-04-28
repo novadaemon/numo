@@ -10,9 +10,7 @@ info:
 
 servers:
   - url: http://localhost:8080
-    description: Development server
-  - url: http://localhost:3000/api
-    description: Frontend proxy (development)
+    description: Development server (direct API calls)
 
 tags:
   - name: Categories
@@ -934,7 +932,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
-  /api/system/version:
+  /version:
     get:
       summary: Get system version
       operationId: getSystemVersion
@@ -949,7 +947,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/VersionInfo"
 
-  /api/system/health:
+  /health:
     get:
       summary: Health check
       operationId: healthCheck

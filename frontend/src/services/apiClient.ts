@@ -144,7 +144,7 @@ export class ApiClient {
       }
 
       // Handle network/timeout errors
-      if (error instanceof TypeError && error.message.includes('abort')) {
+      if (error instanceof DOMException && error.name === 'AbortError') {
         const timeoutError = new Error('Request timeout') as Error & { status?: number }
         timeoutError.status = 408
         throw timeoutError
@@ -157,9 +157,10 @@ export class ApiClient {
 
   /**
    * GET request
+   */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async get<T = any>(endpoint: string, customHeaders?: Record<string, string>): Promise<T> {
-    return this.request<T>('GET', endpoint, undefined, customHeaders);
+    return this.request<T>('GET', endpoint, undefined, customHeaders)
   }
 
   /**
@@ -199,7 +200,7 @@ export class ApiClient {
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async health(): Promise<any> {
-    return this.get('/health')
+    return this.get('/version')
   }
 }
 

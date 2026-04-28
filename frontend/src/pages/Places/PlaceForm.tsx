@@ -91,10 +91,10 @@ export function PlaceForm({ place, onOpenChange, onSuccess }: PlaceFormProps) {
       const err = error as any
       console.error('Error saving place:', err)
       // Handle validation errors from API
-      if (err.response?.data?.errors) {
-        setErrors(err.response.data.errors)
-      } else if (err.response?.data?.message) {
-        toast.error(err.response.data.message)
+      if (err.data?.errors) {
+        setErrors(err.data.errors)
+      } else if (err.data?.message) {
+        toast.error(err.data.message)
       } else {
         toast.error('Error al guardar el lugar')
       }

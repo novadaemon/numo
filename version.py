@@ -3,7 +3,6 @@ Gestiona el versionado semántico del proyecto Numo.
 Lee la versión del archivo .version en la raíz del proyecto.
 """
 
-import os
 from pathlib import Path
 
 def get_version() -> str:
