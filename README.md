@@ -174,7 +174,7 @@ Ver [CI_CD_WORKFLOWS.md](./CI_CD_WORKFLOWS.md) para detalles.
 python version.py
 
 # Endpoint de API
-curl http://localhost:8080/api/system/version
+curl http://localhost:8080/version
 ```
 
 ### Bump de versión
