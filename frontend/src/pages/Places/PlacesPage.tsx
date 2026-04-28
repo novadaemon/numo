@@ -154,17 +154,14 @@ export function PlacesPage() {
         {/* Delete Confirmation Dialog */}
         <ConfirmationDialog
           open={deleteOpen}
+          onOpenChange={setDeleteOpen}
           title="Eliminar Lugar"
           description={`¿Estás seguro de que quieres eliminar "${placeToDelete?.name}"? Esta acción no se puede deshacer.`}
           confirmText="Eliminar"
           cancelText="Cancelar"
-          isDestructive
+          variant="destructive"
           loading={deleting}
           onConfirm={handleConfirmDelete}
-          onCancel={() => {
-            setDeleteOpen(false)
-            setPlaceToDelete(null)
-          }}
         />
       </div>
     </div>

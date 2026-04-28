@@ -21,12 +21,12 @@ export function FilterValueEditor({ fieldConfig, operator, value, onChange }: Pr
       return (
         <MultiSelectValueEditor
           options={fieldConfig.options ?? []}
-          value={value ?? []}
+          value={Array.isArray(value) ? value : []}
           onChange={onChange}
         />
       )
     case 'text':
-      return <TextValueEditor value={value ?? ''} onChange={onChange} />
+      return <TextValueEditor value={typeof value === 'string' ? value : ''} onChange={onChange} />
     case 'date':
       if (operator === 'between') {
         const rangeValue: [string, string] = Array.isArray(value)
@@ -34,7 +34,7 @@ export function FilterValueEditor({ fieldConfig, operator, value, onChange }: Pr
           : ['', '']
         return <DateRangeValueEditor value={rangeValue} onChange={onChange} />
       }
-      return <DateValueEditor value={value ?? ''} onChange={onChange} />
+      return <DateValueEditor value={typeof value === 'string' ? value : ''} onChange={onChange} />
     case 'number':
       if (operator === 'between') {
         const rangeValue: [string, string] = Array.isArray(value)
@@ -42,9 +42,11 @@ export function FilterValueEditor({ fieldConfig, operator, value, onChange }: Pr
           : ['', '']
         return <NumberRangeValueEditor value={rangeValue} onChange={onChange} />
       }
-      return <NumberValueEditor value={value ?? ''} onChange={onChange} />
+      return (
+        <NumberValueEditor value={typeof value === 'string' ? value : ''} onChange={onChange} />
+      )
     default:
-      return <TextValueEditor value={value ?? ''} onChange={onChange} />
+      return <TextValueEditor value={typeof value === 'string' ? value : ''} onChange={onChange} />
   }
 }
 

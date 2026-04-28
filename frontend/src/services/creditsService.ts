@@ -83,26 +83,26 @@ export class CreditsService {
       switch (rule.field) {
         case 'credited_at':
           if (rule.operator === 'equals' && rule.value) {
-            params.from_date = rule.value
-            params.to_date = rule.value
+            params.from_date = String(rule.value)
+            params.to_date = String(rule.value)
           } else if (rule.operator === 'before' && rule.value) {
-            params.to_date = rule.value
+            params.to_date = String(rule.value)
           } else if (rule.operator === 'after' && rule.value) {
-            params.from_date = rule.value
+            params.from_date = String(rule.value)
           } else if (rule.operator === 'between' && Array.isArray(rule.value)) {
-            params.from_date = rule.value[0]
-            params.to_date = rule.value[1]
+            params.from_date = String(rule.value[0])
+            params.to_date = String(rule.value[1])
           }
           break
 
         case 'amount':
           if (rule.operator === 'equals' && rule.value) {
-            params.amount_gt = parseFloat(rule.value) - 0.01
-            params.amount_lt = parseFloat(rule.value) + 0.01
+            params.amount_gt = parseFloat(String(rule.value)) - 0.01
+            params.amount_lt = parseFloat(String(rule.value)) + 0.01
           } else if (rule.operator === 'gt' && rule.value) {
-            params.amount_gt = parseFloat(rule.value)
+            params.amount_gt = parseFloat(String(rule.value))
           } else if (rule.operator === 'lt' && rule.value) {
-            params.amount_lt = parseFloat(rule.value)
+            params.amount_lt = parseFloat(String(rule.value))
           } else if (rule.operator === 'between' && Array.isArray(rule.value)) {
             params.amount_gt = parseFloat(rule.value[0])
             params.amount_lt = parseFloat(rule.value[1])
@@ -111,9 +111,9 @@ export class CreditsService {
 
         case 'observations':
           if (rule.operator === 'contains' && rule.value) {
-            params.observations = rule.value
+            params.observations = String(rule.value)
           } else if (rule.operator === 'equals' && rule.value) {
-            params.observations = rule.value
+            params.observations = String(rule.value)
           }
           break
       }

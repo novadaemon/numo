@@ -96,7 +96,7 @@ export function FilterChip({
           onClick={handleRemove}
           onKeyDown={(e) => {
             if (e.key === 'Enter' || e.key === ' ') {
-              handleRemove(e)
+              handleRemove(e as unknown as React.MouseEvent<Element, MouseEvent>)
             }
           }}>
           <X className="size-3" />
