@@ -39,6 +39,7 @@ export type FilterRule = {
   /** Operator value matching FilterOperator.value */
   operator: string
   /** The filter value – type depends on the field type */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any
 }
 
@@ -46,6 +47,7 @@ export type FilterRule = {
 export type SerializedFilterRule = {
   field: string
   operator: string
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any
 }
 

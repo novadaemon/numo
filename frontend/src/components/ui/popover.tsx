@@ -1,5 +1,5 @@
-import React, { useRef, useEffect, ReactNode } from 'react'
 import { cn } from '@/lib/utils'
+import React, { ReactNode, useEffect, useRef } from 'react'
 
 type PopoverContextType = {
   open: boolean
@@ -18,21 +18,13 @@ export function Popover({
   children: ReactNode
 }) {
   return (
-    <PopoverContext.Provider value={{ open, onOpenChange}}>
-      <div className="relative">
-        {children}
-      </div>
+    <PopoverContext.Provider value={{ open, onOpenChange }}>
+      <div className="relative">{children}</div>
     </PopoverContext.Provider>
   )
 }
 
-export function PopoverTrigger({
-  asChild,
-  children,
-}: {
-  asChild?: boolean
-  children: ReactNode
-}) {
+export function PopoverTrigger({ asChild, children }: { asChild?: boolean; children: ReactNode }) {
   const context = React.useContext(PopoverContext)
   if (!context) throw new Error('PopoverTrigger must be used within Popover')
 
@@ -45,10 +37,15 @@ export function PopoverTrigger({
     return React.cloneElement(child, {
       onClick: handleClick,
       'data-popover-trigger': true,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any)
   }
 
-  return <div onClick={handleClick} data-popover-trigger>{children}</div>
+  return (
+    <div onClick={handleClick} data-popover-trigger>
+      {children}
+    </div>
+  )
 }
 
 export function PopoverContent({
@@ -68,7 +65,7 @@ export function PopoverContent({
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       const target = e.target as HTMLElement
-      
+
       // Check if click is on the trigger by searching up the DOM tree
       let isTrigger = false
       let current = target
@@ -79,10 +76,10 @@ export function PopoverContent({
         }
         current = current.parentElement as HTMLElement
       }
-      
+
       // Check if click is inside the popover content
       const isInPopover = contentRef.current && contentRef.current.contains(target)
-      
+
       // Check if click is within a Radix UI portal (like SelectContent, etc)
       // This prevents closing the popover when interacting with dropdowns
       let isInRadixPortal = false
@@ -92,14 +89,14 @@ export function PopoverContent({
         if (
           current.hasAttribute('data-radix-select-content') ||
           current.hasAttribute('data-radix-command-item') ||
-          current.hasAttribute('role') && current.getAttribute('role') === 'listbox'
+          (current.hasAttribute('role') && current.getAttribute('role') === 'listbox')
         ) {
           isInRadixPortal = true
           break
         }
         current = current.parentElement as HTMLElement
       }
-      
+
       // Only close if click is OUTSIDE both the trigger, popover, and Radix portals
       if (!isTrigger && !isInPopover && !isInRadixPortal) {
         context.onOpenChange(false)
@@ -130,13 +127,11 @@ export function PopoverContent({
   return (
     <div
       className={cn(
-        `absolute top-full ${alignmentClasses} z-50 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg`,
+        `absolute top-full ${alignmentClasses} z-50 mt-2 rounded-lg border border-gray-200 bg-white shadow-lg`,
         className
       )}
       data-popover-content>
-      <div ref={contentRef}>
-        {children}
-      </div>
+      <div ref={contentRef}>{children}</div>
     </div>
   )
 }

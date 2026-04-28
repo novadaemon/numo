@@ -70,8 +70,8 @@ export class CreditsService {
     const params: CreditFilterParams = {
       page,
       size,
-      sort_field: sortField as any,
-      sort_order: sortOrder as any,
+      sort_field: sortField as 'credited_at' | 'amount' | 'observations',
+      sort_order: sortOrder as 'asc' | 'desc',
     }
 
     // Convert FilterRule[] to CreditFilterParams

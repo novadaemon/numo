@@ -39,14 +39,14 @@ export type FilterRule = {
   /** Operator value matching FilterOperator.value */
   operator: string
   /** The filter value – type depends on the field type */
-  value: any
+  value: unknown
 }
 
 /** Serialized format sent to the backend */
 export type SerializedFilterRule = {
   field: string
   operator: string
-  value: any
+  value: unknown
 }
 
 /** Returns whether the given operator needs a value input */

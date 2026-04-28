@@ -10,6 +10,7 @@ import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react'
  * <SortableHeader column={column} title="Fecha" />
  * ```
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const SortableHeader = ({ column, title }: { column: any; title: string }) => {
   const sorted = column.getIsSorted()
   let icon = <ArrowUpDown className="ml-2 h-4 w-4" />

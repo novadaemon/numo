@@ -86,13 +86,15 @@ export function CategoryForm({ category, onOpenChange, onSuccess }: CategoryForm
         }
       }
       onOpenChange(false)
-    } catch (error: any) {
-      console.error('Error saving category:', error)
+    } catch (error) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const err = error as any
+      console.error('Error saving category:', err)
       // Handle validation errors from API
-      if (error.response?.data?.errors) {
-        setErrors(error.response.data.errors)
-      } else if (error.response?.data?.message) {
-        toast.error(error.response.data.message)
+      if (err.response?.data?.errors) {
+        setErrors(err.response.data.errors)
+      } else if (err.response?.data?.message) {
+        toast.error(err.response.data.message)
       } else {
         toast.error('Error al guardar la categoría')
       }

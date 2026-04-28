@@ -59,7 +59,7 @@ export function FilterChip({
     setOpen(isOpen)
   }
 
-  function handleRemove(e: any) {
+  function handleRemove(e: React.MouseEvent) {
     e.stopPropagation()
     onRemove()
   }
@@ -69,10 +69,10 @@ export function FilterChip({
       disabled={locked}
       className={cn(
         'inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs font-medium transition-[color,box-shadow]',
-        'ring-offset-background focus-visible:border-ring focus-visible:outline-none focus-visible:ring-[2px] focus-visible:ring-ring/50',
+        'focus-visible:ring-ring/50 ring-offset-background focus-visible:border-ring focus-visible:outline-none focus-visible:ring-[2px]',
         locked
           ? 'border-muted-foreground/20 bg-muted-foreground/10 text-muted-foreground'
-          : 'border-primary/20 bg-primary/10 text-primary hover:bg-primary/20'
+          : 'border-primary/20 bg-primary/10 hover:bg-primary/20 text-primary'
       )}>
       {/* Filter field label */}
       <span className="font-semibold">{fieldConfig.label}</span>
@@ -92,7 +92,7 @@ export function FilterChip({
         <span
           role="button"
           tabIndex={0}
-          className="ml-0.5 rounded-sm p-0.5 hover:bg-primary/20"
+          className="hover:bg-primary/20 ml-0.5 rounded-sm p-0.5"
           onClick={handleRemove}
           onKeyDown={(e) => {
             if (e.key === 'Enter' || e.key === ' ') {

@@ -3,7 +3,7 @@
  */
 export interface ApiError {
   message: string
-  [key: string]: any
+  [key: string]: unknown
 }
 
 /**
@@ -28,7 +28,7 @@ export interface ApiResponse<T> {
 export interface RequestConfig {
   method: 'GET' | 'POST' | 'PUT' | 'DELETE'
   headers?: Record<string, string>
-  body?: any
+  body?: unknown
   timeout?: number
 }
 

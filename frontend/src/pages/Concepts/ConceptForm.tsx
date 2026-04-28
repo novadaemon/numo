@@ -86,13 +86,15 @@ export function ConceptForm({ concept, onOpenChange, onSuccess }: ConceptFormPro
         }
       }
       onOpenChange(false)
-    } catch (error: any) {
-      console.error('Error saving concept:', error)
+    } catch (error) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const err = error as any
+      console.error('Error saving concept:', err)
       // Handle validation errors from API
-      if (error.response?.data?.errors) {
-        setErrors(error.response.data.errors)
-      } else if (error.response?.data?.message) {
-        toast.error(error.response.data.message)
+      if (err.response?.data?.errors) {
+        setErrors(err.response.data.errors)
+      } else if (err.response?.data?.message) {
+        toast.error(err.response.data.message)
       } else {
         toast.error('Error al guardar el concepto')
       }

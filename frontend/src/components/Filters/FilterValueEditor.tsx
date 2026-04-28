@@ -1,23 +1,18 @@
 import { Button } from '@/components/ui/button'
-import {
-  Command,
-  CommandGroup,
-  CommandItem,
-  CommandList,
-} from '@/components/ui/command'
+import { Command, CommandGroup, CommandItem, CommandList } from '@/components/ui/command'
 import { Input } from '@/components/ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { cn } from '@/lib/utils'
 import { Check } from 'lucide-react'
-import { useRef, useState, useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { FilterFieldConfig } from './types'
 
 type Props = {
   fieldConfig: FilterFieldConfig
   /** Current operator – used to pick specialized editors (e.g. between) */
   operator?: string
-  value: any
-  onChange: (value: any) => void
+  value: unknown
+  onChange: (value: unknown) => void
 }
 
 export function FilterValueEditor({ fieldConfig, operator, value, onChange }: Props) {
@@ -76,9 +71,7 @@ function MultiSelectValueEditor({
           aria-expanded={open}
           className="h-8 w-full min-w-[120px] justify-between text-xs font-normal">
           <span className="truncate">
-            {selectedLabels.length > 0
-              ? selectedLabels.join(', ')
-              : 'Select...'}
+            {selectedLabels.length > 0 ? selectedLabels.join(', ') : 'Select...'}
           </span>
         </Button>
       </PopoverTrigger>
@@ -217,8 +210,7 @@ function NumberRangeValueEditor({
 
     timeoutRef.current = setTimeout(() => {
       const incomplete = localFrom === '' || localTo === ''
-      const invalid =
-        !incomplete && parseFloat(localTo) < parseFloat(localFrom)
+      const invalid = !incomplete && parseFloat(localTo) < parseFloat(localFrom)
       if (!incomplete && !invalid) {
         onChange([localFrom, localTo])
       }
@@ -251,9 +243,7 @@ function NumberRangeValueEditor({
           placeholder="To"
         />
       </div>
-      {rangeInvalid && (
-        <p className="text-xs text-destructive">To must be greater than From</p>
-      )}
+      {rangeInvalid && <p className="text-xs text-destructive">To must be greater than From</p>}
     </div>
   )
 }
@@ -351,9 +341,7 @@ function DateRangeValueEditor({
           className={`h-8 min-w-[130px] text-xs ${rangeInvalid ? 'border-destructive focus-visible:ring-destructive' : ''}`}
         />
       </div>
-      {rangeInvalid && (
-        <p className="text-xs text-destructive">To date must be after From date</p>
-      )}
+      {rangeInvalid && <p className="text-xs text-destructive">To date must be after From date</p>}
     </div>
   )
 }

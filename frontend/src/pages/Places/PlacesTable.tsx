@@ -62,7 +62,7 @@ export function PlacesTable({ onEdit, onDelete, refreshTrigger = 0 }: PlacesTabl
         setLoading(true)
 
         // Get sort field and order from React Table sorting state
-        let sortField: 'name' = 'name'
+        let sortField = 'name' as const
         let sortOrder: 'asc' | 'desc' = 'asc'
 
         if (sorting.length > 0) {

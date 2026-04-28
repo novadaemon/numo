@@ -62,7 +62,7 @@ export function ConceptsTable({ onEdit, onDelete, refreshTrigger = 0 }: Concepts
         isRunning = true
         setLoading(true)
 
-        let sortField: 'name' = 'name'
+        let sortField = 'name' as const
         let sortOrder: 'asc' | 'desc' = 'asc'
 
         if (sorting.length > 0) {

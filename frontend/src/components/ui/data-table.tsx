@@ -101,6 +101,7 @@ export function DataTable<TData, TValue>({
   const [columnSizing, setColumnSizing] = React.useState<ColumnSizingState>({})
 
   // Handle sorting changes - for server-side pagination, delegate to parent
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleSortingChange = (updater: any) => {
     const newSorting = typeof updater === 'function' ? updater(sorting) : updater
 
