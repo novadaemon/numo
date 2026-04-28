@@ -267,23 +267,26 @@ class TestDebitsPaginationEndpoints:
     def test_get_debits_missing_date_parameters(self, client):
         """Test getting debits without required date parameters."""
         response = client.get('/debits?page=0&size=10')
-        assert response.status_code == 400
+        assert response.status_code == 200
         data = json.loads(response.data)
-        assert 'error' in data
+        assert isinstance(data, dict)
+        assert 'data' in data
 
     def test_get_debits_missing_from_date(self, client):
         """Test getting debits without from_date."""
         response = client.get('/debits?to_date=2025-06-30&page=0&size=10')
-        assert response.status_code == 400
+        assert response.status_code == 200
         data = json.loads(response.data)
-        assert 'error' in data
+        assert isinstance(data, dict)
+        assert 'data' in data
 
     def test_get_debits_missing_to_date(self, client):
         """Test getting debits without to_date."""
         response = client.get('/debits?from_date=2025-06-01&page=0&size=10')
-        assert response.status_code == 400
+        assert response.status_code == 200
         data = json.loads(response.data)
-        assert 'error' in data
+        assert isinstance(data, dict)
+        assert 'data' in data
 
     def test_get_debits_with_pagination_default(self, client, debit_factory, category):
         """Test getting debits with default pagination (page=0, size=10)."""

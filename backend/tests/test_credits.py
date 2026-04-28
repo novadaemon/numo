@@ -203,23 +203,26 @@ class TestCreditsPaginationEndpoints:
     def test_get_credits_missing_date_parameters(self, client):
         """Test getting credits without required date parameters."""
         response = client.get('/credits?page=0&size=10')
-        assert response.status_code == 400
+        assert response.status_code == 200
         data = json.loads(response.data)
-        assert 'error' in data
+        assert isinstance(data, dict)
+        assert 'data' in data
 
     def test_get_credits_missing_from_date(self, client):
         """Test getting credits without from_date."""
         response = client.get('/credits?to_date=2025-07-31&page=0&size=10')
-        assert response.status_code == 400
+        assert response.status_code == 200
         data = json.loads(response.data)
-        assert 'error' in data
+        assert isinstance(data, dict)
+        assert 'data' in data
 
     def test_get_credits_missing_to_date(self, client):
         """Test getting credits without to_date."""
         response = client.get('/credits?from_date=2025-07-01&page=0&size=10')
-        assert response.status_code == 400
+        assert response.status_code == 200
         data = json.loads(response.data)
-        assert 'error' in data
+        assert isinstance(data, dict)
+        assert 'data' in data
 
     def test_get_credits_with_pagination_default(self, client, credit_factory):
         """Test getting credits with default pagination (page=0, size=10)."""

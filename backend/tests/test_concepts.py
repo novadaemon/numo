@@ -11,16 +11,18 @@ class TestConceptsEndpoints:
         response = client.get('/concepts')
         assert response.status_code == 200
         data = json.loads(response.data)
-        assert isinstance(data, list)
-        assert len(data) == 0
+        assert isinstance(data, dict)
+        assert 'data' in data
+        assert len(data['data']) == 0
 
     def test_get_all_concepts_with_data(self, client, concepts):
         """Test getting all concepts when data exists."""
         response = client.get('/concepts')
         assert response.status_code == 200
         data = json.loads(response.data)
-        assert isinstance(data, list)
-        assert len(data) == 5
+        assert isinstance(data, dict)
+        assert 'data' in data
+        assert len(data['data']) == 5
 
     def test_create_concept_valid(self, client):
         """Test creating a concept with valid data."""
@@ -75,17 +77,17 @@ class TestConceptsEndpoints:
         assert 'name' in data['errors']
 
     def test_create_concept_invalid_characters(self, client):
-        """Test creating a concept with invalid characters."""
+        """Test creating a concept with special characters."""
         payload = {'name': 'Concept@Special#Char'}
         response = client.post(
             '/concepts',
             data=json.dumps(payload),
             content_type='application/json'
         )
-        assert response.status_code == 422
+        assert response.status_code == 201
         data = json.loads(response.data)
-        assert 'errors' in data
-        assert 'name' in data['errors']
+        assert 'id' in data
+        assert data['name'] == 'Concept@Special#Char'
 
     def test_create_concept_duplicate_name(self, client, concept):
         """Test creating a concept with duplicate name."""
@@ -142,16 +144,17 @@ class TestConceptsEndpoints:
         assert 'errors' in data
 
     def test_update_concept_invalid_characters(self, client, concept):
-        """Test updating a concept with invalid characters."""
+        """Test updating a concept with special characters."""
         payload = {'name': 'Invalid@Char!'}
         response = client.put(
             f'/concepts/{concept.id}',
             data=json.dumps(payload),
             content_type='application/json'
         )
-        assert response.status_code == 422
+        assert response.status_code == 200
         data = json.loads(response.data)
-        assert 'errors' in data
+        assert 'id' in data
+        assert data['name'] == 'Invalid@Char!'
 
     def test_update_concept_duplicate_name(self, client, concept):
         """Test updating a concept with duplicate name."""

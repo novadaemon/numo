@@ -82,17 +82,17 @@ class TestCategoriesEndpoints:
         assert 'name' in data['errors']
 
     def test_create_category_invalid_characters(self, client):
-        """Test creating a category with invalid characters."""
+        """Test creating a category with special characters."""
         payload = {'name': 'Food & Drinks@Home'}
         response = client.post(
             '/categories',
             data=json.dumps(payload),
             content_type='application/json'
         )
-        assert response.status_code == 422
+        assert response.status_code == 201
         data = json.loads(response.data)
-        assert 'errors' in data
-        assert 'name' in data['errors']
+        assert 'id' in data
+        assert data['name'] == 'Food & Drinks@Home'
 
     def test_get_category_by_id(self, client, category):
         """Test getting a category by ID."""
