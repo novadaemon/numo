@@ -2,7 +2,7 @@ openapi: 3.0.0
 info:
   title: Numo Expense Tracking API
   description: A personal expense tracking application API that allows users to record and manage their financial activity, including debits (expenses) and credits (income).
-  version: 1.0.0
+  version: 0.1.0
   contact:
     name: Numo Support
   license:
@@ -25,6 +25,8 @@ tags:
     description: Manage expenses/debits
   - name: Credits
     description: Manage income/credits
+  - name: System
+    description: System information and health checks
 
 paths:
   /categories:
@@ -932,6 +934,36 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
+  /api/system/version:
+    get:
+      summary: Get system version
+      operationId: getSystemVersion
+      tags:
+        - System
+      description: Retrieve the current version of the Numo system
+      responses:
+        "200":
+          description: System version information
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VersionInfo"
+
+  /api/system/health:
+    get:
+      summary: Health check
+      operationId: healthCheck
+      tags:
+        - System
+      description: Check the health status of the Numo system
+      responses:
+        "200":
+          description: System is healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthCheckResponse"
+
 components:
   schemas:
     Category:
@@ -1261,3 +1293,34 @@ components:
         - page
         - size
         - total
+
+    VersionInfo:
+      type: object
+      properties:
+        version:
+          type: string
+          description: Current semantic version (e.g., 0.1.0)
+        name:
+          type: string
+          description: Application name
+        environment:
+          type: string
+          description: Current environment (development, production, etc.)
+      required:
+        - version
+        - name
+        - environment
+
+    HealthCheckResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [ok, error]
+          description: Health status of the system
+        version:
+          type: string
+          description: Current semantic version
+      required:
+        - status
+        - version

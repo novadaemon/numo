@@ -1,7 +1,7 @@
 {
   "name": "numo-frontend",
   "private": true,
-  "version": "0.0.1",
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -9,7 +9,8 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "format": "prettier 'src/**/*.{ts,tsx}' --write",
     "prepare": "husky install",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "version": "node ../version.py"
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.2.8",

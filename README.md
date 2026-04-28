@@ -143,7 +143,46 @@ Variables disponibles:
 
 - [Backend README](./backend/README.md)
 - [Frontend README](./frontend/README.md)
-- [Guía de Desarrollo](./CLAUDE.md)
+- [Guía de Desarrollo](./AGENTS.md)
+- [Versionado Semántico](./VERSIONING.md)
+- [CI/CD Workflows](./CI_CD_WORKFLOWS.md)
+- [Primera Release](./FIRST_RELEASE.md)
+
+## 📦 Versionado
+
+El proyecto usa **Versionado Semántico 2.0.0**:
+
+```
+MAJOR.MINOR.PATCH-PRERELEASE+BUILD
+Ejemplo: 0.1.0
+```
+
+### Automatización con GitHub Actions
+
+Los workflows automatizan en la rama `main`:
+- ✅ Validación automática (tests + lint)
+- ✅ Tag automático cuando se mergea
+- ✅ Release notes automáticas
+
+Ver [CI_CD_WORKFLOWS.md](./CI_CD_WORKFLOWS.md) para detalles.
+
+### Verificar versión
+
+```bash
+# Leer versión actual
+python version.py
+
+# Endpoint de API
+curl http://localhost:8080/api/system/version
+```
+
+### Bump de versión
+
+```bash
+python bump_version.py patch   # 0.1.0 → 0.1.1
+python bump_version.py minor   # 0.1.0 → 0.2.0
+python bump_version.py major   # 0.1.0 → 1.0.0
+```
 
 ## 📝 Licencia
 
