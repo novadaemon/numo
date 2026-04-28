@@ -1,0 +1,7 @@
+# Credits (income) for seeding
+credits:
+  - amount: 2500.00
+    credited_at: 2026-04-05
+
+  - amount: 1200.00
+    credited_at: 2026-04-20

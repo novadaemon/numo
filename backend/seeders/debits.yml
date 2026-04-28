@@ -1,0 +1,141 @@
+# Debits (expenses) for seeding
+# category: index in categories.yml (0=Comida, 1=Ocio, 2=Compras, 3=Transporte, 4=Suscripciones)
+# place: index in places.yml or null
+# method: debit, credit, or cash
+debits:
+  - category_idx: 0
+    place_idx: 0
+    amount: 15.50
+    method: cash
+    expensed_at: 2026-04-02
+
+  - category_idx: 0
+    place_idx: 1
+    amount: 25.00
+    method: debit
+    expensed_at: 2026-04-03
+
+  - category_idx: 1
+    place_idx: 3
+    amount: 45.99
+    method: credit
+    expensed_at: 2026-04-05
+
+  - category_idx: 2
+    place_idx: 2
+    amount: 12.30
+    method: cash
+    expensed_at: 2026-04-06
+
+  - category_idx: 4
+    place_idx: 0
+    amount: 55.00
+    method: debit
+    observations: "Suscripción streaming"
+    expensed_at: 2026-04-07
+
+  - category_idx: 0
+    place_idx: 4
+    amount: 30.00
+    method: credit
+    observations: "Medicinas"
+    expensed_at: 2026-04-09
+
+  - category_idx: 3
+    place_idx: 5
+    amount: 18.75
+    method: cash
+    observations: "Gasolina"
+    expensed_at: 2026-04-10
+
+  - category_idx: 2
+    place_idx: 6
+    amount: 40.00
+    method: debit
+    observations: "Compra online"
+    expensed_at: 2026-04-12
+
+  - category_idx: 1
+    place_idx: 1
+    amount: 99.99
+    method: credit
+    observations: "Cena especial"
+    expensed_at: 2026-04-13
+
+  - category_idx: 0
+    place_idx: 0
+    amount: 22.50
+    method: cash
+    observations: "Compra semanal"
+    expensed_at: 2026-04-15
+
+  - category_idx: 2
+    place_idx: 2
+    amount: 35.00
+    method: debit
+    observations: "Tienda de departamentos"
+    expensed_at: 2026-04-16
+
+  - category_idx: 3
+    place_idx: 5
+    amount: 48.50
+    method: credit
+    observations: "Gasolina y mantenimiento"
+    expensed_at: 2026-04-17
+
+  - category_idx: 0
+    place_idx: 1
+    amount: 16.00
+    method: cash
+    observations: "Almuerzo"
+    expensed_at: 2026-04-18
+
+  - category_idx: 4
+    place_idx: 6
+    amount: 28.75
+    method: debit
+    concept: "Renovación suscripción"
+    observations: "Plataforma streaming mensual"
+    expensed_at: 2026-04-20
+
+  - category_idx: 1
+    place_idx: 3
+    amount: 60.00
+    method: credit
+    observations: "Noche de cine con amigos"
+    expensed_at: 2026-04-21
+
+  - category_idx: 2
+    place_idx: 6
+    amount: 19.99
+    method: cash
+    observations: "Accesorios online"
+    expensed_at: 2026-04-23
+
+  - category_idx: 0
+    place_idx: 0
+    amount: 42.00
+    method: debit
+    observations: "Compra mensual"
+    expensed_at: 2026-04-24
+
+  - category_idx: 3
+    place_idx: 5
+    amount: 75.00
+    method: credit
+    observations: "Gasolina completa"
+    expensed_at: 2026-04-25
+
+  - category_idx: 1
+    place_idx: 1
+    amount: 21.50
+    method: cash
+    observations: "Café con amigos"
+    expensed_at: 2026-04-27
+
+  - category_idx: 2
+    place_idx: 2
+    amount: 38.00
+    method: debit
+    observations: "Compra de fin de mes"
+    expensed_at: 2026-04-29

@@ -1,4 +1,17 @@
-import { useState, useEffect } from 'react'
+import { HeaderMenu } from '@/components/layout'
+import { DataRefreshProvider } from '@/contexts'
+import {
+  CategoriesPage,
+  ConceptsPage,
+  CreditsPage,
+  Dashboard,
+  DebitsPage,
+  PlacesPage,
+} from '@/pages'
+import { apiClient } from '@/services'
+import { CircleDollarSign } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Route, Routes } from 'react-router-dom'
 
 function App() {
   const [status, setStatus] = useState<string>('loading')
@@ -6,13 +19,8 @@ function App() {
   useEffect(() => {
     const checkHealth = async () => {
       try {
-        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080'
-        const response = await fetch(`${apiUrl}/health`)
-        if (response.ok) {
-          setStatus('connected')
-        } else {
-          setStatus('disconnected')
-        }
+        await apiClient.health()
+        setStatus('connected')
       } catch (error) {
         setStatus('disconnected')
       }
@@ -21,34 +29,66 @@ function App() {
     checkHealth()
   }, [])
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      <div className="container mx-auto px-4 py-16">
-        <div className="max-w-md mx-auto bg-white rounded-lg shadow-lg p-8">
-          <h1 className="text-3xl font-bold text-center text-indigo-900 mb-6">
-            Numo
-          </h1>
-          <p className="text-center text-gray-600 mb-8">
-            Personal Expense Tracker
-          </p>
-          
-          <div className="flex items-center justify-center gap-3 mb-8">
-            <div className={`w-3 h-3 rounded-full ${
-              status === 'connected' ? 'bg-green-500' : 'bg-red-500'
-            }`}></div>
-            <span className="text-sm font-medium text-gray-700">
-              {status === 'connected' 
-                ? 'Backend Connected' 
-                : 'Backend Disconnected'}
-            </span>
-          </div>
-
-          <p className="text-center text-sm text-gray-500">
-            Welcome! Start tracking your expenses.
-          </p>
+  if (status === 'loading') {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-indigo-600"></div>
+          <p className="text-gray-600">Conectando...</p>
         </div>
       </div>
-    </div>
+    )
+  }
+
+  if (status === 'disconnected') {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+        <div className="max-w-md rounded-lg bg-white p-8 text-center shadow-lg">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
+            <div className="h-6 w-6 rounded-full bg-red-500"></div>
+          </div>
+          <h1 className="mb-2 text-2xl font-bold text-gray-900">Conexión No Disponible</h1>
+          <p className="mb-6 text-gray-600">
+            No se pudo conectar con el servidor. Por favor, verifica que el backend esté
+            ejecutándose.
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="w-full rounded-lg bg-indigo-600 px-4 py-2 font-medium text-white transition hover:bg-indigo-700">
+            Reintentar
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <DataRefreshProvider>
+      <div className="flex min-h-screen flex-col">
+        {/* Header with Navigation */}
+        <div className="border-b border-gray-200 bg-white">
+          <div className="container mx-auto flex h-16 items-center justify-between px-4">
+            <h1 className="flex items-center text-2xl font-bold text-gray-900">
+              <CircleDollarSign className="mr-2" />
+              Numo
+            </h1>
+            <HeaderMenu />
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="flex-1">
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/categories" element={<CategoriesPage />} />
+            <Route path="/debits" element={<DebitsPage />} />
+            <Route path="/credits" element={<CreditsPage />} />
+            <Route path="/places" element={<PlacesPage />} />
+            <Route path="/concepts" element={<ConceptsPage />} />
+          </Routes>
+        </div>
+      </div>
+    </DataRefreshProvider>
   )
 }
 

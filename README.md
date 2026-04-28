@@ -18,6 +18,9 @@ cp .env.example .env
 
 # 3. Inicia el backend en Docker
 docker-compose up
+
+# 4. Ejecuta los seeders para crear la base de datos
+docker-compose exec -T backend python seeders/seed.py
 ```
 
 **Terminal 2: Inicia el Frontend**
@@ -103,33 +106,13 @@ Variables disponibles:
 - [Frontend README](./frontend/README.md)
 - [Guía de Desarrollo](./CLAUDE.md)
 
-## 📝 Licencia
-
-Proyecto personal.
-│ ├── app/ # Código de aplicación
-│ ├── tests/ # Tests
-│ ├── requirements.txt # Dependencias Python
-│ ├── Dockerfile
-│ └── README.md
-├── frontend/ # Aplicación React
-│ ├── src/ # Código fuente
-│ ├── public/ # Archivos estáticos
-│ ├── package.json # Dependencias Node
-│ ├── Dockerfile
-│ └── README.md
-├── docker-compose.yml # Orchestración de servicios
-├── .env.example # Template de variables de entorno
-└── CLAUDE.md # Documentación del proyecto
-
-````
-
 ## 🔧 Configuración
 
 Copia `.env.example` a `.env` y ajusta las variables según necesites:
 
 ```bash
 cp .env.example .env
-````
+```
 
 Variables disponibles:
 
@@ -160,7 +143,47 @@ Variables disponibles:
 
 - [Backend README](./backend/README.md)
 - [Frontend README](./frontend/README.md)
-- [Guía de Desarrollo](./CLAUDE.md)
+- [Guía de Desarrollo](./AGENTS.md)
+- [Versionado Semántico](./VERSIONING.md)
+- [CI/CD Workflows](./CI_CD_WORKFLOWS.md)
+- [Primera Release](./FIRST_RELEASE.md)
+
+## 📦 Versionado
+
+El proyecto usa **Versionado Semántico 2.0.0**:
+
+```
+MAJOR.MINOR.PATCH-PRERELEASE+BUILD
+Ejemplo: 0.1.0
+```
+
+### Automatización con GitHub Actions
+
+Los workflows automatizan en la rama `main`:
+
+- ✅ Validación automática (tests + lint)
+- ✅ Tag automático cuando se mergea
+- ✅ Release notes automáticas
+
+Ver [CI_CD_WORKFLOWS.md](./CI_CD_WORKFLOWS.md) para detalles.
+
+### Verificar versión
+
+```bash
+# Leer versión actual
+python version.py
+
+# Endpoint de API
+curl http://localhost:8080/version
+```
+
+### Bump de versión
+
+```bash
+python bump_version.py patch   # 0.1.0 → 0.1.1
+python bump_version.py minor   # 0.1.0 → 0.2.0
+python bump_version.py major   # 0.1.0 → 1.0.0
+```
 
 ## 📝 Licencia
 

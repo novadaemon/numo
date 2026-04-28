@@ -1,0 +1,72 @@
+/**
+ * Category model - represents an expense category
+ */
+export interface Category {
+  id: number;
+  name: string;
+}
+
+/**
+ * Place model - represents a transaction location/place
+ */
+export interface Place {
+  id: number;
+  name: string;
+}
+
+/**
+ * Concept model - represents an expense concept
+ */
+export interface Concept {
+  id: number;
+  name: string;
+}
+
+/**
+ * Embedded category reference in Debit response
+ */
+export interface CategoryRef {
+  id: number;
+  name: string;
+}
+
+/**
+ * Embedded place reference in Debit response
+ */
+export interface PlaceRef {
+  id: number;
+  name: string;
+}
+
+/**
+ * Debit model - represents an expense/debit transaction
+ */
+export interface Debit {
+  id: number;
+  category_id: number;
+  category: CategoryRef;
+  place_id?: number | null;
+  place?: PlaceRef | null;
+  concept?: string | null;
+  amount: number;
+  method: 'debit' | 'credit' | 'cash';
+  created_at: string; // ISO-8601 datetime
+  expensed_at: string; // ISO-8601 date
+  observations?: string | null;
+}
+
+/**
+ * Credit model - represents an income/credit transaction
+ */
+export interface Credit {
+  id: number;
+  amount: number;
+  created_at: string; // ISO-8601 datetime
+  credited_at: string; // ISO-8601 date
+  observations?: string | null;
+}
+
+/**
+ * Type for accessing all models
+ */
+export type Entity = Category | Place | Debit | Credit;

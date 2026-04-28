@@ -1,0 +1,208 @@
+import { API_CONFIG } from '@/config'
+import { ApiError } from '@/types/api'
+
+/**
+ * ApiClient - base HTTP client for all API requests
+ * Handles fetch requests with error handling, headers, and timeout
+ */
+export class ApiClient {
+  private baseURL: string
+  private timeout: number
+  private defaultHeaders: Record<string, string>
+
+  constructor(
+    baseURL: string = API_CONFIG.baseURL,
+    timeout: number = API_CONFIG.timeout,
+    headers: Record<string, string> = API_CONFIG.headers
+  ) {
+    this.baseURL = baseURL
+    this.timeout = timeout
+    this.defaultHeaders = headers
+  }
+
+  /**
+   * Build full URL from endpoint
+   */
+  private buildUrl(endpoint: string): string {
+    const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`
+    return `${this.baseURL}${cleanEndpoint}`
+  }
+
+  /**
+   * Handle fetch with timeout
+   */
+  private async fetchWithTimeout(url: string, init: RequestInit): Promise<Response> {
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), this.timeout)
+
+    try {
+      const response = await fetch(url, {
+        ...init,
+        signal: controller.signal,
+      })
+      clearTimeout(timeoutId)
+      return response
+    } catch (error) {
+      clearTimeout(timeoutId)
+      throw error
+    }
+  }
+
+  /**
+   * Log request (for debugging)
+   */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private logRequest(_method: string, _url: string, _body?: unknown): void {
+    // Logging disabled
+  }
+
+  /**
+   * Log response (for debugging)
+   */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private logResponse(_method: string, _url: string, _status: number, _data?: unknown): void {
+    // Logging disabled
+  }
+
+  /**
+   * Parse error response
+   */
+  private async parseErrorResponse(response: Response): Promise<ApiError> {
+    try {
+      const contentType = response.headers.get('content-type')
+      if (contentType?.includes('application/json')) {
+        const data = await response.json()
+        return data
+      }
+      return {
+        message: `HTTP ${response.status}: ${response.statusText}`,
+      }
+    } catch {
+      return {
+        message: `HTTP ${response.status}: ${response.statusText}`,
+      }
+    }
+  }
+
+  /**
+   * Generic request method
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async request<T = any>(
+    method: string,
+    endpoint: string,
+    body?: unknown,
+    customHeaders?: Record<string, string>
+  ): Promise<T> {
+    const url = this.buildUrl(endpoint)
+    const headers = {
+      ...this.defaultHeaders,
+      ...customHeaders,
+    }
+
+    const init: RequestInit = {
+      method,
+      headers,
+    }
+
+    if (body && (method === 'POST' || method === 'PUT')) {
+      init.body = JSON.stringify(body)
+    }
+
+    try {
+      this.logRequest(method, url, body)
+
+      const response = await this.fetchWithTimeout(url, init)
+
+      if (!response.ok) {
+        const errorData = await this.parseErrorResponse(response)
+
+        const error = new Error(
+          errorData.message || `HTTP ${response.status}: ${response.statusText}`
+        ) as Error & { status?: number; data?: ApiError }
+        error.status = response.status
+        error.data = errorData
+
+        throw error
+      }
+
+      // Handle 204 No Content
+      if (response.status === 204) {
+        this.logResponse(method, url, response.status)
+        return undefined as T
+      }
+
+      const data = await response.json()
+      this.logResponse(method, url, response.status, data)
+
+      return data as T
+    } catch (error) {
+      // Re-throw API errors (with status/data attached)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      if (error instanceof Error && (error as any).status) {
+        throw error
+      }
+
+      // Handle network/timeout errors
+      if (error instanceof DOMException && error.name === 'AbortError') {
+        const timeoutError = new Error('Request timeout') as Error & { status?: number }
+        timeoutError.status = 408
+        throw timeoutError
+      }
+
+      // Re-throw other errors
+      throw error
+    }
+  }
+
+  /**
+   * GET request
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async get<T = any>(endpoint: string, customHeaders?: Record<string, string>): Promise<T> {
+    return this.request<T>('GET', endpoint, undefined, customHeaders)
+  }
+
+  /**
+   * POST request
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async post<T = any>(
+    endpoint: string,
+    body?: unknown,
+    customHeaders?: Record<string, string>
+  ): Promise<T> {
+    return this.request<T>('POST', endpoint, body, customHeaders)
+  }
+
+  /**
+   * PUT request
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async put<T = any>(
+    endpoint: string,
+    body?: unknown,
+    customHeaders?: Record<string, string>
+  ): Promise<T> {
+    return this.request<T>('PUT', endpoint, body, customHeaders)
+  }
+
+  /**
+   * DELETE request
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async delete<T = any>(endpoint: string, customHeaders?: Record<string, string>): Promise<T> {
+    return this.request<T>('DELETE', endpoint, undefined, customHeaders)
+  }
+
+  /**
+   * Health check
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async health(): Promise<any> {
+    return this.get('/version')
+  }
+}
+
+// Export singleton instance
+export const apiClient = new ApiClient()

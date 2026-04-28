@@ -1,0 +1,54 @@
+name: Create Version Tag on Merge to Main
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".version"
+
+jobs:
+  create-tag:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Read version from .version file
+        id: version
+        run: |
+          VERSION=$(cat .version)
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "Version: ${VERSION}"
+
+      - name: Check if tag already exists
+        id: tag-exists
+        run: |
+          TAG="v${{ steps.version.outputs.version }}"
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "Tag $TAG already exists"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "Tag $TAG does not exist"
+          fi
+
+      - name: Create and push tag
+        if: steps.tag-exists.outputs.exists == 'false'
+        run: |
+          TAG="v${{ steps.version.outputs.version }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "$TAG" -m "Release version ${{ steps.version.outputs.version }}"
+          git push origin "$TAG"
+          echo "✅ Tag $TAG created and pushed"
+
+      - name: Tag already exists - skip
+        if: steps.tag-exists.outputs.exists == 'true'
+        run: |
+          echo "⏭️  Tag v${{ steps.version.outputs.version }} already exists, skipping creation"

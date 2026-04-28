@@ -8,16 +8,22 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Copiar requirements
-COPY requirements.txt .
+COPY requirements.txt requirements-dev.txt .
 
 # Instalar dependencias Python
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt -r requirements-dev.txt
 
 # Copiar código de la aplicación
 COPY . .
 
-# Exponer puerto
-EXPOSE 8080
+# Crear directorio de datos con permisos apropiados
+RUN mkdir -p /app/data && chmod 755 /app/data
 
-# Comando por defecto
-CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--workers", "4", "--timeout", "120", "app.main:app"]
+# Variable de entorno para el puerto
+ENV BACKEND_PORT=8080
+
+# Exponer puerto
+EXPOSE ${BACKEND_PORT}
+
+# Comando por defecto - Flask en modo desarrollo con auto-reload
+CMD python -m flask --app wsgi:app run --host=0.0.0.0 --port=${BACKEND_PORT}

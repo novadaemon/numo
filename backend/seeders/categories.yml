@@ -1,0 +1,11 @@
+# Default categories for Numo
+categories:
+  - name: Comida
+  - name: Ocio
+  - name: Compras
+  - name: Transporte
+  - name: Suscripciones
+  - name: Salud
+  - name: Educación
+  - name: Reparaciones
+  - name: Servicios

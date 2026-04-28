@@ -1,0 +1,1324 @@
+openapi: 3.0.0
+info:
+  title: Numo Expense Tracking API
+  description: A personal expense tracking application API that allows users to record and manage their financial activity, including debits (expenses) and credits (income).
+  version: 0.1.0
+  contact:
+    name: Numo Support
+  license:
+    name: MIT
+
+servers:
+  - url: http://localhost:8080
+    description: Development server (direct API calls)
+
+tags:
+  - name: Categories
+    description: Manage expense categories
+  - name: Concepts
+    description: Manage expense concepts
+  - name: Places
+    description: Manage transaction places/locations
+  - name: Debits
+    description: Manage expenses/debits
+  - name: Credits
+    description: Manage income/credits
+  - name: System
+    description: System information and health checks
+
+paths:
+  /categories:
+    get:
+      summary: Get all categories
+      operationId: getCategories
+      tags:
+        - Categories
+      description: Retrieve a list of all expense categories with optional pagination
+      parameters:
+        - name: page
+          in: query
+          description: Page number (0-indexed, default 0)
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+        - name: size
+          in: query
+          description: Number of items per page (allowed values 10, 25, 50, 100, default 10)
+          schema:
+            type: integer
+            enum: [10, 25, 50, 100]
+            default: 10
+      responses:
+        "200":
+          description: List of categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Category"
+
+    post:
+      summary: Create a new category
+      operationId: createCategory
+      tags:
+        - Categories
+      description: Create a new expense category
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CategoryInput"
+      responses:
+        "201":
+          description: Category created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Category"
+        "422":
+          description: Invalid input - validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+        "409":
+          description: Category name already exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /categories/{categoryId}:
+    get:
+      summary: Get a category by ID
+      operationId: getCategoryById
+      tags:
+        - Categories
+      parameters:
+        - name: categoryId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Category found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Category"
+        "404":
+          description: Category not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    put:
+      summary: Update a category
+      operationId: updateCategory
+      tags:
+        - Categories
+      parameters:
+        - name: categoryId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 50
+      responses:
+        "200":
+          description: Category updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Category"
+        "422":
+          description: Invalid input - validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+        "409":
+          description: Category name already exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    delete:
+      summary: Delete a category
+      operationId: deleteCategory
+      tags:
+        - Categories
+      parameters:
+        - name: categoryId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Category deleted successfully
+        "404":
+          description: Category not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /concepts:
+    get:
+      summary: Get all concepts
+      operationId: getConcepts
+      tags:
+        - Concepts
+      description: Retrieve a list of all expense concepts with optional pagination, sorting, or search filtering. When 'q' parameter is provided, returns a flat array for autocomplete/search use. Without 'q', returns a paginated response.
+      parameters:
+        - name: q
+          in: query
+          required: false
+          description: Search keyword to filter concepts by partial name match (case-insensitive, accent-insensitive). When provided, returns flat array of all matching concepts without pagination.
+          schema:
+            type: string
+            maxLength: 255
+        - name: page
+          in: query
+          description: Page number (0-indexed, default 0). Ignored when 'q' parameter is provided.
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+        - name: size
+          in: query
+          description: Number of items per page (allowed values 10, 25, 50, 100, default 10). Ignored when 'q' parameter is provided.
+          schema:
+            type: integer
+            enum: [10, 25, 50, 100]
+            default: 10
+        - name: sort_field
+          in: query
+          description: Field to sort by (default 'name'). Ignored when 'q' parameter is provided.
+          schema:
+            type: string
+            enum: [name]
+            default: name
+        - name: sort_order
+          in: query
+          description: Sort order direction (default 'asc'). Ignored when 'q' parameter is provided.
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: asc
+      responses:
+        "200":
+          description: List of concepts. Returns either a paginated response (when no 'q' parameter) or a flat array (when 'q' parameter is provided).
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/PaginatedConcepts"
+                  - type: array
+                    items:
+                      $ref: "#/components/schemas/Concept"
+
+    post:
+      summary: Create a new concept
+      operationId: createConcept
+      tags:
+        - Concepts
+      description: Create a new expense concept
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConceptInput"
+      responses:
+        "201":
+          description: Concept created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Concept"
+        "422":
+          description: Invalid input - validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+        "409":
+          description: Concept name already exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /concepts/{conceptId}:
+    get:
+      summary: Get a specific concept
+      operationId: getConcept
+      tags:
+        - Concepts
+      parameters:
+        - name: conceptId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Concept details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Concept"
+        "404":
+          description: Concept not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    put:
+      summary: Update a concept
+      operationId: updateConcept
+      tags:
+        - Concepts
+      parameters:
+        - name: conceptId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConceptInput"
+      responses:
+        "200":
+          description: Concept updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Concept"
+        "404":
+          description: Concept not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "422":
+          description: Invalid input - validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+        "409":
+          description: Concept name already exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    delete:
+      summary: Delete a concept
+      operationId: deleteConcept
+      tags:
+        - Concepts
+      parameters:
+        - name: conceptId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Concept deleted successfully
+        "404":
+          description: Concept not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /places:
+    get:
+      summary: Get all places
+      operationId: getPlaces
+      tags:
+        - Places
+      description: Retrieve a list of all transaction places/locations with optional pagination
+      parameters:
+        - name: page
+          in: query
+          description: Page number (0-indexed, default 0)
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+        - name: size
+          in: query
+          description: Number of items per page (allowed values 10, 25, 50, 100, default 10)
+          schema:
+            type: integer
+            enum: [10, 25, 50, 100]
+            default: 10
+      responses:
+        "200":
+          description: List of places
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Place"
+
+    post:
+      summary: Create a new place
+      operationId: createPlace
+      tags:
+        - Places
+      description: Create a new transaction place/location
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PlaceInput"
+      responses:
+        "201":
+          description: Place created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Place"
+        "422":
+          description: Invalid input - validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+        "409":
+          description: Place name already exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /places/{placeId}:
+    get:
+      summary: Get a place by ID
+      operationId: getPlaceById
+      tags:
+        - Places
+      parameters:
+        - name: placeId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Place found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Place"
+        "404":
+          description: Place not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    put:
+      summary: Update a place
+      operationId: updatePlace
+      tags:
+        - Places
+      parameters:
+        - name: placeId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 100
+      responses:
+        "200":
+          description: Place updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Place"
+        "422":
+          description: Invalid input - validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+        "409":
+          description: Place name already exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    delete:
+      summary: Delete a place
+      operationId: deletePlace
+      tags:
+        - Places
+      parameters:
+        - name: placeId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Place deleted successfully
+        "404":
+          description: Place not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /debits:
+    get:
+      summary: Get all debits
+      operationId: getDebits
+      tags:
+        - Debits
+      description: Retrieve a list of all expenses (debits) with optional pagination and filtering
+      parameters:
+        - name: page
+          in: query
+          description: Page number (0-indexed, default 0)
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+        - name: size
+          in: query
+          description: Number of items per page (allowed values 10, 25, 50, 100, default 10)
+          schema:
+            type: integer
+            enum: [10, 25, 50, 100]
+            default: 10
+        - name: from_date
+          in: query
+          required: false
+          description: Filter debits from this date inclusive (ISO 8601 date format, e.g., 2026-04-01). Optional parameter.
+          schema:
+            type: string
+            format: date
+        - name: to_date
+          in: query
+          required: false
+          description: Filter debits until this date inclusive (ISO 8601 date format, e.g., 2026-04-30). Optional parameter.
+          schema:
+            type: string
+            format: date
+        - name: category_id
+          in: query
+          description: Filter by category ID (optional, deprecated - use category_ids for multiple values)
+          schema:
+            type: integer
+            minimum: 1
+        - name: category_ids
+          in: query
+          description: Filter by multiple category IDs (JSON array format, optional). Example - category_ids=["1","2","3"]
+          schema:
+            type: string
+            example: '["1","2","3"]'
+        - name: place_id
+          in: query
+          description: Filter by place ID (optional, deprecated - use place_ids for multiple values)
+          schema:
+            type: integer
+            minimum: 1
+        - name: place_ids
+          in: query
+          description: Filter by multiple place IDs (JSON array format, optional). Example - place_ids=["1","2","3"]
+          schema:
+            type: string
+            example: '["1","2","3"]'
+        - name: concept
+          in: query
+          description: Filter by concept (partial text match, case-insensitive, optional)
+          schema:
+            type: string
+            maxLength: 255
+        - name: method
+          in: query
+          description: Filter by payment method (optional, deprecated - use method_values for multiple values)
+          schema:
+            type: string
+            enum: [debit, credit, cash]
+        - name: method_values
+          in: query
+          description: Filter by multiple payment methods (JSON array format, optional). Example - method_values=["debit","cash"]
+          schema:
+            type: string
+            example: '["debit","cash"]'
+        - name: amount_gt
+          in: query
+          description: Filter debits with amount greater than this value (optional)
+          schema:
+            type: number
+            format: float
+            minimum: 0.01
+        - name: amount_lt
+          in: query
+          description: Filter debits with amount less than this value (optional)
+          schema:
+            type: number
+            format: float
+            minimum: 0.01
+        - name: sort_field
+          in: query
+          description: Sort field (expensed_at, category, place, amount, concept, method). Default is expensed_at
+          schema:
+            type: string
+            enum: [expensed_at, category, place, amount, concept, method]
+            default: expensed_at
+        - name: sort_order
+          in: query
+          description: Sort order (asc or desc). Default is desc
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+      responses:
+        "200":
+          description: List of debits with pagination info
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedDebits"
+        "400":
+          description: Invalid pagination or filter parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    post:
+      summary: Create a new debit
+      operationId: createDebit
+      tags:
+        - Debits
+      description: Create a new expense (debit)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DebitInput"
+      responses:
+        "201":
+          description: Debit created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Debit"
+        "422":
+          description: Invalid input - validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+        "404":
+          description: Category or place not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /debits/{debitId}:
+    get:
+      summary: Get a debit by ID
+      operationId: getDebitById
+      tags:
+        - Debits
+      parameters:
+        - name: debitId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Debit found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Debit"
+        "404":
+          description: Debit not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    put:
+      summary: Update a debit
+      operationId: updateDebit
+      tags:
+        - Debits
+      parameters:
+        - name: debitId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                category_id:
+                  type: integer
+                  minimum: 1
+                place_id:
+                  type: integer
+                  minimum: 1
+                concept:
+                  type: string
+                  maxLength: 255
+                amount:
+                  type: number
+                  format: float
+                  minimum: 0.01
+                method:
+                  type: string
+                  enum:
+                    - debit
+                    - credit
+                    - cash
+                observations:
+                  type: string
+                  maxLength: 500
+                expensed_at:
+                  type: string
+                  format: date
+                  description: When the expense occurred
+      responses:
+        "200":
+          description: Debit updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Debit"
+        "422":
+          description: Invalid input - validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+    delete:
+      summary: Delete a debit
+      operationId: deleteDebit
+      tags:
+        - Debits
+      parameters:
+        - name: debitId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Debit deleted successfully
+        "404":
+          description: Debit not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /credits:
+    get:
+      summary: Get all credits
+      operationId: getCredits
+      tags:
+        - Credits
+      description: Retrieve a list of all income (credits) with pagination support
+      parameters:
+        - name: page
+          in: query
+          description: Page number (0-indexed, default 0)
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+        - name: size
+          in: query
+          description: Number of items per page (allowed values 10, 25, 50, 100, default 10)
+          schema:
+            type: integer
+            enum: [10, 25, 50, 100]
+            default: 10
+        - name: from_date
+          in: query
+          required: true
+          description: Filter credits from this date inclusive (ISO 8601 date format, e.g., 2026-04-01). Required parameter.
+          schema:
+            type: string
+            format: date
+        - name: to_date
+          in: query
+          required: true
+          description: Filter credits until this date inclusive (ISO 8601 date format, e.g., 2026-04-30). Required parameter.
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: List of credits with pagination info
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedCredits"
+        "400":
+          description: Invalid pagination or filter parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    post:
+      summary: Create a new credit
+      operationId: createCredit
+      tags:
+        - Credits
+      description: Create a new income (credit)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreditInput"
+      responses:
+        "201":
+          description: Credit created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Credit"
+        "422":
+          description: Invalid input - validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+
+  /credits/{creditId}:
+    get:
+      summary: Get a credit by ID
+      operationId: getCreditById
+      tags:
+        - Credits
+      parameters:
+        - name: creditId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Credit found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Credit"
+        "404":
+          description: Credit not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    put:
+      summary: Update a credit
+      operationId: updateCredit
+      tags:
+        - Credits
+      parameters:
+        - name: creditId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: number
+                  format: float
+                  minimum: 0.01
+                observations:
+                  type: string
+                  maxLength: 500
+                credited_at:
+                  type: string
+                  format: date
+                  description: When the income occurred
+      responses:
+        "200":
+          description: Credit updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Credit"
+        "422":
+          description: Invalid input - validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+
+    delete:
+      summary: Delete a credit
+      operationId: deleteCredit
+      tags:
+        - Credits
+      parameters:
+        - name: creditId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Credit deleted successfully
+        "404":
+          description: Credit not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /version:
+    get:
+      summary: Get system version
+      operationId: getSystemVersion
+      tags:
+        - System
+      description: Retrieve the current version of the Numo system
+      responses:
+        "200":
+          description: System version information
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VersionInfo"
+
+  /health:
+    get:
+      summary: Health check
+      operationId: healthCheck
+      tags:
+        - System
+      description: Check the health status of the Numo system
+      responses:
+        "200":
+          description: System is healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthCheckResponse"
+
+components:
+  schemas:
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Unique identifier
+        name:
+          type: string
+          minLength: 1
+          maxLength: 50
+          description: Category name (letters, numbers, spaces, hyphens, underscores)
+      required:
+        - id
+        - name
+
+    CategoryInput:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 50
+          description: Category name (letters, numbers, spaces, hyphens, underscores)
+      required:
+        - name
+
+    Concept:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Unique identifier
+        name:
+          type: string
+          minLength: 1
+          maxLength: 50
+          description: Concept name (letters, numbers, spaces, hyphens, underscores)
+      required:
+        - id
+        - name
+
+    ConceptInput:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 50
+          description: Concept name (letters, numbers, spaces, hyphens, underscores)
+      required:
+        - name
+
+    Place:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Unique identifier
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Place/location name
+      required:
+        - id
+        - name
+
+    PlaceInput:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Place/location name
+      required:
+        - name
+
+    Debit:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Unique identifier
+        category_id:
+          type: integer
+          description: Reference to category
+        category:
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+          description: Category details
+        place_id:
+          type: integer
+          nullable: true
+          description: Reference to place
+        place:
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+          description: Place details (null if not specified)
+        concept:
+          type: string
+          maxLength: 255
+          nullable: true
+          description: Concept or description of the expense
+        amount:
+          type: number
+          format: float
+          minimum: 0.01
+          description: Expense amount
+        method:
+          type: string
+          enum:
+            - debit
+            - credit
+            - cash
+          description: Payment method used for the transaction
+        created_at:
+          type: string
+          format: date-time
+          description: When the record was created
+        expensed_at:
+          type: string
+          format: date
+          description: When the expense occurred
+        observations:
+          type: string
+          maxLength: 500
+          nullable: true
+          description: Optional notes
+      required:
+        - id
+        - category_id
+        - amount
+        - method
+        - created_at
+        - expensed_at
+
+    DebitInput:
+      type: object
+      properties:
+        category_id:
+          type: integer
+          minimum: 1
+          description: Reference to category
+        place_id:
+          type:
+            - integer
+            - "null"
+          minimum: 1
+          description: Reference to place (optional, can be null)
+        concept:
+          type: string
+          maxLength: 255
+          nullable: true
+          description: Concept or description of the expense
+        amount:
+          type: number
+          format: float
+          minimum: 0.01
+          description: Expense amount
+        method:
+          type: string
+          enum:
+            - debit
+            - credit
+            - cash
+          description: Payment method used for the transaction (defaults to 'cash' if not provided)
+        observations:
+          type: string
+          maxLength: 500
+          nullable: true
+          description: Optional notes
+        expensed_at:
+          type: string
+          format: date
+          description: When the expense occurred
+      required:
+        - category_id
+        - place_id
+        - amount
+        - expensed_at
+
+    Credit:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Unique identifier
+        amount:
+          type: number
+          format: float
+          minimum: 0.01
+          description: Income amount
+        created_at:
+          type: string
+          format: date-time
+          description: When the record was created
+        observations:
+          type: string
+          maxLength: 500
+          nullable: true
+          description: Optional notes
+        credited_at:
+          type: string
+          format: date
+          description: When the income occurred
+      required:
+        - id
+        - amount
+        - created_at
+        - credited_at
+
+    CreditInput:
+      type: object
+      properties:
+        amount:
+          type: number
+          format: float
+          minimum: 0.01
+          description: Income amount
+        credited_at:
+          type: string
+          format: date
+          description: When the income occurred
+        observations:
+          type: string
+          maxLength: 500
+          nullable: true
+          description: Optional notes
+      required:
+        - amount
+        - credited_at
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+
+    ValidationError:
+      type: object
+      properties:
+        errors:
+          type: object
+          description: Field-specific validation errors
+          additionalProperties:
+            type: array
+            items:
+              type: string
+
+    PaginatedDebits:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Debit"
+          description: List of debits for the current page
+        page:
+          type: integer
+          description: Current page number (0-indexed)
+        size:
+          type: integer
+          description: Number of items per page
+        total:
+          type: integer
+          description: Total number of items across all pages
+      required:
+        - data
+        - page
+        - size
+        - total
+
+    PaginatedCredits:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Credit"
+          description: List of credits for the current page
+        page:
+          type: integer
+          description: Current page number (0-indexed)
+        size:
+          type: integer
+          description: Number of items per page
+        total:
+          type: integer
+          description: Total number of items across all pages
+      required:
+        - data
+        - page
+        - size
+        - total
+
+    PaginatedConcepts:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Concept"
+          description: List of concepts for the current page
+        page:
+          type: integer
+          description: Current page number (0-indexed)
+        size:
+          type: integer
+          description: Number of items per page
+        total:
+          type: integer
+          description: Total number of items across all pages
+      required:
+        - data
+        - page
+        - size
+        - total
+
+    VersionInfo:
+      type: object
+      properties:
+        version:
+          type: string
+          description: Current semantic version (e.g., 0.1.0)
+        name:
+          type: string
+          description: Application name
+        environment:
+          type: string
+          description: Current environment (development, production, etc.)
+      required:
+        - version
+        - name
+        - environment
+
+    HealthCheckResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [ok, error]
+          description: Health status of the system
+        version:
+          type: string
+          description: Current semantic version
+      required:
+        - status
+        - version
