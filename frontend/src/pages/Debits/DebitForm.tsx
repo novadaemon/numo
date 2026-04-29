@@ -265,11 +265,11 @@ export function DebitForm({ debit, onOpenChange, onSuccess }: DebitFormProps) {
     try {
       const newPlace = await placesService.create({ name: newPlaceName })
       setPlaces((prev) => [...prev, newPlace])
-      
+
       // Guardar el ID en la referencia
       const placeIdStr = newPlace.id.toString()
       newPlaceIdRef.current = placeIdStr
-      
+
       setNewPlaceName('')
       setDialogOpen(false)
       toast.success('Lugar creado exitosamente')
