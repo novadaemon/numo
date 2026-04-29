@@ -22,7 +22,7 @@ import { useDataRefresh } from '@/contexts'
 import { categoriesService, conceptsService, debitsService, placesService } from '@/services'
 import { Category, Concept, Debit, Place } from '@/types'
 import { Plus } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import toast from 'react-hot-toast'
 
 interface DebitFormProps {
@@ -59,6 +59,9 @@ export function DebitForm({ debit, onOpenChange, onSuccess }: DebitFormProps) {
   // Concept autocomplete states
   const [conceptSearchValue, setConceptSearchValue] = useState('')
   const [conceptSuggestions, setConceptSuggestions] = useState<Concept[]>([])
+
+  // Ref para guardar el ID del lugar recién creado
+  const newPlaceIdRef = useRef<string | null>(null)
 
   const isEditMode = Boolean(debit)
   const { triggerRefresh } = useDataRefresh()
@@ -121,6 +124,29 @@ export function DebitForm({ debit, onOpenChange, onSuccess }: DebitFormProps) {
       setErrors({})
     }
   }, [isEditMode])
+
+  // Actualizar el select cuando el diálogo se cierra y hay un lugar creado
+  useEffect(() => {
+    if (!dialogOpen && newPlaceIdRef.current) {
+      const placeId = newPlaceIdRef.current
+      setFormData((prev) => ({
+        ...prev,
+        place_id: placeId,
+      }))
+      if (errors.place_id) {
+        setErrors((prev) => ({
+          ...prev,
+          place_id: undefined,
+        }))
+      }
+      newPlaceIdRef.current = null
+    }
+  }, [dialogOpen, errors.place_id])
+
+  // Manejador para cuando cambia el estado del diálogo
+  const handleDialogOpenChange = (open: boolean) => {
+    setDialogOpen(open)
+  }
 
   // Limpiar error cuando el usuario interactúa con el campo concepto
   useEffect(() => {
@@ -239,10 +265,11 @@ export function DebitForm({ debit, onOpenChange, onSuccess }: DebitFormProps) {
     try {
       const newPlace = await placesService.create({ name: newPlaceName })
       setPlaces((prev) => [...prev, newPlace])
-      setFormData((prev) => ({
-        ...prev,
-        place_id: newPlace.id.toString(),
-      }))
+
+      // Guardar el ID en la referencia
+      const placeIdStr = newPlace.id.toString()
+      newPlaceIdRef.current = placeIdStr
+
       setNewPlaceName('')
       setDialogOpen(false)
       toast.success('Lugar creado exitosamente')
@@ -329,7 +356,7 @@ export function DebitForm({ debit, onOpenChange, onSuccess }: DebitFormProps) {
         <Field invalid={!!errors.place_id}>
           <div className="flex items-center justify-between">
             <FieldLabel htmlFor="place">Lugar *</FieldLabel>
-            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <Dialog open={dialogOpen} onOpenChange={handleDialogOpenChange}>
               <DialogTrigger asChild>
                 <Button type="button" variant="ghost" size="sm" className="h-6 px-2">
                   <Plus className="mr-1 h-4 w-4" />
@@ -359,7 +386,7 @@ export function DebitForm({ debit, onOpenChange, onSuccess }: DebitFormProps) {
                     <Button
                       type="button"
                       variant="outline"
-                      onClick={() => setDialogOpen(false)}
+                      onClick={() => handleDialogOpenChange(false)}
                       disabled={creatingPlace}>
                       Cancelar
                     </Button>
