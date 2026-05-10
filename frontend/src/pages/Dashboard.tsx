@@ -1,11 +1,10 @@
 import {
   CategoryExpensesChart,
-  DebitsTable,
+  CategoryExpensesTable,
   MonthlyExpensesChart,
   TotalsWidget,
 } from '@/components/Dashboard'
-import type { FilterRule } from '@/types/filters'
-import { useMemo } from 'react'
+import { useDashboardData } from '@/hooks'
 
 /**
  * Página principal del Dashboard
@@ -13,35 +12,10 @@ import { useMemo } from 'react'
  * - Widget de totales (ingresos, gastos, saldo)
  * - Gráfico de gastos por mes
  * - Gráfico de gastos por categoría
- * - Tabla de gastos del mes (DebitsTable maneja paginación server-side)
+ * - Tabla de gastos por categoría del mes actual
  */
 export function Dashboard() {
-  // Calcular fechas del mes actual para filtrar gastos
-  const monthFilters = useMemo(() => {
-    const now = new Date()
-    const year = now.getFullYear()
-    const month = now.getMonth()
-
-    // Primer día del mes
-    const firstDay = new Date(year, month, 1)
-    const firstDayStr = firstDay.toISOString().split('T')[0]
-
-    // Último día del mes
-    const lastDay = new Date(year, month + 1, 0)
-    const lastDayStr = lastDay.toISOString().split('T')[0]
-
-    // Crear filtro de tipo "between" para expensed_at
-    const filters: FilterRule[] = [
-      {
-        id: 'dashboard-month-filter',
-        field: 'expensed_at',
-        operator: 'between',
-        value: [firstDayStr, lastDayStr],
-      },
-    ]
-
-    return filters
-  }, [])
+  const { expensesByCategory } = useDashboardData('month')
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -73,13 +47,9 @@ export function Dashboard() {
           </div>
         </div>
 
-        {/* Debits Table - Mes Actual */}
+        {/* Category Expenses Table - Mes Actual */}
         <div className="mt-8">
-          <p className="mb-3 text-sm font-medium text-gray-500">
-            Gastos del Mes -{' '}
-            {new Date().toLocaleString('es-ES', { month: 'long', year: 'numeric' })}
-          </p>
-          <DebitsTable filters={monthFilters} />
+          <CategoryExpensesTable data={expensesByCategory} />
         </div>
       </div>
     </div>

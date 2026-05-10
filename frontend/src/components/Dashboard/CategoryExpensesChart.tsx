@@ -1,5 +1,5 @@
 import { useDashboardData } from '@/hooks'
-import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts'
+import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts'
 
 interface CategoryExpensesChartProps {
   className?: string
@@ -77,14 +77,14 @@ export function CategoryExpensesChart({ className = '' }: CategoryExpensesChartP
             }}
             contentStyle={{ backgroundColor: '#f3f4f6', border: '1px solid #e5e7eb' }}
           />
-          <Legend
+          {/* <Legend
             verticalAlign="bottom"
             height={36}
             formatter={(_, entry) => {
               const data = entry?.payload as Record<string, unknown>
               return data ? `${data.name}: $${(data.value as number).toFixed(2)}` : ''
             }}
-          />
+          /> */}
         </PieChart>
       </ResponsiveContainer>
     </div>
