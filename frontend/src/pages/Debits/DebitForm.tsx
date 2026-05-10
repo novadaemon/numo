@@ -84,30 +84,32 @@ export function DebitForm({ debit, onOpenChange, onSuccess }: DebitFormProps) {
         setCategories(cats)
         const placesList = await placesService.getAllSimple()
         setPlaces(placesList)
-
-        // Pre-poblar form si es modo edición (después de cargar datos)
-        if (isEditMode && debit) {
-          setFormData({
-            category_id: debit.category_id.toString(),
-            place_id: debit.place_id?.toString() || '',
-            concept: debit.concept || '',
-            amount: debit.amount.toString(),
-            method: debit.method,
-            observations: debit.observations || '',
-            expensed_at: debit.expensed_at,
-          })
-          // Sincronizar conceptSearchValue para modo edición
-          if (debit.concept) {
-            setConceptSearchValue(debit.concept)
-          }
-        }
       } catch (error) {
         console.error('Error loading data:', error)
         toast.error('Error al cargar datos')
       }
     }
     loadData()
-  }, [debit, isEditMode])
+  }, [])
+
+  // Pre-poblar form en modo edición DESPUÉS de que places estén disponibles
+  useEffect(() => {
+    if (isEditMode && debit && places.length > 0) {
+      setFormData({
+        category_id: debit.category_id.toString(),
+        place_id: debit.place_id?.toString() || '',
+        concept: debit.concept || '',
+        amount: debit.amount.toString(),
+        method: debit.method,
+        observations: debit.observations || '',
+        expensed_at: debit.expensed_at,
+      })
+      // Sincronizar conceptSearchValue para modo edición
+      if (debit.concept) {
+        setConceptSearchValue(debit.concept)
+      }
+    }
+  }, [debit, isEditMode, places])
 
   // Reset form en modo creación
   useEffect(() => {
