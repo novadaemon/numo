@@ -1,4 +1,5 @@
 export { DebitsTable } from '../../pages/Debits/DebitsTable'
 export { CategoryExpensesChart } from './CategoryExpensesChart'
+export { CategoryExpensesTable } from './CategoryExpensesTable'
 export { MonthlyExpensesChart } from './MonthlyExpensesChart'
 export { TotalsWidget } from './TotalsWidget'
