@@ -42,7 +42,11 @@ export class CategoriesService {
    * Returns just the array of categories
    */
   async getAllSimple(): Promise<Category[]> {
-    const response = await this.apiClient.get<PaginatedResponse<Category>>('/categories')
+    // Request with size=100 to get all categories (backend max allowed size)
+    const queryString = this.buildQueryString(0, 100)
+    const response = await this.apiClient.get<PaginatedResponse<Category>>(
+      `/categories${queryString}`
+    )
     return response.data || []
   }
 

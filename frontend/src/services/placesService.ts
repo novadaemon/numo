@@ -42,7 +42,9 @@ export class PlacesService {
    * Returns just the array of places
    */
   async getAllSimple(): Promise<Place[]> {
-    const response = await this.apiClient.get<PaginatedResponse<Place>>('/places')
+    // Request with size=100 to get all places (backend max allowed size)
+    const queryString = this.buildQueryString(0, 100)
+    const response = await this.apiClient.get<PaginatedResponse<Place>>(`/places${queryString}`)
     return response.data || []
   }
 
