@@ -1,14 +1,10 @@
 import { Button } from '@/components/ui/button'
-import {
-  Command,
-  CommandGroup,
-  CommandItem,
-  CommandList,
-} from '@/components/ui/command'
+import { Command, CommandGroup, CommandItem, CommandList } from '@/components/ui/command'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 
 import { Plus, X } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { v4 as uuidv4 } from 'uuid'
 import { FilterChip } from './FilterChip'
 import type { FilterFieldConfig, FilterRule, SerializedFilterRule } from './types'
 import { operatorNeedsValue } from './types'
@@ -28,7 +24,7 @@ type FilterBarProps = {
 }
 
 function generateFilterId(): string {
-  return crypto.randomUUID()
+  return uuidv4()
 }
 
 export function FilterBar({ fields, value: rules, onChange, lockedRules = [] }: FilterBarProps) {
@@ -146,11 +142,11 @@ export function FilterBar({ fields, value: rules, onChange, lockedRules = [] }: 
           <Button
             variant="outline"
             size="sm"
-            className="h-7 gap-1 border-dashed border-primary/20 text-xs text-primary/60 hover:bg-primary/10 hover:text-primary">
+            className="border-primary/20 text-primary/60 hover:bg-primary/10 h-7 gap-1 border-dashed text-xs hover:text-primary">
             <Plus className="h-3.5 w-3.5" />
             Add filter
             {rules.length > 0 && (
-              <span className="rounded-full bg-primary/15 px-1.5 py-0.5 text-[10px] font-medium leading-none text-primary">
+              <span className="bg-primary/15 rounded-full px-1.5 py-0.5 text-[10px] font-medium leading-none text-primary">
                 {rules.length}
               </span>
             )}
@@ -162,9 +158,7 @@ export function FilterBar({ fields, value: rules, onChange, lockedRules = [] }: 
               {Object.entries(fieldGroups).map(([group, groupFields]) => (
                 <CommandGroup key={group} heading={group}>
                   {groupFields.map((field) => (
-                    <CommandItem
-                      key={field.name}
-                      onSelect={() => addFilter(field.name)}>
+                    <CommandItem key={field.name} onSelect={() => addFilter(field.name)}>
                       {field.label}
                     </CommandItem>
                   ))}
