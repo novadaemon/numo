@@ -27,12 +27,15 @@ def verify_password(username, password):
 
 @auth.error_handler
 def auth_error(status):
-    """Handle authentication errors by returning 401 Unauthorized.
+    """Handle authentication errors by returning an Unauthorized response.
     
     Args:
         status: HTTP status code from Flask-HTTPAuth
         
     Returns:
-        JSON error response with 401 status code
+        JSON error response with the appropriate authentication challenge
     """
-    return jsonify({'error': 'Unauthorized. Please provide valid credentials.'}), 401
+    response = jsonify({'error': 'Unauthorized. Please provide valid credentials.'})
+    response.status_code = status or 401
+    response.headers['WWW-Authenticate'] = 'Basic realm="Authentication Required"'
+    return response
