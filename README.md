@@ -65,22 +65,8 @@ numo/
 │   └── README.md
 ├── docker-compose.yml      # Orquestación (backend only)
 ├── .env.example           # Template de variables de entorno
-└── CLAUDE.md              # Documentación del proyecto
+└── AGENTS.md              # Documentación del proyecto
 ```
-
-## 🔧 Configuración
-
-Copia `.env.example` a `.env` y ajusta las variables según necesites:
-
-```bash
-cp .env.example .env
-```
-
-Variables disponibles:
-
-- `BACKEND_PORT` - Puerto del backend (default: 8080)
-- `FLASK_ENV` - Ambiente de Flask (development/production)
-- `VITE_API_URL` - URL de la API para el frontend (default: http://localhost:8080)
 
 ## 🛠️ Tecnología
 
@@ -118,6 +104,7 @@ Variables disponibles:
 
 - `BACKEND_PORT` - Puerto del backend (default: 8080)
 - `FRONTEND_PORT` - Puerto del frontend (default: 5173)
+- `NUMO_VERSION` - Número de versión
 - `FLASK_ENV` - Ambiente de Flask (development/production)
 - `VITE_API_URL` - URL de la API para el frontend
 - `NUMO_USERNAME` - Usuario para autenticación Basic Auth (default: admin)

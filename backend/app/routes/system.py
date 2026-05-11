@@ -3,9 +3,10 @@ Rutas para información del sistema (versión, health check, etc).
 """
 
 import os
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 import sys
 from pathlib import Path
+from functools import wraps
 from ..http.auth import auth
 
 # Agregar raíz del proyecto al path para importar version.py
@@ -20,6 +21,18 @@ def get_version() -> str:
     if version_file.exists():
         return version_file.read_text(encoding="utf-8").strip()
     return os.getenv("NUMO_VERSION", "0.0.0")
+
+
+def auth_required_except_options(f):
+    """Decorador que requiere autenticación excepto para solicitudes OPTIONS (CORS preflight)."""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        # Permitir solicitudes OPTIONS sin autenticación (CORS preflight)
+        if request.method == "OPTIONS":
+            return f(*args, **kwargs)
+        # Para otros métodos, requerir autenticación
+        return auth.login_required(f)(*args, **kwargs)
+    return decorated_function
 
 
 @system_bp.route("/version", methods=["GET"])
@@ -42,12 +55,14 @@ def get_system_version():
     })
 
 
-@system_bp.route("/auth/verify", methods=["GET"])
-@auth.login_required
+@system_bp.route("/auth/verify", methods=["GET", "OPTIONS"])
+@auth_required_except_options
 def verify_auth():
     """
     Verifica que las credenciales de autenticación son válidas.
     Requiere Basic Auth. Si se llama exitosamente, las credenciales son válidas.
+    
+    Soporta solicitudes OPTIONS para CORS preflight sin autenticación.
     
     Returns:
         JSON con confirmación:
@@ -56,6 +71,10 @@ def verify_auth():
             "message": "Credentials verified"
         }
     """
+    # Manejar solicitud OPTIONS (preflight)
+    if request.method == "OPTIONS":
+        return jsonify({}), 200
+    
     return jsonify({
         "authenticated": True,
         "message": "Credentials verified"
