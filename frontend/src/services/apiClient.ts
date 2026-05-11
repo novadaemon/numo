@@ -21,6 +21,21 @@ export class ApiClient {
   }
 
   /**
+   * Set credentials for authentication
+   */
+  setCredentials(username: string, password: string): void {
+    const auth = btoa(`${username}:${password}`)
+    this.defaultHeaders['Authorization'] = `Basic ${auth}`
+  }
+
+  /**
+   * Clear credentials
+   */
+  clearCredentials(): void {
+    delete this.defaultHeaders['Authorization']
+  }
+
+  /**
    * Build full URL from endpoint
    */
   private buildUrl(endpoint: string): string {
@@ -196,11 +211,11 @@ export class ApiClient {
   }
 
   /**
-   * Health check
+   * Health check - tests authentication credentials by calling protected endpoint
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async health(): Promise<any> {
-    return this.get('/version')
+    return this.get('/auth/verify')
   }
 }
 

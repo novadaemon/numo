@@ -7,11 +7,13 @@ from ..database import SessionLocal
 from ..models import Place
 from ..http.validation import PlaceSchema
 from ..http.pagination import validate_pagination_params, apply_pagination
+from ..http.auth import auth
 
 bp = Blueprint('places', __name__, url_prefix='/places')
 schema = PlaceSchema()
 
 
+@auth.login_required
 @bp.route('', methods=['GET'])
 def get_places():
     """Get all places with optional pagination and sorting."""
@@ -66,6 +68,7 @@ def get_places():
         db.close()
 
 
+@auth.login_required
 @bp.route('', methods=['POST'])
 def create_place():
     """Create a new place."""
@@ -92,6 +95,7 @@ def create_place():
         db.close()
 
 
+@auth.login_required
 @bp.route('/<int:place_id>', methods=['GET'])
 def get_place(place_id):
     """Get a specific place."""
@@ -106,6 +110,7 @@ def get_place(place_id):
         db.close()
 
 
+@auth.login_required
 @bp.route('/<int:place_id>', methods=['PUT'])
 def update_place(place_id):
     """Update a place."""
@@ -137,6 +142,7 @@ def update_place(place_id):
         db.close()
 
 
+@auth.login_required
 @bp.route('/<int:place_id>', methods=['DELETE'])
 def delete_place(place_id):
     """Delete a place."""

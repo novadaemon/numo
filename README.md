@@ -120,6 +120,30 @@ Variables disponibles:
 - `FRONTEND_PORT` - Puerto del frontend (default: 5173)
 - `FLASK_ENV` - Ambiente de Flask (development/production)
 - `VITE_API_URL` - URL de la API para el frontend
+- `NUMO_USERNAME` - Usuario para autenticación Basic Auth (default: admin)
+- `NUMO_PASSWORD` - Contraseña para autenticación Basic Auth (default: admin)
+
+## 🔐 Autenticación
+
+La API está protegida con **HTTP Basic Authentication**:
+
+- **Todos los endpoints** requieren autenticación (excepto `GET /version`)
+- **Credenciales** se configuran via variables de entorno: `NUMO_USERNAME` y `NUMO_PASSWORD`
+- **Frontend** pide las credenciales en la primera carga y las guarda en localStorage
+- **Header requerido**: `Authorization: Basic <base64(username:password)>`
+
+### Uso con cURL
+
+```bash
+# Sin autenticación → 401 Unauthorized
+curl http://localhost:8080/debits
+
+# Con autenticación válida → 200 OK
+curl -H "Authorization: Basic $(echo -n 'admin:admin' | base64)" http://localhost:8080/debits
+
+# Health check sin autenticación (siempre funciona)
+curl http://localhost:8080/version
+```
 
 ## 🛠️ Tecnología
 

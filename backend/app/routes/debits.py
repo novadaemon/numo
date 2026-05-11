@@ -9,6 +9,7 @@ from ..database import SessionLocal
 from ..models import Debit, Category, Place
 from ..http.validation import DebitSchema
 from ..http.pagination import validate_pagination_params, apply_pagination
+from ..http.auth import auth
 
 bp = Blueprint('debits', __name__, url_prefix='/debits')
 schema = DebitSchema()
@@ -36,6 +37,7 @@ def format_debit(debit):
     }
 
 
+@auth.login_required
 @bp.route('', methods=['GET'])
 def get_debits():
     """Get all debits with optional filtering and pagination."""
@@ -201,6 +203,7 @@ def get_debits():
         db.close()
 
 
+@auth.login_required
 @bp.route('', methods=['POST'])
 def create_debit():
     """Create a new debit."""
@@ -238,6 +241,7 @@ def create_debit():
         db.close()
 
 
+@auth.login_required
 @bp.route('/<int:debit_id>', methods=['GET'])
 def get_debit(debit_id):
     """Get a specific debit."""
@@ -252,6 +256,7 @@ def get_debit(debit_id):
         db.close()
 
 
+@auth.login_required
 @bp.route('/<int:debit_id>', methods=['PUT'])
 def update_debit(debit_id):
     """Update a debit."""
@@ -292,6 +297,7 @@ def update_debit(debit_id):
         db.close()
 
 
+@auth.login_required
 @bp.route('/<int:debit_id>', methods=['DELETE'])
 def delete_debit(debit_id):
     """Delete a debit."""

@@ -1,5 +1,6 @@
+import { LoginModal } from '@/components/Auth'
 import { HeaderMenu } from '@/components/layout'
-import { DataRefreshProvider } from '@/contexts'
+import { AuthProvider, DataRefreshProvider, useAuth } from '@/contexts'
 import {
   CategoriesPage,
   ConceptsPage,
@@ -13,31 +14,51 @@ import { CircleDollarSign } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Route, Routes } from 'react-router-dom'
 
-function App() {
-  const [status, setStatus] = useState<string>('loading')
+function AppContent() {
+  const { isAuthenticated, username, password, clearCredentials } = useAuth()
+  const [status, setStatus] = useState<string>('idle')
 
+  // Set credentials and check health when authenticated
   useEffect(() => {
-    const checkHealth = async () => {
-      try {
-        await apiClient.health()
-        setStatus('connected')
-      } catch (error) {
-        setStatus('disconnected')
+    const initializeAuth = async () => {
+      if (isAuthenticated && username && password) {
+        console.log('AppContent: Setting credentials and checking health...')
+        // First, set credentials
+        apiClient.setCredentials(username, password)
+
+        // Then check health
+        try {
+          console.log('AppContent: Checking health with credentials...')
+          await apiClient.health()
+          console.log('AppContent: Health check passed')
+          setStatus('connected')
+        } catch (error: unknown) {
+          console.error('AppContent: Health check failed:', error)
+          const err = error as { status?: number }
+          // If 401 Unauthorized, clear credentials and require re-login
+          if (err?.status === 401) {
+            console.log(
+              'AppContent: Unauthorized (401), clearing credentials and showing LoginModal'
+            )
+            clearCredentials()
+            // Don't set status to 'disconnected' - just let isAuthenticated=false trigger re-render to show LoginModal
+            setStatus('idle')
+          } else {
+            // For other errors (network, 5xx, etc.), show disconnected screen
+            console.log('AppContent: Server error, showing disconnected screen')
+            setStatus('disconnected')
+          }
+        }
       }
     }
 
-    checkHealth()
-  }, [])
+    initializeAuth()
+  }, [isAuthenticated, username, password, clearCredentials])
 
-  if (status === 'loading') {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-indigo-600"></div>
-          <p className="text-gray-600">Conectando...</p>
-        </div>
-      </div>
-    )
+  // Show login modal if not authenticated
+  if (!isAuthenticated) {
+    console.log('AppContent: Not authenticated, showing LoginModal')
+    return <LoginModal />
   }
 
   if (status === 'disconnected') {
@@ -57,6 +78,17 @@ function App() {
             className="w-full rounded-lg bg-indigo-600 px-4 py-2 font-medium text-white transition hover:bg-indigo-700">
             Reintentar
           </button>
+        </div>
+      </div>
+    )
+  }
+
+  if (status !== 'connected') {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-indigo-600"></div>
+          <p className="text-gray-600">Conectando...</p>
         </div>
       </div>
     )
@@ -89,6 +121,16 @@ function App() {
         </div>
       </div>
     </DataRefreshProvider>
+  )
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <DataRefreshProvider>
+        <AppContent />
+      </DataRefreshProvider>
+    </AuthProvider>
   )
 }
 

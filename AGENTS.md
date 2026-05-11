@@ -117,6 +117,56 @@ See [backend/app/models/SCHEMA.md](backend/app/models/SCHEMA.md) for complete da
 
 ---
 
+## Authentication (Basic Auth)
+
+The API is protected with HTTP Basic Authentication using [Flask-HTTPAuth](https://flask-httpauth.readthedocs.io/en/latest/).
+
+### Backend Implementation
+
+- **Credentials**: Stored in environment variables `NUMO_USERNAME` and `NUMO_PASSWORD` (defaults: both `admin`)
+- **Auth Module**: [backend/app/http/auth.py](backend/app/http/auth.py) - Handles credential verification
+- **Verification**: `@auth.verify_password` callback validates username/password against environment variables
+- **Protection**: All endpoints except `GET /version` are protected with `@auth.login_required` decorator
+- **Public Endpoint**: `GET /version` (health check) remains public for monitoring
+
+### Frontend Implementation
+
+- **AuthContext**: [frontend/src/contexts/AuthContext.tsx](frontend/src/contexts/AuthContext.tsx) - Manages credentials in localStorage
+- **LoginModal**: [frontend/src/components/Auth/LoginModal.tsx](frontend/src/components/Auth/LoginModal.tsx) - Modal form for credential entry
+- **API Client**: [frontend/src/services/apiClient.ts](frontend/src/services/apiClient.ts) - Automatically includes `Authorization: Basic` header
+- **Credentials Storage**: Persisted in localStorage with key `NUMO_AUTH` (format: `{username, password}`)
+
+### Usage
+
+1. **First Load**: User sees LoginModal requesting username/password
+2. **Validation**: Frontend validates credentials by attempting GET `/version`
+3. **Storage**: Valid credentials are saved to localStorage
+4. **Requests**: All subsequent API calls include the Authorization header automatically
+5. **401 Handling**: If credentials become invalid, user is prompted to re-login
+
+### Environment Variables
+
+```bash
+# Backend
+NUMO_USERNAME=admin          # Username for Basic Auth (default: admin)
+NUMO_PASSWORD=secret123      # Password for Basic Auth (default: admin)
+```
+
+### Testing with cURL
+
+```bash
+# Without auth → 401 Unauthorized
+curl http://localhost:8080/debits
+
+# With valid auth → 200 OK
+curl -H "Authorization: Basic $(echo -n 'admin:secret123' | base64)" http://localhost:8080/debits
+
+# Health check (no auth required)
+curl http://localhost:8080/version
+```
+
+---
+
 ## Frontend Guidelines
 
 - Use functional React components.

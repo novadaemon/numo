@@ -33,6 +33,10 @@ paths:
       operationId: getCategories
       tags:
         - Categories
+      security:
+        - BasicAuth: []
+      security:
+        - BasicAuth: []
       description: Retrieve a list of all expense categories with optional pagination
       parameters:
         - name: page
@@ -64,6 +68,10 @@ paths:
       operationId: createCategory
       tags:
         - Categories
+      security:
+        - BasicAuth: []
+      security:
+        - BasicAuth: []
       description: Create a new expense category
       requestBody:
         required: true
@@ -97,6 +105,8 @@ paths:
       operationId: getCategoryById
       tags:
         - Categories
+      security:
+        - BasicAuth: []
       parameters:
         - name: categoryId
           in: path
@@ -122,6 +132,8 @@ paths:
       operationId: updateCategory
       tags:
         - Categories
+      security:
+        - BasicAuth: []
       parameters:
         - name: categoryId
           in: path
@@ -164,6 +176,8 @@ paths:
       operationId: deleteCategory
       tags:
         - Categories
+      security:
+        - BasicAuth: []
       parameters:
         - name: categoryId
           in: path
@@ -186,6 +200,8 @@ paths:
       operationId: getConcepts
       tags:
         - Concepts
+      security:
+        - BasicAuth: []
       description: Retrieve a list of all expense concepts with optional pagination, sorting, or search filtering. When 'q' parameter is provided, returns a flat array for autocomplete/search use. Without 'q', returns a paginated response.
       parameters:
         - name: q
@@ -240,6 +256,8 @@ paths:
       operationId: createConcept
       tags:
         - Concepts
+      security:
+        - BasicAuth: []
       description: Create a new expense concept
       requestBody:
         required: true
@@ -273,6 +291,8 @@ paths:
       operationId: getConcept
       tags:
         - Concepts
+      security:
+        - BasicAuth: []
       parameters:
         - name: conceptId
           in: path
@@ -298,6 +318,8 @@ paths:
       operationId: updateConcept
       tags:
         - Concepts
+      security:
+        - BasicAuth: []
       parameters:
         - name: conceptId
           in: path
@@ -341,6 +363,8 @@ paths:
       operationId: deleteConcept
       tags:
         - Concepts
+      security:
+        - BasicAuth: []
       parameters:
         - name: conceptId
           in: path
@@ -363,6 +387,8 @@ paths:
       operationId: getPlaces
       tags:
         - Places
+      security:
+        - BasicAuth: []
       description: Retrieve a list of all transaction places/locations with optional pagination
       parameters:
         - name: page
@@ -394,6 +420,8 @@ paths:
       operationId: createPlace
       tags:
         - Places
+      security:
+        - BasicAuth: []
       description: Create a new transaction place/location
       requestBody:
         required: true
@@ -427,6 +455,8 @@ paths:
       operationId: getPlaceById
       tags:
         - Places
+      security:
+        - BasicAuth: []
       parameters:
         - name: placeId
           in: path
@@ -452,6 +482,8 @@ paths:
       operationId: updatePlace
       tags:
         - Places
+      security:
+        - BasicAuth: []
       parameters:
         - name: placeId
           in: path
@@ -494,6 +526,8 @@ paths:
       operationId: deletePlace
       tags:
         - Places
+      security:
+        - BasicAuth: []
       parameters:
         - name: placeId
           in: path
@@ -516,6 +550,8 @@ paths:
       operationId: getDebits
       tags:
         - Debits
+      security:
+        - BasicAuth: []
       description: Retrieve a list of all expenses (debits) with optional pagination and filtering
       parameters:
         - name: page
@@ -635,6 +671,8 @@ paths:
       operationId: createDebit
       tags:
         - Debits
+      security:
+        - BasicAuth: []
       description: Create a new expense (debit)
       requestBody:
         required: true
@@ -668,6 +706,8 @@ paths:
       operationId: getDebitById
       tags:
         - Debits
+      security:
+        - BasicAuth: []
       parameters:
         - name: debitId
           in: path
@@ -693,6 +733,8 @@ paths:
       operationId: updateDebit
       tags:
         - Debits
+      security:
+        - BasicAuth: []
       parameters:
         - name: debitId
           in: path
@@ -750,6 +792,8 @@ paths:
       operationId: deleteDebit
       tags:
         - Debits
+      security:
+        - BasicAuth: []
       parameters:
         - name: debitId
           in: path
@@ -772,6 +816,8 @@ paths:
       operationId: getCredits
       tags:
         - Credits
+      security:
+        - BasicAuth: []
       description: Retrieve a list of all income (credits) with pagination support
       parameters:
         - name: page
@@ -821,6 +867,8 @@ paths:
       operationId: createCredit
       tags:
         - Credits
+      security:
+        - BasicAuth: []
       description: Create a new income (credit)
       requestBody:
         required: true
@@ -848,6 +896,8 @@ paths:
       operationId: getCreditById
       tags:
         - Credits
+      security:
+        - BasicAuth: []
       parameters:
         - name: creditId
           in: path
@@ -873,6 +923,8 @@ paths:
       operationId: updateCredit
       tags:
         - Credits
+      security:
+        - BasicAuth: []
       parameters:
         - name: creditId
           in: path
@@ -916,6 +968,8 @@ paths:
       operationId: deleteCredit
       tags:
         - Credits
+      security:
+        - BasicAuth: []
       parameters:
         - name: creditId
           in: path
@@ -953,6 +1007,8 @@ paths:
       operationId: healthCheck
       tags:
         - System
+      security:
+        - BasicAuth: []
       description: Check the health status of the Numo system
       responses:
         "200":
@@ -963,6 +1019,12 @@ paths:
                 $ref: "#/components/schemas/HealthCheckResponse"
 
 components:
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+      description: HTTP Basic Authentication. Use username and password from environment variables NUMO_USERNAME and NUMO_PASSWORD.
+
   schemas:
     Category:
       type: object

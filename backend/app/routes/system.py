@@ -6,6 +6,7 @@ import os
 from flask import Blueprint, jsonify
 import sys
 from pathlib import Path
+from ..http.auth import auth
 
 # Agregar raíz del proyecto al path para importar version.py
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
@@ -38,4 +39,24 @@ def get_system_version():
         "version": get_version(),
         "name": "numo",
         "environment": os.getenv("FLASK_ENV", "production")
+    })
+
+
+@system_bp.route("/auth/verify", methods=["GET"])
+@auth.login_required
+def verify_auth():
+    """
+    Verifica que las credenciales de autenticación son válidas.
+    Requiere Basic Auth. Si se llama exitosamente, las credenciales son válidas.
+    
+    Returns:
+        JSON con confirmación:
+        {
+            "authenticated": true,
+            "message": "Credentials verified"
+        }
+    """
+    return jsonify({
+        "authenticated": True,
+        "message": "Credentials verified"
     })
