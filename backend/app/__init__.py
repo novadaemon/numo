@@ -34,13 +34,7 @@ def create_app():
     def handle_preflight():
         """Manejo explícito de solicitudes OPTIONS (preflight)."""
         if request.method == "OPTIONS":
-            response = jsonify({})
-            response.headers.add("Access-Control-Allow-Origin", request.headers.get("Origin", "*"))
-            response.headers.add("Access-Control-Allow-Headers", "Content-Type,Authorization")
-            response.headers.add("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS")
-            response.headers.add("Access-Control-Max-Age", "3600")
-            response.headers.add("Access-Control-Allow-Credentials", "true")
-            return response, 200
+            return jsonify({}), 200
 
     # Ensure data directory exists for SQLite
     data_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data')
