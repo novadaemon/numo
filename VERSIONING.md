@@ -100,7 +100,7 @@ python bump_version.py prerelease beta
 
 ## 🐳 Docker — Solo para Desarrollo
 
-Docker se utiliza **únicamente para desarrollo local** a través de `docker-compose`. No requiere versionado:
+Docker se utiliza **únicamente para desarrollo local** a través de `docker-compose`. No define una versión propia:
 
 - ✅ Se usa para orquestar servicios localmente
 - ✅ No se construyen ni publican imágenes a registros

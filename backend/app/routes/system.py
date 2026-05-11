@@ -4,20 +4,16 @@ Rutas para información del sistema (versión, health check, etc).
 
 import os
 from flask import Blueprint, jsonify, request
-import sys
 from pathlib import Path
 from functools import wraps
 from ..http.auth import auth
-
-# Agregar raíz del proyecto al path para importar version.py
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 system_bp = Blueprint("system", __name__, url_prefix="")
 
 
 def get_version() -> str:
     """Obtiene la versión actual del proyecto."""
-    version_file = Path(__file__).parent.parent.parent / ".version"
+    version_file = Path(__file__).parent.parent.parent.parent / ".version"
     if version_file.exists():
         return version_file.read_text(encoding="utf-8").strip()
     return os.getenv("NUMO_VERSION", "0.0.0")
@@ -31,7 +27,7 @@ def auth_required_except_options(f):
     def decorated_function(*args, **kwargs):
         # Permitir solicitudes OPTIONS sin autenticación (CORS preflight)
         if request.method == "OPTIONS":
-            return f(*args, **kwargs)
+            return jsonify({}), 200
         # Para otros métodos, requerir autenticación
         return protected(*args, **kwargs)
     return decorated_function
@@ -73,10 +69,6 @@ def verify_auth():
             "message": "Credentials verified"
         }
     """
-    # Manejar solicitud OPTIONS (preflight)
-    if request.method == "OPTIONS":
-        return jsonify({}), 200
-    
     return jsonify({
         "authenticated": True,
         "message": "Credentials verified"

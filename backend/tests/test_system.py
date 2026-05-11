@@ -1,6 +1,7 @@
 import base64
 import json
 import os
+from pathlib import Path
 
 
 class TestSystemEndpoints:
@@ -39,3 +40,14 @@ class TestSystemEndpoints:
             headers=self._auth_header(username="invalid", password="invalid"),
         )
         assert response.status_code == 401
+
+    def test_version_reads_repo_version_file(self, client):
+        """GET /version should return the value from the repository .version file."""
+        version_path = Path(__file__).parent.parent.parent / ".version"
+        expected_version = version_path.read_text(encoding="utf-8").strip()
+
+        response = client.get("/version")
+
+        assert response.status_code == 200
+        data = json.loads(response.data)
+        assert data["version"] == expected_version

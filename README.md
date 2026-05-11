@@ -90,7 +90,7 @@ numo/
 
 - [Backend README](./backend/README.md)
 - [Frontend README](./frontend/README.md)
-- [Guía de Desarrollo](./CLAUDE.md)
+- [Guía de Desarrollo](./AGENTS.md)
 
 ## 🔧 Configuración
 
@@ -103,7 +103,7 @@ cp .env.example .env
 Variables disponibles:
 
 - `BACKEND_PORT` - Puerto del backend (default: 8080)
-- `FRONTEND_PORT` - Puerto del frontend (default: 5173)
+- `FRONTEND_PORT` - Puerto del frontend (default: 3000)
 - `NUMO_VERSION` - Versión de la aplicación (opcional). Normalmente no se configura manualmente: el backend la obtiene desde `.version`. Si se usa como fallback/inyección (por ejemplo, en Docker), debe mantenerse sincronizada con `.version`
 - `FLASK_ENV` - Ambiente de Flask (development/production)
 - `VITE_API_URL` - URL de la API para el frontend
