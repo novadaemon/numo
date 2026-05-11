@@ -104,7 +104,7 @@ Docker se utiliza **únicamente para desarrollo local** a través de `docker-com
 
 - ✅ Se usa para orquestar servicios localmente
 - ✅ No se construyen ni publican imágenes a registros
-- ❌ No se incluye versión en variables de entorno
+- ℹ️ `NUMO_VERSION` puede inyectarse opcionalmente (ej. desde `docker-compose`), pero la fuente única de verdad sigue siendo el archivo `.version`
 
 Para producción, el versionado se gestiona a través de Git tags y GitHub Releases (ver [CI_CD_WORKFLOWS.md](CI_CD_WORKFLOWS.md)).
 
