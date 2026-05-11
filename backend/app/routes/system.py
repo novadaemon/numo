@@ -5,7 +5,7 @@ Rutas para información del sistema (versión, health check, etc).
 import os
 from flask import Blueprint, jsonify, request
 from pathlib import Path
-from ..http.auth import auth, verify_password
+from ..http.auth import verify_password
 
 system_bp = Blueprint("system", __name__, url_prefix="")
 
