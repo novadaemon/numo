@@ -65,22 +65,8 @@ numo/
 │   └── README.md
 ├── docker-compose.yml      # Orquestación (backend only)
 ├── .env.example           # Template de variables de entorno
-└── CLAUDE.md              # Documentación del proyecto
+└── AGENTS.md              # Documentación del proyecto
 ```
-
-## 🔧 Configuración
-
-Copia `.env.example` a `.env` y ajusta las variables según necesites:
-
-```bash
-cp .env.example .env
-```
-
-Variables disponibles:
-
-- `BACKEND_PORT` - Puerto del backend (default: 8080)
-- `FLASK_ENV` - Ambiente de Flask (development/production)
-- `VITE_API_URL` - URL de la API para el frontend (default: http://localhost:8080)
 
 ## 🛠️ Tecnología
 
@@ -104,7 +90,7 @@ Variables disponibles:
 
 - [Backend README](./backend/README.md)
 - [Frontend README](./frontend/README.md)
-- [Guía de Desarrollo](./CLAUDE.md)
+- [Guía de Desarrollo](./AGENTS.md)
 
 ## 🔧 Configuración
 
@@ -117,7 +103,8 @@ cp .env.example .env
 Variables disponibles:
 
 - `BACKEND_PORT` - Puerto del backend (default: 8080)
-- `FRONTEND_PORT` - Puerto del frontend (default: 5173)
+- `FRONTEND_PORT` - Puerto del frontend (default: 3000)
+- `NUMO_VERSION` - Versión de la aplicación (opcional). Normalmente no se configura manualmente: el backend la obtiene desde `.version`. Si se usa como fallback/inyección (por ejemplo, en Docker), debe mantenerse sincronizada con `.version`
 - `FLASK_ENV` - Ambiente de Flask (development/production)
 - `VITE_API_URL` - URL de la API para el frontend
 - `NUMO_USERNAME` - Usuario para autenticación Basic Auth (default: admin)

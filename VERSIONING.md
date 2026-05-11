@@ -98,25 +98,15 @@ python bump_version.py prerelease beta
 
 ---
 
-## 🐳 Docker
+## 🐳 Docker — Solo para Desarrollo
 
-### Usar versión en producción
+Docker se utiliza **únicamente para desarrollo local** a través de `docker-compose`. No define una versión propia:
 
-```bash
-# En docker-compose.yml la versión se inyecta automáticamente
-NUMO_VERSION=0.1.0 docker-compose up
+- ✅ Se usa para orquestar servicios localmente
+- ✅ No se construyen ni publican imágenes a registros
+- ℹ️ `NUMO_VERSION` puede inyectarse opcionalmente (ej. desde `docker-compose`), pero la fuente única de verdad sigue siendo el archivo `.version`
 
-# En el backend, accede via:
-import os
-version = os.getenv('NUMO_VERSION', '0.0.0')
-```
-
-### Build con versión etiquetada
-
-```bash
-docker build -t numo:0.1.0 .
-docker build -t numo:latest .
-```
+Para producción, el versionado se gestiona a través de Git tags y GitHub Releases (ver [CI_CD_WORKFLOWS.md](CI_CD_WORKFLOWS.md)).
 
 ---
 
