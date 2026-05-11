@@ -6,9 +6,9 @@ import os
 class TestSystemEndpoints:
     """Test suite for system endpoints."""
 
-    def _auth_header(self):
-        username = os.getenv("NUMO_USERNAME", "admin")
-        password = os.getenv("NUMO_PASSWORD", "admin")
+    def _auth_header(self, username=None, password=None):
+        username = username or os.getenv("NUMO_USERNAME", "admin")
+        password = password or os.getenv("NUMO_PASSWORD", "admin")
         token = base64.b64encode(f"{username}:{password}".encode("utf-8")).decode("utf-8")
         return {"Authorization": f"Basic {token}"}
 
@@ -31,3 +31,11 @@ class TestSystemEndpoints:
         data = json.loads(response.data)
         assert data["authenticated"] is True
         assert data["message"] == "Credentials verified"
+
+    def test_verify_auth_get_with_invalid_auth(self, client):
+        """GET /auth/verify should reject invalid credentials."""
+        response = client.get(
+            "/auth/verify",
+            headers=self._auth_header(username="invalid", password="invalid"),
+        )
+        assert response.status_code == 401
