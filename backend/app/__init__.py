@@ -3,6 +3,7 @@ import os
 from flask import Flask
 from flask_cors import CORS
 from .database import init_db
+from .http.auth import auth
 
 
 def create_app():

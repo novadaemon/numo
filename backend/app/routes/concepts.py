@@ -8,6 +8,7 @@ from ..database import SessionLocal
 from ..models import Concept
 from ..http.validation import ConceptSchema
 from ..http.pagination import validate_pagination_params, apply_pagination
+from ..http.auth import auth
 
 bp = Blueprint('concepts', __name__, url_prefix='/concepts')
 schema = ConceptSchema()
@@ -23,6 +24,7 @@ def normalize_text(text):
     return ''.join(char for char in nfd if unicodedata.category(char) != 'Mn').lower()
 
 
+@auth.login_required
 @bp.route('', methods=['GET'])
 def get_concepts():
     """Get all concepts with optional pagination, sorting, or search by name.
@@ -83,6 +85,7 @@ def get_concepts():
         db.close()
 
 
+@auth.login_required
 @bp.route('', methods=['POST'])
 def create_concept():
     """Create a new concept."""
@@ -109,6 +112,7 @@ def create_concept():
         db.close()
 
 
+@auth.login_required
 @bp.route('/<int:concept_id>', methods=['GET'])
 def get_concept(concept_id):
     """Get a specific concept."""
@@ -123,6 +127,7 @@ def get_concept(concept_id):
         db.close()
 
 
+@auth.login_required
 @bp.route('/<int:concept_id>', methods=['PUT'])
 def update_concept(concept_id):
     """Update a concept."""
@@ -154,6 +159,7 @@ def update_concept(concept_id):
         db.close()
 
 
+@auth.login_required
 @bp.route('/<int:concept_id>', methods=['DELETE'])
 def delete_concept(concept_id):
     """Delete a concept."""

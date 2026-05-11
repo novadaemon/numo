@@ -1,6 +1,7 @@
 Flask==3.0.0
 flask-cors==4.0.0
-SQLAlchemy==2.0.23
+Flask-HTTPAuth==4.8.1
+SQLAlchemy==2.0.49
 gunicorn==21.2.0
 python-dotenv==1.0.0
 factory_boy==2.12.0

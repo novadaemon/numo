@@ -7,6 +7,7 @@ from ..database import SessionLocal
 from ..models import Credit
 from ..http.validation import CreditSchema
 from ..http.pagination import validate_pagination_params, apply_pagination
+from ..http.auth import auth
 
 bp = Blueprint('credits', __name__, url_prefix='/credits')
 schema = CreditSchema()
@@ -22,6 +23,7 @@ def format_credit(credit):
     }
 
 
+@auth.login_required
 @bp.route('', methods=['GET'])
 def get_credits():
     """Get all credits, optionally filtered by date range, amount, observations with pagination."""
@@ -104,6 +106,7 @@ def get_credits():
         db.close()
 
 
+@auth.login_required
 @bp.route('', methods=['POST'])
 def create_credit():
     """Create a new credit."""
@@ -127,6 +130,7 @@ def create_credit():
         db.close()
 
 
+@auth.login_required
 @bp.route('/<int:credit_id>', methods=['GET'])
 def get_credit(credit_id):
     """Get a specific credit."""
@@ -141,6 +145,7 @@ def get_credit(credit_id):
         db.close()
 
 
+@auth.login_required
 @bp.route('/<int:credit_id>', methods=['PUT'])
 def update_credit(credit_id):
     """Update a credit."""
@@ -170,6 +175,7 @@ def update_credit(credit_id):
         db.close()
 
 
+@auth.login_required
 @bp.route('/<int:credit_id>', methods=['DELETE'])
 def delete_credit(credit_id):
     """Delete a credit."""

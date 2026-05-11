@@ -7,11 +7,13 @@ from ..database import SessionLocal
 from ..models import Category
 from ..http.validation import CategorySchema
 from ..http.pagination import validate_pagination_params, apply_pagination
+from ..http.auth import auth
 
 bp = Blueprint('categories', __name__, url_prefix='/categories')
 schema = CategorySchema()
 
 
+@auth.login_required
 @bp.route('', methods=['GET'])
 def get_categories():
     """Get all categories with optional pagination and sorting."""
@@ -66,6 +68,7 @@ def get_categories():
         db.close()
 
 
+@auth.login_required
 @bp.route('', methods=['POST'])
 def create_category():
     """Create a new category."""
@@ -92,6 +95,7 @@ def create_category():
         db.close()
 
 
+@auth.login_required
 @bp.route('/<int:category_id>', methods=['GET'])
 def get_category(category_id):
     """Get a specific category."""
@@ -106,6 +110,7 @@ def get_category(category_id):
         db.close()
 
 
+@auth.login_required
 @bp.route('/<int:category_id>', methods=['PUT'])
 def update_category(category_id):
     """Update a category."""
@@ -137,6 +142,7 @@ def update_category(category_id):
         db.close()
 
 
+@auth.login_required
 @bp.route('/<int:category_id>', methods=['DELETE'])
 def delete_category(category_id):
     """Delete a category."""
