@@ -13,16 +13,16 @@ class TestSystemEndpoints:
         token = base64.b64encode(f"{username}:{password}".encode("utf-8")).decode("utf-8")
         return {"Authorization": f"Basic {token}"}
 
-    def test_verify_auth_options_without_auth(self, client):
+    def test_verify_auth_options_without_auth(self, unauthenticated_client):
         """OPTIONS /auth/verify should be allowed without credentials (CORS preflight)."""
-        response = client.options("/auth/verify")
+        response = unauthenticated_client.options("/auth/verify")
         assert response.status_code == 200
         data = json.loads(response.data)
         assert data == {}
 
-    def test_verify_auth_get_without_auth(self, client):
+    def test_verify_auth_get_without_auth(self, unauthenticated_client):
         """GET /auth/verify should require credentials."""
-        response = client.get("/auth/verify")
+        response = unauthenticated_client.get("/auth/verify")
         assert response.status_code == 401
 
     def test_verify_auth_get_with_valid_auth(self, client):
@@ -42,9 +42,15 @@ class TestSystemEndpoints:
         assert response.status_code == 401
 
     def test_version_reads_repo_version_file(self, client):
-        """GET /version should return the value from the repository .version file."""
+        """GET /version should return the value from the repository .version file, or a default version."""
         version_path = Path(__file__).parent.parent.parent / ".version"
-        expected_version = version_path.read_text(encoding="utf-8").strip()
+        
+        # Try to read version from file, fallback to environment variable or default
+        if version_path.exists():
+            expected_version = version_path.read_text(encoding="utf-8").strip()
+        else:
+            # In Docker containers, .version may not be available
+            expected_version = os.getenv("NUMO_VERSION", "0.0.0")
 
         response = client.get("/version")
 

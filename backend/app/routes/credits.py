@@ -23,8 +23,8 @@ def format_credit(credit):
     }
 
 
-@auth.login_required
 @bp.route('', methods=['GET'])
+@auth.login_required
 def get_credits():
     """Get all credits, optionally filtered by date range, amount, observations with pagination."""
     db = SessionLocal()
@@ -106,8 +106,8 @@ def get_credits():
         db.close()
 
 
-@auth.login_required
 @bp.route('', methods=['POST'])
+@auth.login_required
 def create_credit():
     """Create a new credit."""
     try:
@@ -130,8 +130,8 @@ def create_credit():
         db.close()
 
 
-@auth.login_required
 @bp.route('/<int:credit_id>', methods=['GET'])
+@auth.login_required
 def get_credit(credit_id):
     """Get a specific credit."""
     db = SessionLocal()
@@ -145,8 +145,8 @@ def get_credit(credit_id):
         db.close()
 
 
-@auth.login_required
 @bp.route('/<int:credit_id>', methods=['PUT'])
+@auth.login_required
 def update_credit(credit_id):
     """Update a credit."""
     try:
@@ -175,8 +175,8 @@ def update_credit(credit_id):
         db.close()
 
 
-@auth.login_required
 @bp.route('/<int:credit_id>', methods=['DELETE'])
+@auth.login_required
 def delete_credit(credit_id):
     """Delete a credit."""
     db = SessionLocal()

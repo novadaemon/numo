@@ -37,8 +37,8 @@ def format_debit(debit):
     }
 
 
-@auth.login_required
 @bp.route('', methods=['GET'])
+@auth.login_required
 def get_debits():
     """Get all debits with optional filtering and pagination."""
     db = SessionLocal()
@@ -203,8 +203,8 @@ def get_debits():
         db.close()
 
 
-@auth.login_required
 @bp.route('', methods=['POST'])
+@auth.login_required
 def create_debit():
     """Create a new debit."""
     try:
@@ -241,8 +241,8 @@ def create_debit():
         db.close()
 
 
-@auth.login_required
 @bp.route('/<int:debit_id>', methods=['GET'])
+@auth.login_required
 def get_debit(debit_id):
     """Get a specific debit."""
     db = SessionLocal()
@@ -256,8 +256,8 @@ def get_debit(debit_id):
         db.close()
 
 
-@auth.login_required
 @bp.route('/<int:debit_id>', methods=['PUT'])
+@auth.login_required
 def update_debit(debit_id):
     """Update a debit."""
     try:
@@ -297,8 +297,8 @@ def update_debit(debit_id):
         db.close()
 
 
-@auth.login_required
 @bp.route('/<int:debit_id>', methods=['DELETE'])
+@auth.login_required
 def delete_debit(debit_id):
     """Delete a debit."""
     db = SessionLocal()

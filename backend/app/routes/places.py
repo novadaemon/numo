@@ -13,8 +13,8 @@ bp = Blueprint('places', __name__, url_prefix='/places')
 schema = PlaceSchema()
 
 
-@auth.login_required
 @bp.route('', methods=['GET'])
+@auth.login_required
 def get_places():
     """Get all places with optional pagination and sorting."""
     db = SessionLocal()
@@ -68,8 +68,8 @@ def get_places():
         db.close()
 
 
-@auth.login_required
 @bp.route('', methods=['POST'])
+@auth.login_required
 def create_place():
     """Create a new place."""
     try:
@@ -95,8 +95,8 @@ def create_place():
         db.close()
 
 
-@auth.login_required
 @bp.route('/<int:place_id>', methods=['GET'])
+@auth.login_required
 def get_place(place_id):
     """Get a specific place."""
     db = SessionLocal()
@@ -110,8 +110,8 @@ def get_place(place_id):
         db.close()
 
 
-@auth.login_required
 @bp.route('/<int:place_id>', methods=['PUT'])
+@auth.login_required
 def update_place(place_id):
     """Update a place."""
     try:
@@ -142,8 +142,8 @@ def update_place(place_id):
         db.close()
 
 
-@auth.login_required
 @bp.route('/<int:place_id>', methods=['DELETE'])
+@auth.login_required
 def delete_place(place_id):
     """Delete a place."""
     db = SessionLocal()

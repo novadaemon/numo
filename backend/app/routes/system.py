@@ -5,8 +5,7 @@ Rutas para información del sistema (versión, health check, etc).
 import os
 from flask import Blueprint, jsonify, request
 from pathlib import Path
-from functools import wraps
-from ..http.auth import auth
+from ..http.auth import auth, verify_password
 
 system_bp = Blueprint("system", __name__, url_prefix="")
 
@@ -17,20 +16,6 @@ def get_version() -> str:
     if version_file.exists():
         return version_file.read_text(encoding="utf-8").strip()
     return os.getenv("NUMO_VERSION", "0.0.0")
-
-
-def auth_required_except_options(f):
-    """Decorador que requiere autenticación excepto para solicitudes OPTIONS (CORS preflight)."""
-    protected = auth.login_required(f)
-
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        # Permitir solicitudes OPTIONS sin autenticación (CORS preflight)
-        if request.method == "OPTIONS":
-            return jsonify({}), 200
-        # Para otros métodos, requerir autenticación
-        return protected(*args, **kwargs)
-    return decorated_function
 
 
 @system_bp.route("/version", methods=["GET"])
@@ -54,7 +39,6 @@ def get_system_version():
 
 
 @system_bp.route("/auth/verify", methods=["GET", "OPTIONS"])
-@auth_required_except_options
 def verify_auth():
     """
     Verifica que las credenciales de autenticación son válidas.
@@ -69,6 +53,24 @@ def verify_auth():
             "message": "Credentials verified"
         }
     """
+    # Permitir solicitudes OPTIONS sin autenticación (CORS preflight)
+    if request.method == "OPTIONS":
+        return jsonify({}), 200
+    
+    # Para GET, verificar autenticación obteniendo credenciales del header
+    auth_header = request.authorization
+    
+    # Si no hay credenciales en los headers
+    if not auth_header:
+        return jsonify({"error": "Unauthorized"}), 401
+    
+    # Verificar si las credenciales son válidas usando la función callback
+    username = auth_header.username
+    password = auth_header.password
+    
+    if not verify_password(username, password):
+        return jsonify({"error": "Unauthorized"}), 401
+    
     return jsonify({
         "authenticated": True,
         "message": "Credentials verified"
