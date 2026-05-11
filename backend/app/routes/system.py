@@ -25,13 +25,15 @@ def get_version() -> str:
 
 def auth_required_except_options(f):
     """Decorador que requiere autenticación excepto para solicitudes OPTIONS (CORS preflight)."""
+    protected = auth.login_required(f)
+
     @wraps(f)
     def decorated_function(*args, **kwargs):
         # Permitir solicitudes OPTIONS sin autenticación (CORS preflight)
         if request.method == "OPTIONS":
             return f(*args, **kwargs)
         # Para otros métodos, requerir autenticación
-        return auth.login_required(f)(*args, **kwargs)
+        return protected(*args, **kwargs)
     return decorated_function
 
 
