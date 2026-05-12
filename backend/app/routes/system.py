@@ -12,10 +12,10 @@ system_bp = Blueprint("system", __name__, url_prefix="")
 
 def get_version() -> str:
     """Obtiene la versión actual del proyecto."""
-    version_file = Path(__file__).parent.parent.parent.parent / ".version"
+    version_file = Path(__file__).parent.parent.parent / ".version"
     if version_file.exists():
         return version_file.read_text(encoding="utf-8").strip()
-    return os.getenv("NUMO_VERSION", "0.0.0")
+    return "develop"
 
 
 @system_bp.route("/version", methods=["GET"])
@@ -45,8 +45,6 @@ def verify_auth():
     Verifica que las credenciales de autenticación son válidas.
     Requiere Basic Auth. Si se llama exitosamente, las credenciales son válidas.
     
-    Las solicitudes OPTIONS son manejadas globalmente por el handler de preflight.
-    
     Returns:
         JSON con confirmación:
         {
@@ -58,3 +56,12 @@ def verify_auth():
         "authenticated": True,
         "message": "Credentials verified"
     })
+
+
+@system_bp.route("/auth/verify", methods=["OPTIONS"])
+def verify_auth_options():
+    """
+    Maneja solicitudes OPTIONS para CORS preflight en el endpoint /auth/verify.
+    No requiere autenticación.
+    """
+    return jsonify({}), 200
