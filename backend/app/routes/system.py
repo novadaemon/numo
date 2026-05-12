@@ -11,7 +11,8 @@ system_bp = Blueprint("system", __name__, url_prefix="")
 
 
 def get_version() -> str:
-    """Obtiene la versión actual del proyecto."""
+    """Obtiene la versión actual del proyecto desde backend/.version."""
+    # Path from system.py: backend/app/routes/system.py -> backend/.version
     version_file = Path(__file__).parent.parent.parent / ".version"
     if version_file.exists():
         return version_file.read_text(encoding="utf-8").strip()

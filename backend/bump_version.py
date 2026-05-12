@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Script para hacer bump de la versión semántica del proyecto.
+Script para hacer bump de la versión semántica del backend.
 
 Uso:
     python bump_version.py patch      # 0.1.0 → 0.1.1
@@ -64,26 +64,10 @@ def bump_version(bump_type: str, prerelease_tag: str = None) -> str:
 
 
 def update_version_file(new_version: str) -> None:
-    """Actualiza el archivo .version."""
+    """Actualiza el archivo backend/.version."""
     version_file = Path(__file__).parent / ".version"
     version_file.write_text(new_version + "\n", encoding="utf-8")
-    print(f"✅ Versión actualizada: {new_version}")
-
-
-def update_frontend_package_json(new_version: str) -> None:
-    """Actualiza package.json del frontend con la nueva versión."""
-    import json
-    
-    package_file = Path(__file__).parent / "frontend" / "package.json"
-    with open(package_file, "r", encoding="utf-8") as f:
-        package_data = json.load(f)
-    
-    package_data["version"] = new_version
-    
-    with open(package_file, "w", encoding="utf-8") as f:
-        json.dump(package_data, f, indent=2)
-    
-    print(f"✅ frontend/package.json actualizado")
+    print(f"✅ Backend version actualizada: {new_version}")
 
 
 def main():
@@ -113,9 +97,8 @@ def main():
             print("Cancelado.")
             sys.exit(0)
         
-        # Actualizar archivos
+        # Actualizar archivo
         update_version_file(new_version)
-        update_frontend_package_json(new_version)
         
         print()
         print("🎉 Bump de versión completado exitosamente")
