@@ -3,9 +3,9 @@ Rutas para información del sistema (versión, health check, etc).
 """
 
 import os
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify
 from pathlib import Path
-from ..http.auth import verify_password
+from ..http.auth import auth
 
 system_bp = Blueprint("system", __name__, url_prefix="")
 
@@ -38,13 +38,14 @@ def get_system_version():
     })
 
 
-@system_bp.route("/auth/verify", methods=["GET", "OPTIONS"])
+@system_bp.route("/auth/verify", methods=["GET"])
+@auth.login_required
 def verify_auth():
     """
     Verifica que las credenciales de autenticación son válidas.
     Requiere Basic Auth. Si se llama exitosamente, las credenciales son válidas.
     
-    Soporta solicitudes OPTIONS para CORS preflight sin autenticación.
+    Las solicitudes OPTIONS son manejadas globalmente por el handler de preflight.
     
     Returns:
         JSON con confirmación:
@@ -53,24 +54,6 @@ def verify_auth():
             "message": "Credentials verified"
         }
     """
-    # Permitir solicitudes OPTIONS sin autenticación (CORS preflight)
-    if request.method == "OPTIONS":
-        return jsonify({}), 200
-    
-    # Para GET, verificar autenticación obteniendo credenciales del header
-    auth_header = request.authorization
-    
-    # Si no hay credenciales en los headers
-    if not auth_header:
-        return jsonify({"error": "Unauthorized"}), 401
-    
-    # Verificar si las credenciales son válidas usando la función callback
-    username = auth_header.username
-    password = auth_header.password
-    
-    if not verify_password(username, password):
-        return jsonify({"error": "Unauthorized"}), 401
-    
     return jsonify({
         "authenticated": True,
         "message": "Credentials verified"

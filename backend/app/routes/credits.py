@@ -49,10 +49,10 @@ def get_credits():
         # Validate sort field and order
         valid_sort_fields = ['credited_at', 'amount', 'observations']
         if sort_field not in valid_sort_fields:
-            sort_field = 'credited_at'
+            return jsonify({'error': f'invalid sort_field: must be one of {valid_sort_fields}'}), 400
         
         if sort_order not in ['asc', 'desc']:
-            sort_order = 'desc'
+            return jsonify({'error': "invalid sort_order: must be 'asc' or 'desc'"}), 400
 
         # Build base query
         query = db.query(Credit)
@@ -84,9 +84,13 @@ def get_credits():
 
         # Apply amount filters
         if amount_gt is not None:
+            if amount_gt <= 0:
+                return jsonify({'error': 'amount_gt must be greater than 0'}), 400
             query = query.filter(Credit.amount > amount_gt)
         
         if amount_lt is not None:
+            if amount_lt <= 0:
+                return jsonify({'error': 'amount_lt must be greater than 0'}), 400
             query = query.filter(Credit.amount < amount_lt)
 
         # Get total count before pagination
