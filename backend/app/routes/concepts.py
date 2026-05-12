@@ -24,8 +24,8 @@ def normalize_text(text):
     return ''.join(char for char in nfd if unicodedata.category(char) != 'Mn').lower()
 
 
-@auth.login_required
 @bp.route('', methods=['GET'])
+@auth.login_required
 def get_concepts():
     """Get all concepts with optional pagination, sorting, or search by name.
     
@@ -85,8 +85,8 @@ def get_concepts():
         db.close()
 
 
-@auth.login_required
 @bp.route('', methods=['POST'])
+@auth.login_required
 def create_concept():
     """Create a new concept."""
     try:
@@ -112,8 +112,8 @@ def create_concept():
         db.close()
 
 
-@auth.login_required
 @bp.route('/<int:concept_id>', methods=['GET'])
+@auth.login_required
 def get_concept(concept_id):
     """Get a specific concept."""
     db = SessionLocal()
@@ -127,8 +127,8 @@ def get_concept(concept_id):
         db.close()
 
 
-@auth.login_required
 @bp.route('/<int:concept_id>', methods=['PUT'])
+@auth.login_required
 def update_concept(concept_id):
     """Update a concept."""
     try:
@@ -159,8 +159,8 @@ def update_concept(concept_id):
         db.close()
 
 
-@auth.login_required
 @bp.route('/<int:concept_id>', methods=['DELETE'])
+@auth.login_required
 def delete_concept(concept_id):
     """Delete a concept."""
     db = SessionLocal()

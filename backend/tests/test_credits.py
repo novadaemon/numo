@@ -399,3 +399,83 @@ class TestCreditsPaginationEndpoints:
         assert isinstance(data['page'], int)
         assert isinstance(data['size'], int)
         assert isinstance(data['total'], int)
+
+
+class TestCreditsFilteringValidation:
+    """Test suite for credits filtering parameter validation."""
+
+    def test_get_credits_amount_gt_zero_returns_400(self, client):
+        """Test that amount_gt=0 returns 400."""
+        response = client.get('/credits?amount_gt=0')
+        assert response.status_code == 400
+        data = json.loads(response.data)
+        assert 'error' in data
+
+    def test_get_credits_amount_gt_negative_returns_400(self, client):
+        """Test that amount_gt with a negative value returns 400."""
+        response = client.get('/credits?amount_gt=-5')
+        assert response.status_code == 400
+        data = json.loads(response.data)
+        assert 'error' in data
+
+    def test_get_credits_amount_lt_zero_returns_400(self, client):
+        """Test that amount_lt=0 returns 400."""
+        response = client.get('/credits?amount_lt=0')
+        assert response.status_code == 400
+        data = json.loads(response.data)
+        assert 'error' in data
+
+    def test_get_credits_amount_lt_negative_returns_400(self, client):
+        """Test that amount_lt with a negative value returns 400."""
+        response = client.get('/credits?amount_lt=-10')
+        assert response.status_code == 400
+        data = json.loads(response.data)
+        assert 'error' in data
+
+    def test_get_credits_amount_gt_valid(self, client, credit_factory):
+        """Test that a positive amount_gt value is accepted."""
+        from datetime import date
+        credit_factory.create(amount=100.00, credited_at=date.today())
+        response = client.get('/credits?amount_gt=50')
+        assert response.status_code == 200
+
+    def test_get_credits_amount_lt_valid(self, client, credit_factory):
+        """Test that a positive amount_lt value is accepted."""
+        from datetime import date
+        credit_factory.create(amount=100.00, credited_at=date.today())
+        response = client.get('/credits?amount_lt=200')
+        assert response.status_code == 200
+
+    def test_get_credits_invalid_sort_field_returns_400(self, client):
+        """Test that an invalid sort_field value returns 400."""
+        response = client.get('/credits?sort_field=invalid_field')
+        assert response.status_code == 400
+        data = json.loads(response.data)
+        assert 'error' in data
+
+    def test_get_credits_invalid_sort_order_returns_400(self, client):
+        """Test that an invalid sort_order value returns 400."""
+        response = client.get('/credits?sort_order=invalid')
+        assert response.status_code == 400
+        data = json.loads(response.data)
+        assert 'error' in data
+
+    def test_get_credits_valid_sort_field_credited_at(self, client):
+        """Test that sort_field=credited_at is accepted."""
+        response = client.get('/credits?sort_field=credited_at')
+        assert response.status_code == 200
+
+    def test_get_credits_valid_sort_field_amount(self, client):
+        """Test that sort_field=amount is accepted."""
+        response = client.get('/credits?sort_field=amount')
+        assert response.status_code == 200
+
+    def test_get_credits_valid_sort_order_asc(self, client):
+        """Test that sort_order=asc is accepted."""
+        response = client.get('/credits?sort_order=asc')
+        assert response.status_code == 200
+
+    def test_get_credits_valid_sort_order_desc(self, client):
+        """Test that sort_order=desc is accepted."""
+        response = client.get('/credits?sort_order=desc')
+        assert response.status_code == 200

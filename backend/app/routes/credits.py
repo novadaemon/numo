@@ -23,8 +23,8 @@ def format_credit(credit):
     }
 
 
-@auth.login_required
 @bp.route('', methods=['GET'])
+@auth.login_required
 def get_credits():
     """Get all credits, optionally filtered by date range, amount, observations with pagination."""
     db = SessionLocal()
@@ -49,10 +49,10 @@ def get_credits():
         # Validate sort field and order
         valid_sort_fields = ['credited_at', 'amount', 'observations']
         if sort_field not in valid_sort_fields:
-            sort_field = 'credited_at'
+            return jsonify({'error': f'invalid sort_field: must be one of {", ".join(valid_sort_fields)}'}), 400
         
         if sort_order not in ['asc', 'desc']:
-            sort_order = 'desc'
+            return jsonify({'error': "invalid sort_order: must be 'asc' or 'desc'"}), 400
 
         # Build base query
         query = db.query(Credit)
@@ -84,9 +84,13 @@ def get_credits():
 
         # Apply amount filters
         if amount_gt is not None:
+            if amount_gt <= 0:
+                return jsonify({'error': 'amount_gt must be greater than 0'}), 400
             query = query.filter(Credit.amount > amount_gt)
         
         if amount_lt is not None:
+            if amount_lt <= 0:
+                return jsonify({'error': 'amount_lt must be greater than 0'}), 400
             query = query.filter(Credit.amount < amount_lt)
 
         # Get total count before pagination
@@ -106,8 +110,8 @@ def get_credits():
         db.close()
 
 
-@auth.login_required
 @bp.route('', methods=['POST'])
+@auth.login_required
 def create_credit():
     """Create a new credit."""
     try:
@@ -130,8 +134,8 @@ def create_credit():
         db.close()
 
 
-@auth.login_required
 @bp.route('/<int:credit_id>', methods=['GET'])
+@auth.login_required
 def get_credit(credit_id):
     """Get a specific credit."""
     db = SessionLocal()
@@ -145,8 +149,8 @@ def get_credit(credit_id):
         db.close()
 
 
-@auth.login_required
 @bp.route('/<int:credit_id>', methods=['PUT'])
+@auth.login_required
 def update_credit(credit_id):
     """Update a credit."""
     try:
@@ -175,8 +179,8 @@ def update_credit(credit_id):
         db.close()
 
 
-@auth.login_required
 @bp.route('/<int:credit_id>', methods=['DELETE'])
+@auth.login_required
 def delete_credit(credit_id):
     """Delete a credit."""
     db = SessionLocal()

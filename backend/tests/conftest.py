@@ -1,6 +1,7 @@
 import pytest
 import os
 from datetime import date
+import base64
 
 # Set test database BEFORE importing app modules
 os.environ['DATABASE_URL'] = 'sqlite:///:memory:'
@@ -9,6 +10,62 @@ from app import create_app
 from app.models import Category, Place
 from app.database import Base, engine, SessionLocal
 from app.factories import CategoryFactory, PlaceFactory, DebitFactory, CreditFactory, ConceptFactory
+
+
+class AuthenticatedTestClient:
+    """Test client wrapper that automatically includes HTTP Basic Auth headers."""
+    
+    def __init__(self, test_client, username='admin', password='admin'):
+        """Initialize with a Flask test client and credentials."""
+        self.test_client = test_client
+        # Create Basic Auth header: base64(username:password)
+        credentials = f'{username}:{password}'
+        self.auth_header = base64.b64encode(credentials.encode()).decode()
+    
+    def _add_auth_header(self, headers=None):
+        """Add Authorization header to request headers if not already present."""
+        if headers is None:
+            headers = {}
+        else:
+            headers = dict(headers)
+        # Only add auth if not already present (allows overriding)
+        if 'Authorization' not in headers:
+            headers['Authorization'] = f'Basic {self.auth_header}'
+        return headers
+    
+    def _get_raw_client(self):
+        """Get the underlying Flask test client for unauthenticated requests."""
+        return self.test_client
+    
+    def get(self, *args, **kwargs):
+        """GET request with auth header."""
+        kwargs['headers'] = self._add_auth_header(kwargs.get('headers'))
+        return self.test_client.get(*args, **kwargs)
+    
+    def post(self, *args, **kwargs):
+        """POST request with auth header."""
+        kwargs['headers'] = self._add_auth_header(kwargs.get('headers'))
+        return self.test_client.post(*args, **kwargs)
+    
+    def put(self, *args, **kwargs):
+        """PUT request with auth header."""
+        kwargs['headers'] = self._add_auth_header(kwargs.get('headers'))
+        return self.test_client.put(*args, **kwargs)
+    
+    def delete(self, *args, **kwargs):
+        """DELETE request with auth header."""
+        kwargs['headers'] = self._add_auth_header(kwargs.get('headers'))
+        return self.test_client.delete(*args, **kwargs)
+    
+    def options(self, *args, **kwargs):
+        """OPTIONS request with auth header."""
+        kwargs['headers'] = self._add_auth_header(kwargs.get('headers'))
+        return self.test_client.options(*args, **kwargs)
+    
+    def patch(self, *args, **kwargs):
+        """PATCH request with auth header."""
+        kwargs['headers'] = self._add_auth_header(kwargs.get('headers'))
+        return self.test_client.patch(*args, **kwargs)
 
 
 @pytest.fixture(scope='session')
@@ -22,7 +79,14 @@ def app():
 
 @pytest.fixture
 def client(app):
-    """A test client for the app."""
+    """A test client for the app with automatic authentication."""
+    test_client = app.test_client()
+    return AuthenticatedTestClient(test_client)
+
+
+@pytest.fixture
+def unauthenticated_client(app):
+    """A test client for the app WITHOUT automatic authentication."""
     return app.test_client()
 
 

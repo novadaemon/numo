@@ -13,8 +13,8 @@ bp = Blueprint('categories', __name__, url_prefix='/categories')
 schema = CategorySchema()
 
 
-@auth.login_required
 @bp.route('', methods=['GET'])
+@auth.login_required
 def get_categories():
     """Get all categories with optional pagination and sorting."""
     db = SessionLocal()
@@ -68,8 +68,8 @@ def get_categories():
         db.close()
 
 
-@auth.login_required
 @bp.route('', methods=['POST'])
+@auth.login_required
 def create_category():
     """Create a new category."""
     try:
@@ -95,8 +95,8 @@ def create_category():
         db.close()
 
 
-@auth.login_required
 @bp.route('/<int:category_id>', methods=['GET'])
+@auth.login_required
 def get_category(category_id):
     """Get a specific category."""
     db = SessionLocal()
@@ -110,8 +110,8 @@ def get_category(category_id):
         db.close()
 
 
-@auth.login_required
 @bp.route('/<int:category_id>', methods=['PUT'])
+@auth.login_required
 def update_category(category_id):
     """Update a category."""
     try:
@@ -142,8 +142,8 @@ def update_category(category_id):
         db.close()
 
 
-@auth.login_required
 @bp.route('/<int:category_id>', methods=['DELETE'])
+@auth.login_required
 def delete_category(category_id):
     """Delete a category."""
     db = SessionLocal()

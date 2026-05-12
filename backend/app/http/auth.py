@@ -1,5 +1,6 @@
 """Basic Authentication module."""
 import os
+from flask import jsonify
 from flask_httpauth import HTTPBasicAuth
 
 auth = HTTPBasicAuth()
@@ -22,3 +23,19 @@ def verify_password(username, password):
     if username == expected_username and password == expected_password:
         return True
     return False
+
+
+@auth.error_handler
+def auth_error(status):
+    """Handle authentication errors by returning an Unauthorized response.
+    
+    Args:
+        status: HTTP status code from Flask-HTTPAuth
+        
+    Returns:
+        JSON error response with the appropriate authentication challenge
+    """
+    response = jsonify({'error': 'Unauthorized. Please provide valid credentials.'})
+    response.status_code = status or 401
+    response.headers['WWW-Authenticate'] = 'Basic realm="Authentication Required"'
+    return response

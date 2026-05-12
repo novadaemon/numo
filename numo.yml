@@ -24,7 +24,7 @@ tags:
   - name: Credits
     description: Manage income/credits
   - name: System
-    description: System information and health checks
+    description: System information and authentication verification
 
 paths:
   /categories:
@@ -33,8 +33,6 @@ paths:
       operationId: getCategories
       tags:
         - Categories
-      security:
-        - BasicAuth: []
       security:
         - BasicAuth: []
       description: Retrieve a list of all expense categories with optional pagination
@@ -55,21 +53,17 @@ paths:
             default: 10
       responses:
         "200":
-          description: List of categories
+          description: List of categories with pagination info
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Category"
+                $ref: "#/components/schemas/PaginatedCategories"
 
     post:
       summary: Create a new category
       operationId: createCategory
       tags:
         - Categories
-      security:
-        - BasicAuth: []
       security:
         - BasicAuth: []
       description: Create a new expense category
@@ -407,13 +401,11 @@ paths:
             default: 10
       responses:
         "200":
-          description: List of places
+          description: List of places with pagination info
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Place"
+                $ref: "#/components/schemas/PaginatedPlaces"
 
     post:
       summary: Create a new place
@@ -818,7 +810,7 @@ paths:
         - Credits
       security:
         - BasicAuth: []
-      description: Retrieve a list of all income (credits) with pagination support
+      description: Retrieve a list of all income (credits) with optional pagination and filtering
       parameters:
         - name: page
           in: query
@@ -836,18 +828,57 @@ paths:
             default: 10
         - name: from_date
           in: query
-          required: true
-          description: Filter credits from this date inclusive (ISO 8601 date format, e.g., 2026-04-01). Required parameter.
+          required: false
+          description: Filter credits from this date inclusive (ISO 8601 date format, e.g., 2026-04-01). Optional parameter.
           schema:
             type: string
             format: date
         - name: to_date
           in: query
-          required: true
-          description: Filter credits until this date inclusive (ISO 8601 date format, e.g., 2026-04-30). Required parameter.
+          required: false
+          description: Filter credits until this date inclusive (ISO 8601 date format, e.g., 2026-04-30). Optional parameter.
           schema:
             type: string
             format: date
+        - name: observations
+          in: query
+          required: false
+          description: Filter by observations text (partial text match, case-insensitive, optional)
+          schema:
+            type: string
+            maxLength: 500
+        - name: amount_gt
+          in: query
+          required: false
+          description: Filter credits with amount greater than this value (optional)
+          schema:
+            type: number
+            format: float
+            minimum: 0.01
+        - name: amount_lt
+          in: query
+          required: false
+          description: Filter credits with amount less than this value (optional)
+          schema:
+            type: number
+            format: float
+            minimum: 0.01
+        - name: sort_field
+          in: query
+          required: false
+          description: Sort field (credited_at, amount, observations). Default is credited_at
+          schema:
+            type: string
+            enum: [credited_at, amount, observations]
+            default: credited_at
+        - name: sort_order
+          in: query
+          required: false
+          description: Sort order (asc or desc). Default is desc
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
       responses:
         "200":
           description: List of credits with pagination info
@@ -1001,22 +1032,37 @@ paths:
               schema:
                 $ref: "#/components/schemas/VersionInfo"
 
-  /health:
+  /auth/verify:
     get:
-      summary: Health check
-      operationId: healthCheck
+      summary: Verify authentication credentials
+      operationId: verifyAuth
       tags:
         - System
       security:
         - BasicAuth: []
-      description: Check the health status of the Numo system
+      description: Verify that the provided HTTP Basic Authentication credentials are valid
       responses:
         "200":
-          description: System is healthy
+          description: Authentication credentials are valid
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/HealthCheckResponse"
+                $ref: "#/components/schemas/AuthVerifyResponse"
+        "401":
+          description: Invalid or missing authentication credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    options:
+      summary: CORS preflight for auth verify
+      operationId: verifyAuthOptions
+      tags:
+        - System
+      description: Support for CORS preflight requests
+      responses:
+        "200":
+          description: CORS preflight successful
 
 components:
   securitySchemes:
@@ -1285,6 +1331,52 @@ components:
             items:
               type: string
 
+    PaginatedCategories:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Category"
+          description: List of categories for the current page
+        page:
+          type: integer
+          description: Current page number (0-indexed)
+        size:
+          type: integer
+          description: Number of items per page
+        total:
+          type: integer
+          description: Total number of items across all pages
+      required:
+        - data
+        - page
+        - size
+        - total
+
+    PaginatedPlaces:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Place"
+          description: List of places for the current page
+        page:
+          type: integer
+          description: Current page number (0-indexed)
+        size:
+          type: integer
+          description: Number of items per page
+        total:
+          type: integer
+          description: Total number of items across all pages
+      required:
+        - data
+        - page
+        - size
+        - total
+
     PaginatedDebits:
       type: object
       properties:
@@ -1371,16 +1463,15 @@ components:
         - name
         - environment
 
-    HealthCheckResponse:
+    AuthVerifyResponse:
       type: object
       properties:
-        status:
+        authenticated:
+          type: boolean
+          description: Whether the credentials are valid
+        message:
           type: string
-          enum: [ok, error]
-          description: Health status of the system
-        version:
-          type: string
-          description: Current semantic version
+          description: Status message
       required:
-        - status
-        - version
+        - authenticated
+        - message

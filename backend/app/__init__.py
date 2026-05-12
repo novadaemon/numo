@@ -1,6 +1,6 @@
 """Flask application factory."""
 import os
-from flask import Flask
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 from .database import init_db
 from .http.auth import auth
@@ -24,9 +24,17 @@ def create_app():
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
             "allow_headers": ["Content-Type", "Authorization"],
             "supports_credentials": True,
-            "max_age": 3600
+            "max_age": 3600,
+            "expose_headers": ["Content-Type"]
         }
     })
+
+    # Additional CORS handler for preflight requests
+    @app.before_request
+    def handle_preflight():
+        """Manejo explícito de solicitudes OPTIONS (preflight)."""
+        if request.method == "OPTIONS":
+            return jsonify({}), 200
 
     # Ensure data directory exists for SQLite
     data_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data')
