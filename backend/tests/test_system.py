@@ -43,14 +43,14 @@ class TestSystemEndpoints:
 
     def test_version_reads_repo_version_file(self, client):
         """GET /version should return the value from the repository .version file, or a default version."""
-        version_path = Path(__file__).parent.parent.parent / ".version"
+        version_path = Path(__file__).parent.parent / ".version"
         
         # Try to read version from file, fallback to environment variable or default
         if version_path.exists():
             expected_version = version_path.read_text(encoding="utf-8").strip()
         else:
             # In Docker containers, .version may not be available
-            expected_version = os.getenv("NUMO_VERSION", "0.0.0")
+            expected_version = "develop"
 
         response = client.get("/version")
 

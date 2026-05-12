@@ -23,10 +23,19 @@ Ejemplo: 1.2.3-beta.1+20260428
 
 ## 📁 Archivos de Versión
 
-- **`.version`** - Fuente única de verdad (SSOT) para la versión
-- **`backend/setup.py`** - Lee versión desde `.version`
-- **`frontend/package.json`** - Sincronizado con `.version`
-- **`docker-compose.yml`** - Lee versión como variable de entorno
+### Backend
+
+- **`backend/.version`** - Fuente única de verdad (SSOT) para la versión del backend y proyecto
+- **`backend/version.py`** - Script para obtener la versión desde `backend/.version`
+- **`backend/bump_version.py`** - Script para bumping de versión
+
+### Frontend
+
+- **`frontend/package.json`** - Versionado independiente del frontend (sincronizado con backend pero gestionado localmente)
+
+### Infraestructura
+
+- **`docker-compose.yml`** - Lee versión como variable de entorno desde backend
 
 ---
 
@@ -37,8 +46,13 @@ Ejemplo: 1.2.3-beta.1+20260428
 Durante el desarrollo, mantén la versión en estado de prerelease:
 
 ```bash
-# .version
+# backend/.version
 0.1.0-dev.1
+
+# frontend/package.json
+{
+  "version": "0.1.0-dev.1"
+}
 ```
 
 ### 2️⃣ Release Candidato
@@ -46,8 +60,13 @@ Durante el desarrollo, mantén la versión en estado de prerelease:
 Antes de producción, prueba con RC:
 
 ```bash
-# .version
+# backend/.version
 0.1.0-rc.1
+
+# frontend/package.json
+{
+  "version": "0.1.0-rc.1"
+}
 ```
 
 ### 3️⃣ Release Estable
@@ -55,8 +74,13 @@ Antes de producción, prueba con RC:
 Cuando esté listo para producción:
 
 ```bash
-# .version
+# backend/.version
 0.1.0
+
+# frontend/package.json
+{
+  "version": "0.1.0"
+}
 ```
 
 ---
@@ -66,7 +90,8 @@ Cuando esté listo para producción:
 ### Leer la versión actual
 
 ```bash
-# Desde la raíz del proyecto
+# Desde la carpeta backend
+cd backend
 python version.py
 
 # Resultado: Numo v0.1.0
@@ -74,26 +99,31 @@ python version.py
 
 ### Bumping Manual
 
-Edita directamente `.version`:
+Edita directamente `backend/.version`:
 
 ```bash
-echo "0.2.0" > .version
+echo "0.2.0" > backend/.version
 ```
 
 ### Con Script (Recomendado)
 
 ```bash
+# Desde la raíz del proyecto
+# El script automáticamente actualiza:
+#   - backend/.version
+#   - frontend/package.json
+
 # Bump PATCH (0.1.0 → 0.1.1)
-python bump_version.py patch
+cd backend && python bump_version.py patch
 
 # Bump MINOR (0.1.0 → 0.2.0)
-python bump_version.py minor
+cd backend && python bump_version.py minor
 
 # Bump MAJOR (0.1.0 → 1.0.0)
-python bump_version.py major
+cd backend && python bump_version.py major
 
 # Prerelease
-python bump_version.py prerelease beta
+cd backend && python bump_version.py prerelease beta
 ```
 
 ---
@@ -104,7 +134,6 @@ Docker se utiliza **únicamente para desarrollo local** a través de `docker-com
 
 - ✅ Se usa para orquestar servicios localmente
 - ✅ No se construyen ni publican imágenes a registros
-- ℹ️ `NUMO_VERSION` puede inyectarse opcionalmente (ej. desde `docker-compose`), pero la fuente única de verdad sigue siendo el archivo `.version`
 
 Para producción, el versionado se gestiona a través de Git tags y GitHub Releases (ver [CI_CD_WORKFLOWS.md](CI_CD_WORKFLOWS.md)).
 
@@ -145,24 +174,21 @@ git tag -l
 ### Frontend
 
 ```bash
-npm run version
-# o
-cat ../VERSION
+cd frontend
+cat package.json | grep version
 ```
 
 ### Backend
 
 ```bash
-python -c "from app import __version__; print(__version__)"
-# o
-python version.py
+# Leer archivo backend/.version directamente
+cat backend/.version
+
+# O usar el script
+cd backend && python version.py
 ```
 
 ### API
-
-Futuro: Agregar endpoint `/api/version` para verificar versión del backend.
-
----
 
 ## 📊 Tabla de Cambios por Versión
 
@@ -177,7 +203,8 @@ Futuro: Agregar endpoint `/api/version` para verificar versión del backend.
 
 ## ✅ Checklist para Release
 
-- [ ] Actualizar `.version` a versión final (sin prerelease)
+- [ ] Actualizar `backend/.version` a versión final (sin prerelease)
+- [ ] Verificar `frontend/package.json` versión actualizada
 - [ ] Revisar `CHANGELOG.md` (crear si no existe)
 - [ ] Ejecutar tests: `docker-compose exec -T backend pytest tests/ -v`
 - [ ] Build frontend: `cd frontend && npm run build`
@@ -213,12 +240,14 @@ git push origin feat/nueva-funcionalidad
 # 3. Mergear a develop
 
 # 4. Preparar release
-python bump_version.py patch  # bump de versión
+cd backend && python bump_version.py patch  # bump de versión (actualiza backend y frontend)
+git add backend/.version frontend/package.json
+git commit -m "chore: bump version"
 git push origin develop
 
 # 5. PR a main (CI automático ✅)
 # 6. Mergear a main → Automáticamente:
-#    ✅ Se crea tag v0.1.1
+#    ✅ Se crea tag v0.1.1 (desde backend/.version)
 #    ✅ Se crea GitHub Release
 #    ✅ Done!
 ```
@@ -230,5 +259,6 @@ git push origin develop
 - [x] Crear script `bump_version.py` para automatizar cambios ✅
 - [x] Agregar endpoint `/api/version` en backend ✅
 - [x] Integrar versionado con CI/CD ✅
+- [x] Separar versionado de backend y frontend con `backend/.version` ✅
 - [ ] Crear `CHANGELOG.md` automático desde commits (futuro)
 - [ ] Considerar herramientas como semantic-release (futuro)

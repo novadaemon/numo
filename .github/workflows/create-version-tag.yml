@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - ".version"
+      - "backend/.version"
 
 jobs:
   create-tag:
@@ -19,10 +19,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Read version from .version file
+      - name: Read version from backend/.version file
         id: version
         run: |
-          VERSION=$(cat .version)
+          VERSION=$(cat backend/.version)
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
           echo "Version: ${VERSION}"
 
