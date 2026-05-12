@@ -49,7 +49,7 @@ def get_credits():
         # Validate sort field and order
         valid_sort_fields = ['credited_at', 'amount', 'observations']
         if sort_field not in valid_sort_fields:
-            return jsonify({'error': f'invalid sort_field: must be one of {valid_sort_fields}'}), 400
+            return jsonify({'error': f'invalid sort_field: must be one of {", ".join(valid_sort_fields)}'}), 400
         
         if sort_order not in ['asc', 'desc']:
             return jsonify({'error': "invalid sort_order: must be 'asc' or 'desc'"}), 400
