@@ -18,4 +18,4 @@ class DebitFactory(factory.Factory):
     amount = factory.Faker('pydecimal', left_digits=3, right_digits=2, positive=True)
     method = factory.LazyFunction(lambda: random.choice(list(DebitMethod)))
     observations = factory.Faker('sentence')
-    expensed_at = factory.Faker('date_object')
+    expensed_at = factory.LazyFunction(lambda: datetime.now().date())

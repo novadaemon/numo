@@ -9,6 +9,7 @@ Usage:
 import sys
 from pathlib import Path
 import yaml
+from datetime import datetime
 
 # Add the backend directory to the path
 backend_dir = Path(__file__).parent.parent
@@ -131,6 +132,10 @@ def seed_database():
                 elif isinstance(place_idx, int):
                     data['place_id'] = places[place_idx].id if place_idx < len(places) else None
             
+            # Set expensed_at to today if not provided
+            if 'expensed_at' not in data:
+                data['expensed_at'] = datetime.now().date()
+            
             debit = Debit(**data)
             session.add(debit)
             debits.append(debit)
@@ -143,10 +148,17 @@ def seed_database():
         print("💰 Creating credits (income)...")
         credits = []
         for i, credit_data in enumerate(credits_data.get('credits', [])):
-            credit = Credit(**credit_data)
+            # Create a copy to avoid modifying original
+            data = credit_data.copy()
+            
+            # Set credited_at to today if not provided
+            if 'credited_at' not in data:
+                data['credited_at'] = datetime.now().date()
+            
+            credit = Credit(**data)
             session.add(credit)
             credits.append(credit)
-            print(f"   ✓ Ingreso #{i + 1}: ${credit_data.get('amount', 0):.2f}")
+            print(f"   ✓ Ingreso #{i + 1}: ${data.get('amount', 0):.2f}")
 
         session.flush()
         print(f"✅ Created {len(credits)} credits\n")
