@@ -249,7 +249,7 @@ export function DataTable<TData, TValue>({
           {table.getVisibleLeafColumns().some((col) => col.columnDef.footer != null) && (
             <TableFooter>
               {table.getFooterGroups().map((footerGroup) => (
-                <TableRow key={footerGroup.id} className="hover:bg-inherit">
+                <TableRow key={footerGroup.id} className="bg-gray-100">
                   {footerGroup.headers.map((header) => (
                     <Fragment key={header.id}>
                       {header.column.id === 'actions' && (
@@ -259,7 +259,7 @@ export function DataTable<TData, TValue>({
                         key={header.id}
                         style={{ width: header.getSize() }}
                         className={cn(
-                          'overflow-hidden border-r px-2 py-2 font-semibold bg-gray-100',
+                          'overflow-hidden border-r px-2 py-2 font-semibold',
                           header.column.id === 'actions' && [
                             'sticky right-0 z-[1] border-r-0',
                             'shadow-[inset_1px_0_0_0_hsl(var(--border))]',
@@ -271,7 +271,6 @@ export function DataTable<TData, TValue>({
                       </TableCell>
                     </Fragment>
                   ))}
-                  <TableCell></TableCell>
                 </TableRow>
               ))}
             </TableFooter>
