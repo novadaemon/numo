@@ -48,5 +48,8 @@ dist
 *.db
 data/
 
+# Deployment documentation
+DEPLOY_SCRIPT_UPDATE.md
+
 # IDE
 .history

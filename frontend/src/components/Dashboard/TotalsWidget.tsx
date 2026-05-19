@@ -22,7 +22,7 @@ interface TotalsWidgetProps {
  * Widget que muestra el total de gastos y el saldo del mes actual
  */
 export function TotalsWidget({ className = '' }: TotalsWidgetProps) {
-  const { totalExpenses, loading } = useDashboardData('month')
+  const { totalExpenses, totalDebitExpenses, loading } = useDashboardData('month')
   const [totalIncome, setTotalIncome] = useState(0)
   const [incomeLoading, setIncomeLoading] = useState(true)
   const [showDebitForm, setShowDebitForm] = useState(false)
@@ -105,7 +105,7 @@ export function TotalsWidget({ className = '' }: TotalsWidgetProps) {
     }
   }, [refetchTrigger])
 
-  const balance = totalIncome - totalExpenses
+  const balance = totalIncome - totalDebitExpenses
   const currentMonth = new Date().toLocaleString('es-ES', { month: 'long', year: 'numeric' })
 
   if (loading || incomeLoading) {
@@ -155,7 +155,7 @@ export function TotalsWidget({ className = '' }: TotalsWidgetProps) {
           className={`rounded-lg border-l-4 bg-white p-6 shadow ${
             balance >= 0 ? 'border-blue-500' : 'border-orange-500'
           }`}>
-          <p className="mb-2 text-sm font-medium text-gray-600">Saldo</p>
+          <p className="mb-2 text-sm font-medium text-gray-600">Saldo (débito)</p>
           <p className={`text-3xl font-bold ${balance >= 0 ? 'text-blue-600' : 'text-orange-600'}`}>
             ${balance.toFixed(2)}
           </p>
