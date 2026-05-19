@@ -68,9 +68,16 @@ export const createCreditsColumns = (
       header: ({ column }) => <SortableHeader column={column} title="Monto" />,
       cell: ({ row }) => {
         const amount = row.getValue('amount') as number
+        return <div className="text-right text-sm text-green-600">{formatCurrency(amount)}</div>
+      },
+      footer: ({ table }) => {
+        const total = table.getRowModel().rows.reduce((acc, row) => {
+          const value = row.original.amount
+          return acc + (Number.isFinite(value) ? value : 0)
+        }, 0)
         return (
           <div className="text-right text-sm font-semibold text-green-600">
-            +{formatCurrency(amount)}
+            {formatCurrency(total)}
           </div>
         )
       },

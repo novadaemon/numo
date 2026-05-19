@@ -28,6 +28,7 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
@@ -244,6 +245,37 @@ export function DataTable<TData, TValue>({
               </TableRow>
             )}
           </TableBody>
+          {/* FOOTER (only when any visible column declares a `footer`) */}
+          {table.getVisibleLeafColumns().some((col) => col.columnDef.footer != null) && (
+            <TableFooter>
+              {table.getFooterGroups().map((footerGroup) => (
+                <TableRow key={footerGroup.id} className="hover:bg-inherit">
+                  {footerGroup.headers.map((header) => (
+                    <Fragment key={header.id}>
+                      {header.column.id === 'actions' && (
+                        <TableCell className="h-auto w-full border-r p-0"></TableCell>
+                      )}
+                      <TableCell
+                        key={header.id}
+                        style={{ width: header.getSize() }}
+                        className={cn(
+                          'overflow-hidden border-r px-2 py-2 font-semibold bg-gray-100',
+                          header.column.id === 'actions' && [
+                            'sticky right-0 z-[1] border-r-0',
+                            'shadow-[inset_1px_0_0_0_hsl(var(--border))]',
+                          ]
+                        )}>
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(header.column.columnDef.footer, header.getContext())}
+                      </TableCell>
+                    </Fragment>
+                  ))}
+                  <TableCell></TableCell>
+                </TableRow>
+              ))}
+            </TableFooter>
+          )}
         </Table>
       </div>
 
