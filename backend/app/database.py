@@ -11,7 +11,7 @@ if os.getenv('DATABASE_URL'):
     DATABASE_URL = os.getenv('DATABASE_URL')
 else:
     # Development: relative path
-    db_dir = Path(__file__).parent.parent.parent / 'data'
+    db_dir = Path(__file__).parent.parent / 'data'
     db_dir.mkdir(exist_ok=True)
     DATABASE_URL = f'sqlite:///{db_dir}/numo.db'
 

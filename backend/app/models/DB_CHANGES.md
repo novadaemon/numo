@@ -11,11 +11,11 @@ sqlite3 numo.db "
 BEGIN;
 CREATE TABLE debits_new (
     id INTEGER PRIMARY KEY,
-    category_id INTEGER NOT NULL,
-    place_id INTEGER NULL,
+    category_id INTEGER NOT NULL REFERENCES categories(id),
+    place_id INTEGER NULL REFERENCES places(id),
     concept TEXT,
     amount REAL NOT NULL,
-    method TEXT NOT NULL DEFAULT 'cash',
+    method TEXT NOT NULL DEFAULT 'debit',
     observations TEXT,
     expensed_at DATE NOT NULL,
     created_at TIMESTAMP NOT NULL
