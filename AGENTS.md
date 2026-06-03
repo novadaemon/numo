@@ -177,6 +177,39 @@ curl http://localhost:8080/version
 
 ---
 
+## Database Schema Changes
+
+When modifying SQLAlchemy models that alter the database structure, you **MUST** document all changes in [backend/app/models/DB_CHANGES.md](backend/app/models/DB_CHANGES.md):
+
+### Process for Database Changes
+
+1. **Modify the SQLAlchemy model** in the appropriate file under `backend/app/models/`
+2. **Document the change** in `DB_CHANGES.md`:
+   - Include the date (YYYY-MM-DD)
+   - Describe the change in plain English
+   - Provide the exact SQL query needed
+   - Include the migration command (typically `docker-compose down -v && docker-compose up -d --build`)
+   - List all files modified across the codebase
+3. **Update related files**:
+   - OpenAPI specification (`numo.yml`)
+   - Schema documentation (`backend/app/models/SCHEMA.md`)
+   - Validation schemas if needed
+   - Controller routes if needed
+4. **Add/update tests** to cover the new behavior
+5. **Recreate the database** using docker-compose with `-v` flag to clear volumes
+
+### SQL Migration Notes
+
+- **SQLite limitation**: Cannot use `ALTER COLUMN` to change constraints. Solution: recreate the table with new structure
+- Always wrap migrations in `PRAGMA foreign_keys=OFF/ON` to safely handle foreign key constraints
+- Test migrations thoroughly before considering them complete
+
+### Example
+
+See `backend/app/models/DB_CHANGES.md` for the complete example of making `debit.place_id` nullable.
+
+---
+
 ## Notes for AI Assistants
 
 - Prefer simple, maintainable solutions over complex abstractions.
@@ -184,5 +217,6 @@ curl http://localhost:8080/version
 - Follow existing patterns in the codebase before introducing new ones.
 - Ensure consistency in naming and structure across backend and frontend.
 - **Always update `numo.yml` OpenAPI specification when modifying API endpoints, schemas, or status codes**.
+- **Always document database changes in `backend/app/models/DB_CHANGES.md` when modifying models**.
 - Run the test suite with `docker-compose exec -T backend pytest tests/ -v --cov=app` to verify changes.
 - Aim for maintaining 80%+ code coverage with comprehensive test cases.

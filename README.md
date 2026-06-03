@@ -86,12 +86,6 @@ numo/
 - Tailwind CSS (Styling)
 - Shadcn (Components)
 
-## 📚 Documentación Adicional
-
-- [Backend README](./backend/README.md)
-- [Frontend README](./frontend/README.md)
-- [Guía de Desarrollo](./AGENTS.md)
-
 ## 🔧 Configuración
 
 Copia `.env.example` a `.env` y ajusta las variables según necesites:

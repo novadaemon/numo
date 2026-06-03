@@ -83,21 +83,25 @@ class TestDebitsEndpoints:
         assert 'errors' in data
         assert 'category_id' in data['errors']
 
-    def test_create_debit_missing_place_id(self, client, category):
-        """Test creating a debit without place_id should fail (place_id is required)."""
+    def test_create_debit_without_place_id(self, client, category):
+        """Test creating a debit without place_id (place_id is now optional)."""
+        from datetime import date
         payload = {
             'category_id': category.id,
             'amount': 50.00,
-            'observations': 'No place specified'
+            'observations': 'No place specified',
+            'expensed_at': date.today().isoformat()
         }
         response = client.post(
             '/debits',
             data=json.dumps(payload),
             content_type='application/json'
         )
-        assert response.status_code == 422
+        assert response.status_code == 201
         data = json.loads(response.data)
-        assert 'error' in data or 'errors' in data
+        assert data['amount'] == 50.00
+        assert data['place_id'] is None
+        assert data['place'] is None
 
     def test_create_debit_missing_amount(self, client, category, place):
         """Test creating a debit without amount."""
@@ -205,6 +209,25 @@ class TestDebitsEndpoints:
         data = json.loads(response.data)
         assert data['amount'] == 50.00
 
+    def test_create_debit_with_null_place_id(self, client, category):
+        """Test creating a debit with explicit null place_id."""
+        from datetime import date
+        payload = {
+            'category_id': category.id,
+            'place_id': None,
+            'amount': 50.00,
+            'expensed_at': date.today().isoformat()
+        }
+        response = client.post(
+            '/debits',
+            data=json.dumps(payload),
+            content_type='application/json'
+        )
+        assert response.status_code == 201
+        data = json.loads(response.data)
+        assert data['place_id'] is None
+        assert data['place'] is None
+
     def test_get_debit_by_id(self, client, debit_with_relationships):
         """Test getting a debit by ID."""
         response = client.get(f'/debits/{debit_with_relationships.id}')
@@ -239,6 +262,19 @@ class TestDebitsEndpoints:
             content_type='application/json'
         )
         assert response.status_code == 422
+
+    def test_update_debit_set_place_id_to_null(self, client, debit_with_relationships):
+        """Test updating a debit to set place_id to null."""
+        payload = {'place_id': None}
+        response = client.put(
+            f'/debits/{debit_with_relationships.id}',
+            data=json.dumps(payload),
+            content_type='application/json'
+        )
+        assert response.status_code == 200
+        data = json.loads(response.data)
+        assert data['place_id'] is None
+        assert data['place'] is None
 
     def test_update_debit_not_found(self, client):
         """Test updating a non-existent debit."""
