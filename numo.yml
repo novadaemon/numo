@@ -745,7 +745,9 @@ paths:
                   minimum: 1
                 place_id:
                   type: integer
+                  nullable: true
                   minimum: 1
+                  description: Reference to place (optional, can be null)
                 concept:
                   type: string
                   maxLength: 255
@@ -1258,7 +1260,6 @@ components:
           description: When the expense occurred
       required:
         - category_id
-        - place_id
         - amount
         - expensed_at
 

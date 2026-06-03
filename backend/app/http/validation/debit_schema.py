@@ -4,6 +4,14 @@ from datetime import datetime
 from app.models.debit import DebitMethod
 
 
+def validate_positive_or_none(value):
+    """Validator that allows None or positive integers."""
+    if value is None:
+        return  # Allow None values
+    if not isinstance(value, int) or value < 1:
+        raise ValidationError("must be a positive integer")
+
+
 class DebitSchema(Schema):
     """Schema for validating debit (expense) creation and updates."""
 
@@ -14,9 +22,10 @@ class DebitSchema(Schema):
         error_messages={'required': 'category_id is required'}
     )
     place_id = fields.Int(
-        required=True,
-        validate=validate.Range(min=1, error="place_id must be a positive integer"),
-        error_messages={'required': 'place_id is required'}
+        required=False,
+        allow_none=True,
+        validate=validate_positive_or_none,
+        load_default=None
     )
     concept = fields.Str(
         allow_none=True,

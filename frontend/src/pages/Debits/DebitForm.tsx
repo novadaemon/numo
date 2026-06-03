@@ -21,7 +21,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { useDataRefresh } from '@/contexts'
 import { categoriesService, conceptsService, debitsService, placesService } from '@/services'
 import { Category, Concept, Debit, Place } from '@/types'
-import { Plus } from 'lucide-react'
+import { Plus, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import toast from 'react-hot-toast'
 
@@ -244,6 +244,19 @@ export function DebitForm({ debit, onOpenChange, onSuccess }: DebitFormProps) {
     }
   }
 
+  const handleClearPlace = () => {
+    setFormData((prev) => ({
+      ...prev,
+      place_id: '',
+    }))
+    if (errors.place_id) {
+      setErrors((prev) => ({
+        ...prev,
+        place_id: undefined,
+      }))
+    }
+  }
+
   const handleMethodChange = (value: string) => {
     setFormData((prev) => ({
       ...prev,
@@ -289,9 +302,27 @@ export function DebitForm({ debit, onOpenChange, onSuccess }: DebitFormProps) {
     setLoading(true)
 
     try {
+      // Validate required fields before parsing
+      const newErrors: FormErrors = {}
+
+      if (!formData.category_id) {
+        newErrors.category_id = 'La categoría es obligatoria'
+      }
+      if (!formData.amount) {
+        newErrors.amount = 'El monto es obligatorio'
+      }
+      if (!formData.expensed_at) {
+        newErrors.expensed_at = 'La fecha del gasto es obligatoria'
+      }
+
+      if (Object.keys(newErrors).length > 0) {
+        setErrors(newErrors)
+        return
+      }
+
       const debitData = {
         category_id: parseInt(formData.category_id),
-        place_id: parseInt(formData.place_id),
+        place_id: formData.place_id ? parseInt(formData.place_id) : null,
         concept: formData.concept || undefined,
         amount: parseFloat(formData.amount),
         method: formData.method,
@@ -357,14 +388,26 @@ export function DebitForm({ debit, onOpenChange, onSuccess }: DebitFormProps) {
 
         <Field invalid={!!errors.place_id}>
           <div className="flex items-center justify-between">
-            <FieldLabel htmlFor="place">Lugar *</FieldLabel>
-            <Dialog open={dialogOpen} onOpenChange={handleDialogOpenChange}>
-              <DialogTrigger asChild>
-                <Button type="button" variant="ghost" size="sm" className="h-6 px-2">
-                  <Plus className="mr-1 h-4 w-4" />
-                  Nuevo
+            <FieldLabel htmlFor="place">Lugar</FieldLabel>
+            <div className="flex items-center gap-2">
+              {formData.place_id && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 px-2"
+                  onClick={handleClearPlace}
+                  title="Limpiar selección">
+                  <X className="h-4 w-4" />
                 </Button>
-              </DialogTrigger>
+              )}
+              <Dialog open={dialogOpen} onOpenChange={handleDialogOpenChange}>
+                <DialogTrigger asChild>
+                  <Button type="button" variant="ghost" size="sm" className="h-6 px-2">
+                    <Plus className="mr-1 h-4 w-4" />
+                    Nuevo
+                  </Button>
+                </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
                   <DialogTitle>Agregar nuevo lugar</DialogTitle>
@@ -399,10 +442,11 @@ export function DebitForm({ debit, onOpenChange, onSuccess }: DebitFormProps) {
                 </div>
               </DialogContent>
             </Dialog>
+            </div>
           </div>
           <Select value={formData.place_id} onValueChange={handlePlaceChange}>
             <SelectTrigger aria-invalid={!!errors.place_id}>
-              <SelectValue placeholder="Selecciona un lugar" />
+              <SelectValue placeholder="Selecciona un lugar (opcional)" />
             </SelectTrigger>
             <SelectContent searchable>
               {places.map((place) => (

@@ -24,7 +24,7 @@ export interface ConceptFormData {
  */
 export interface DebitFormData {
   category_id: number
-  place_id: number
+  place_id: number | null
   amount: number
   expensed_at: string // ISO-8601 date
   observations?: string | null
