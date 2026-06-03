@@ -201,7 +201,36 @@ When modifying SQLAlchemy models that alter the database structure, you **MUST**
 ### SQL Migration Notes
 
 - **SQLite limitation**: Cannot use `ALTER COLUMN` to change constraints. Solution: recreate the table with new structure
-- Always wrap migrations in `PRAGMA foreign_keys=OFF/ON` to safely handle foreign key constraints
+- **SQLite table recreation pattern**:
+  1. Create new table with updated schema (`CREATE TABLE table_new (...)`)
+  2. Copy data from old table (`INSERT INTO table_new SELECT * FROM table`)
+  3. Drop old table (`DROP TABLE table`)
+  4. Rename new table (`ALTER TABLE table_new RENAME TO table`)
+  5. Wrap entire migration in `BEGIN/COMMIT` transaction
+- Document migrations in `DB_CHANGES.md` with:
+  - Date (YYYY-MM-DD)
+  - Complete sqlite3 command with SQL migration script wrapped in a transaction
+  - Example format:
+
+    ````
+    **2026-06-03**
+
+    ```sql
+    sqlite3 numo.db "
+    BEGIN;
+    CREATE TABLE table_new (...);
+    INSERT INTO table_new SELECT * FROM table;
+    DROP TABLE table;
+    ALTER TABLE table_new RENAME TO table;
+    COMMIT;
+    "
+    ````
+
+    ```
+
+    ```
+
+  - After committing, recreate the database: `docker-compose down -v && docker-compose up -d --build`
 - Test migrations thoroughly before considering them complete
 
 ### Example
