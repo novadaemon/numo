@@ -744,9 +744,8 @@ paths:
                   type: integer
                   minimum: 1
                 place_id:
-                  type:
-                    - integer
-                    - "null"
+                  type: integer
+                  nullable: true
                   minimum: 1
                   description: Reference to place (optional, can be null)
                 concept:
