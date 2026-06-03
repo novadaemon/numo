@@ -304,15 +304,15 @@ export function DebitForm({ debit, onOpenChange, onSuccess }: DebitFormProps) {
     try {
       // Validate required fields before parsing
       const newErrors: FormErrors = {}
-      
+
       if (!formData.category_id) {
-        newErrors.category_id = 'category_id is required'
+        newErrors.category_id = 'La categoría es obligatoria'
       }
       if (!formData.amount) {
-        newErrors.amount = 'amount is required'
+        newErrors.amount = 'El monto es obligatorio'
       }
       if (!formData.expensed_at) {
-        newErrors.expensed_at = 'expensed_at is required'
+        newErrors.expensed_at = 'La fecha del gasto es obligatoria'
       }
 
       if (Object.keys(newErrors).length > 0) {
