@@ -3,10 +3,9 @@ from typing import Tuple
 
 
 # Valid page sizes
-ALLOWED_PAGE_SIZES = {10, 25, 50, 100}
+ALLOWED_PAGE_SIZES = {10, 25, 50, 100, 500}
 DEFAULT_PAGE = 0
 DEFAULT_PAGE_SIZE = 10
-
 
 def validate_pagination_params(
     page: any = None,

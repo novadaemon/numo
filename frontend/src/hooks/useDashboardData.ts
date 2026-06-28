@@ -100,12 +100,12 @@ export function useDashboardData(period: DatePeriod = 'year'): DashboardData {
         const { startDate, endDate } = getDateRange(period)
 
         // Obtener gastos del período con paginación
-        // Necesitamos todos los datos del período, así que usamos size=100
+        // Necesitamos todos los datos del período, así que usamos size=500
         const response = await debitsService.getAll({
           page: 0,
           from_date: startDate,
           to_date: endDate,
-          size: 100,
+          size: 500,
         })
 
         // Verificar que el componente aún está montado antes de updatear estado
