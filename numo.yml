@@ -46,10 +46,10 @@ paths:
             minimum: 0
         - name: size
           in: query
-          description: Number of items per page (allowed values 10, 25, 50, 100, default 10)
+          description: Number of items per page (allowed values 10, 25, 50, 100, 500, default 10)
           schema:
             type: integer
-            enum: [10, 25, 50, 100]
+            enum: [10, 25, 50, 100, 500]
             default: 10
       responses:
         "200":
@@ -214,10 +214,10 @@ paths:
             minimum: 0
         - name: size
           in: query
-          description: Number of items per page (allowed values 10, 25, 50, 100, default 10). Ignored when 'q' parameter is provided.
+          description: Number of items per page (allowed values 10, 25, 50, 100, 500, default 10). Ignored when 'q' parameter is provided.
           schema:
             type: integer
-            enum: [10, 25, 50, 100]
+            enum: [10, 25, 50, 100, 500]
             default: 10
         - name: sort_field
           in: query
@@ -394,10 +394,10 @@ paths:
             minimum: 0
         - name: size
           in: query
-          description: Number of items per page (allowed values 10, 25, 50, 100, default 10)
+          description: Number of items per page (allowed values 10, 25, 50, 100, 500, default 10)
           schema:
             type: integer
-            enum: [10, 25, 50, 100]
+            enum: [10, 25, 50, 100, 500]
             default: 10
       responses:
         "200":
@@ -555,10 +555,10 @@ paths:
             minimum: 0
         - name: size
           in: query
-          description: Number of items per page (allowed values 10, 25, 50, 100, default 10)
+          description: Number of items per page (allowed values 10, 25, 50, 100, 500, default 10)
           schema:
             type: integer
-            enum: [10, 25, 50, 100]
+            enum: [10, 25, 50, 100, 500]
             default: 10
         - name: from_date
           in: query
@@ -823,10 +823,10 @@ paths:
             minimum: 0
         - name: size
           in: query
-          description: Number of items per page (allowed values 10, 25, 50, 100, default 10)
+          description: Number of items per page (allowed values 10, 25, 50, 100, 500, default 10)
           schema:
             type: integer
-            enum: [10, 25, 50, 100]
+            enum: [10, 25, 50, 100, 500]
             default: 10
         - name: from_date
           in: query
