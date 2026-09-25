@@ -2,6 +2,7 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
@@ -76,6 +77,9 @@ export function CategoryExpensesTable({
     return 0
   })
 
+  // Total de gastos del mes
+  const total = data.reduce((sum, item) => sum + item.value, 0)
+
   // Componente para renderizar el icono de ordenamiento en el header
   const SortIcon = ({ field }: { field: SortField }) => {
     if (sortField !== field) {
@@ -132,6 +136,12 @@ export function CategoryExpensesTable({
               </TableRow>
             ))}
           </TableBody>
+          <TableFooter>
+            <TableRow>
+              <TableCell className="font-semibold text-gray-900">Total</TableCell>
+              <TableCell className="text-right font-semibold text-gray-900">${total.toFixed(2)}</TableCell>
+            </TableRow>
+          </TableFooter>
         </Table>
       </div>
     </div>
