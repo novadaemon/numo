@@ -52,6 +52,16 @@ export interface PaginatedResponse<T> {
 }
 
 /**
+ * Response of GET /debits/monthly (not paginated)
+ */
+export interface MonthlyResponse<T> {
+  data: T[]
+  year: number
+  month: number
+  total: number
+}
+
+/**
  * Debit filter parameters
  */
 export interface DebitFilterParams {

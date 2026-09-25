@@ -7,6 +7,7 @@ import {
   CreditsPage,
   Dashboard,
   DebitsPage,
+  MonthlyExpensesPage,
   PlacesPage,
 } from '@/pages'
 import { apiClient } from '@/services'
@@ -114,6 +115,7 @@ function AppContent() {
             <Route path="/" element={<Dashboard />} />
             <Route path="/categories" element={<CategoriesPage />} />
             <Route path="/debits" element={<DebitsPage />} />
+            <Route path="/monthly-expenses" element={<MonthlyExpensesPage />} />
             <Route path="/credits" element={<CreditsPage />} />
             <Route path="/places" element={<PlacesPage />} />
             <Route path="/concepts" element={<ConceptsPage />} />

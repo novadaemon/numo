@@ -18,6 +18,10 @@ export function HeaderMenu() {
     navigate('/debits');
   };
 
+  const handleMonthlyExpenses = () => {
+    navigate('/monthly-expenses');
+  };
+
   const handleIncome = () => {
     navigate('/credits');
   };
@@ -44,6 +48,9 @@ export function HeaderMenu() {
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuItem onClick={handleExpenses}>
           Gastos
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={handleMonthlyExpenses}>
+          Gastos por mes
         </DropdownMenuItem>
         <DropdownMenuItem onClick={handleIncome}>
           Ingresos

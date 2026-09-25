@@ -123,7 +123,8 @@ Variables disponibles:
 - `BACKEND_PORT` - Puerto del backend (default: 8080)
 - `FRONTEND_PORT` - Puerto del frontend (default: 3000)
 - `NUMO_VERSION` - Versión de la aplicación (opcional). Normalmente no se configura manualmente: el backend la obtiene desde `.version`. Si se usa como fallback/inyección (por ejemplo, en Docker), debe mantenerse sincronizada con `.version`
-- `FLASK_ENV` - Ambiente de Flask (development/production)
+- `APP_ENV` - Ambiente de la aplicación, se devuelve en `GET /version` (development/production; default: production, development en docker-compose)
+- `FLASK_DEBUG` - Modo debug de Flask con auto-reload al guardar cambios (`1` activado, `0` desactivado; default: 0). Solo para desarrollo
 - `VITE_API_URL` - URL de la API para el frontend
 - `NUMO_USERNAME` - Usuario para autenticación Basic Auth (default: admin)
 - `NUMO_PASSWORD` - Contraseña para autenticación Basic Auth (default: admin)
