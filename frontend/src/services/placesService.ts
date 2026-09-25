@@ -49,6 +49,16 @@ export class PlacesService {
   }
 
   /**
+   * Search places by name (case- and accent-insensitive, for combobox usage)
+   */
+  async search(query: string): Promise<Place[]> {
+    if (!query.trim()) {
+      return []
+    }
+    return this.apiClient.get<Place[]>(`/places?q=${encodeURIComponent(query)}`)
+  }
+
+  /**
    * Get all places with pagination and sorting (for data tables)
    */
   async getAll(

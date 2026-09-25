@@ -1,6 +1,14 @@
 import { Autocomplete } from '@/components/ui/autocomplete'
 import { Button } from '@/components/ui/button'
 import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+} from '@/components/ui/combobox'
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -21,7 +29,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { useDataRefresh } from '@/contexts'
 import { categoriesService, conceptsService, debitsService, placesService } from '@/services'
 import { Category, Concept, Debit, Place } from '@/types'
-import { Plus, X } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import toast from 'react-hot-toast'
 
@@ -51,6 +59,9 @@ interface FormErrors {
 export function DebitForm({ debit, onOpenChange, onSuccess }: DebitFormProps) {
   const [categories, setCategories] = useState<Category[]>([])
   const [places, setPlaces] = useState<Place[]>([])
+  const [selectedPlace, setSelectedPlace] = useState<Place | null>(null)
+  const [placeQuery, setPlaceQuery] = useState('')
+  const [placesLoading, setPlacesLoading] = useState(false)
   const [loading, setLoading] = useState(false)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [newPlaceName, setNewPlaceName] = useState('')
@@ -60,8 +71,8 @@ export function DebitForm({ debit, onOpenChange, onSuccess }: DebitFormProps) {
   const [conceptSearchValue, setConceptSearchValue] = useState('')
   const [conceptSuggestions, setConceptSuggestions] = useState<Concept[]>([])
 
-  // Ref para guardar el ID del lugar recién creado
-  const newPlaceIdRef = useRef<string | null>(null)
+  // Contenedor del popup del combobox de lugares (debe renderizarse dentro del Dialog)
+  const placeComboboxContainerRef = useRef<HTMLDivElement>(null)
 
   const isEditMode = Boolean(debit)
   const { triggerRefresh } = useDataRefresh()
@@ -76,14 +87,12 @@ export function DebitForm({ debit, onOpenChange, onSuccess }: DebitFormProps) {
   })
   const [errors, setErrors] = useState<FormErrors>({})
 
-  // Cargar categorías y lugares al montar
+  // Cargar categorías al montar
   useEffect(() => {
     const loadData = async () => {
       try {
         const cats = await categoriesService.getAllSimple()
         setCategories(cats)
-        const placesList = await placesService.getAllSimple()
-        setPlaces(placesList)
       } catch (error) {
         console.error('Error loading data:', error)
         toast.error('Error al cargar datos')
@@ -92,9 +101,37 @@ export function DebitForm({ debit, onOpenChange, onSuccess }: DebitFormProps) {
     loadData()
   }, [])
 
-  // Pre-poblar form en modo edición DESPUÉS de que places estén disponibles
+  // Buscar lugares en el backend con debounce (sin consulta inicial: solo al escribir)
   useEffect(() => {
-    if (isEditMode && debit && places.length > 0) {
+    if (!placeQuery.trim()) {
+      setPlaces([])
+      setPlacesLoading(false)
+      return
+    }
+
+    let cancelled = false
+    setPlacesLoading(true)
+    const timeoutId = setTimeout(async () => {
+      try {
+        const results = await placesService.search(placeQuery)
+        if (!cancelled) setPlaces(results)
+      } catch (error) {
+        console.error('Error searching places:', error)
+        if (!cancelled) setPlaces([])
+      } finally {
+        if (!cancelled) setPlacesLoading(false)
+      }
+    }, 300)
+
+    return () => {
+      cancelled = true
+      clearTimeout(timeoutId)
+    }
+  }, [placeQuery])
+
+  // Pre-poblar form en modo edición
+  useEffect(() => {
+    if (isEditMode && debit) {
       setFormData({
         category_id: debit.category_id.toString(),
         place_id: debit.place_id?.toString() || '',
@@ -104,12 +141,13 @@ export function DebitForm({ debit, onOpenChange, onSuccess }: DebitFormProps) {
         observations: debit.observations || '',
         expensed_at: debit.expensed_at,
       })
+      setSelectedPlace(debit.place ?? null)
       // Sincronizar conceptSearchValue para modo edición
       if (debit.concept) {
         setConceptSearchValue(debit.concept)
       }
     }
-  }, [debit, isEditMode, places])
+  }, [debit, isEditMode])
 
   // Reset form en modo creación
   useEffect(() => {
@@ -126,24 +164,6 @@ export function DebitForm({ debit, onOpenChange, onSuccess }: DebitFormProps) {
       setErrors({})
     }
   }, [isEditMode])
-
-  // Actualizar el select cuando el diálogo se cierra y hay un lugar creado
-  useEffect(() => {
-    if (!dialogOpen && newPlaceIdRef.current) {
-      const placeId = newPlaceIdRef.current
-      setFormData((prev) => ({
-        ...prev,
-        place_id: placeId,
-      }))
-      if (errors.place_id) {
-        setErrors((prev) => ({
-          ...prev,
-          place_id: undefined,
-        }))
-      }
-      newPlaceIdRef.current = null
-    }
-  }, [dialogOpen, errors.place_id])
 
   // Manejador para cuando cambia el estado del diálogo
   const handleDialogOpenChange = (open: boolean) => {
@@ -231,23 +251,11 @@ export function DebitForm({ debit, onOpenChange, onSuccess }: DebitFormProps) {
     }
   }
 
-  const handlePlaceChange = (value: string) => {
+  const handlePlaceChange = (place: Place | null) => {
+    setSelectedPlace(place)
     setFormData((prev) => ({
       ...prev,
-      place_id: value,
-    }))
-    if (errors.place_id) {
-      setErrors((prev) => ({
-        ...prev,
-        place_id: undefined,
-      }))
-    }
-  }
-
-  const handleClearPlace = () => {
-    setFormData((prev) => ({
-      ...prev,
-      place_id: '',
+      place_id: place ? place.id.toString() : '',
     }))
     if (errors.place_id) {
       setErrors((prev) => ({
@@ -280,10 +288,7 @@ export function DebitForm({ debit, onOpenChange, onSuccess }: DebitFormProps) {
     try {
       const newPlace = await placesService.create({ name: newPlaceName })
       setPlaces((prev) => [...prev, newPlace])
-
-      // Guardar el ID en la referencia
-      const placeIdStr = newPlace.id.toString()
-      newPlaceIdRef.current = placeIdStr
+      handlePlaceChange(newPlace)
 
       setNewPlaceName('')
       setDialogOpen(false)
@@ -388,19 +393,8 @@ export function DebitForm({ debit, onOpenChange, onSuccess }: DebitFormProps) {
 
         <Field invalid={!!errors.place_id}>
           <div className="flex items-center justify-between">
-            <FieldLabel htmlFor="place">Lugar</FieldLabel>
+            <FieldLabel htmlFor="place">Lugar (opcional)</FieldLabel>
             <div className="flex items-center gap-2">
-              {formData.place_id && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 px-2"
-                  onClick={handleClearPlace}
-                  title="Limpiar selección">
-                  <X className="h-4 w-4" />
-                </Button>
-              )}
               <Dialog open={dialogOpen} onOpenChange={handleDialogOpenChange}>
                 <DialogTrigger asChild>
                   <Button type="button" variant="ghost" size="sm" className="h-6 px-2">
@@ -408,54 +402,84 @@ export function DebitForm({ debit, onOpenChange, onSuccess }: DebitFormProps) {
                     Nuevo
                   </Button>
                 </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Agregar nuevo lugar</DialogTitle>
-                  <DialogDescription>
-                    Ingresa el nombre del lugar donde realizaste este gasto
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <Input
-                    placeholder="Ej: Supermercado, Farmacia, etc."
-                    value={newPlaceName}
-                    onChange={(e) => setNewPlaceName(e.target.value)}
-                    disabled={creatingPlace}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        handleAddPlace()
-                      }
-                    }}
-                  />
-                  <div className="flex justify-end gap-3">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => handleDialogOpenChange(false)}
-                      disabled={creatingPlace}>
-                      Cancelar
-                    </Button>
-                    <Button type="button" onClick={handleAddPlace} disabled={creatingPlace}>
-                      {creatingPlace ? 'Guardando...' : 'Guardar'}
-                    </Button>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Agregar nuevo lugar</DialogTitle>
+                    <DialogDescription>
+                      Ingresa el nombre del lugar donde realizaste este gasto
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <Input
+                      placeholder="Ej: Supermercado, Farmacia, etc."
+                      value={newPlaceName}
+                      onChange={(e) => setNewPlaceName(e.target.value)}
+                      disabled={creatingPlace}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          handleAddPlace()
+                        }
+                      }}
+                    />
+                    <div className="flex justify-end gap-3">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => handleDialogOpenChange(false)}
+                        disabled={creatingPlace}>
+                        Cancelar
+                      </Button>
+                      <Button type="button" onClick={handleAddPlace} disabled={creatingPlace}>
+                        {creatingPlace ? 'Guardando...' : 'Guardar'}
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              </DialogContent>
-            </Dialog>
+                </DialogContent>
+              </Dialog>
             </div>
           </div>
-          <Select value={formData.place_id} onValueChange={handlePlaceChange}>
-            <SelectTrigger aria-invalid={!!errors.place_id}>
-              <SelectValue placeholder="Selecciona un lugar (opcional)" />
-            </SelectTrigger>
-            <SelectContent searchable>
-              {places.map((place) => (
-                <SelectItem key={place.id} value={place.id.toString()}>
-                  {place.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div ref={placeComboboxContainerRef}>
+            <Combobox<Place>
+              items={places}
+              filter={null}
+              value={selectedPlace}
+              onValueChange={handlePlaceChange}
+              onInputValueChange={(value, { reason }) => {
+                // Solo buscar cuando el usuario escribe o limpia el campo
+                if (
+                  reason === 'input-change' ||
+                  reason === 'input-clear' ||
+                  reason === 'clear-press'
+                ) {
+                  setPlaceQuery(value)
+                }
+              }}
+              itemToStringLabel={(place) => place.name}
+              isItemEqualToValue={(a, b) => a.id === b.id}>
+              <ComboboxInput
+                id="place"
+                placeholder="Busca un lugar..."
+                aria-invalid={!!errors.place_id}
+                showClear={!!selectedPlace}
+              />
+              <ComboboxContent container={placeComboboxContainerRef}>
+                <ComboboxEmpty>
+                  {placesLoading
+                    ? 'Buscando...'
+                    : placeQuery.trim()
+                      ? 'No se encontraron lugares'
+                      : 'Escribe para buscar un lugar'}
+                </ComboboxEmpty>
+                <ComboboxList>
+                  {(place: Place) => (
+                    <ComboboxItem key={place.id} value={place}>
+                      {place.name}
+                    </ComboboxItem>
+                  )}
+                </ComboboxList>
+              </ComboboxContent>
+            </Combobox>
+          </div>
           {errors.place_id && <FieldError>{formatError(errors.place_id)}</FieldError>}
         </Field>
 

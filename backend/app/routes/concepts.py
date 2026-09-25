@@ -3,25 +3,15 @@ from flask import Blueprint, request, jsonify
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import func, desc
 from marshmallow import ValidationError
-import unicodedata
 from ..database import SessionLocal
 from ..models import Concept
 from ..http.validation import ConceptSchema
 from ..http.pagination import validate_pagination_params, apply_pagination
 from ..http.auth import auth
+from ..http.search import normalize_text
 
 bp = Blueprint('concepts', __name__, url_prefix='/concepts')
 schema = ConceptSchema()
-
-
-def normalize_text(text):
-    """Remove accents and convert to lowercase for accent-insensitive search."""
-    if not text:
-        return ''
-    # Normalize Unicode to NFD (decomposed form)
-    nfd = unicodedata.normalize('NFD', text)
-    # Filter out combining characters (accents)
-    return ''.join(char for char in nfd if unicodedata.category(char) != 'Mn').lower()
 
 
 @bp.route('', methods=['GET'])
