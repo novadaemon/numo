@@ -1,4 +1,4 @@
-import { DebitFilterParams, DebitFormData, PaginatedResponse } from '@/types'
+import { DebitFilterParams, DebitFormData, MonthlyResponse, PaginatedResponse } from '@/types'
 import type { FilterRule } from '@/types/filters'
 import { Debit } from '@/types/models'
 import { apiClient } from './apiClient'
@@ -196,6 +196,15 @@ export class DebitsService {
    */
   async delete(id: number): Promise<void> {
     return this.apiClient.delete<void>(`/debits/${id}`)
+  }
+
+  /**
+   * Get all debits of a month (month is 1-12)
+   */
+  async getMonthly(year: number, month: number): Promise<MonthlyResponse<Debit>> {
+    return this.apiClient.get<MonthlyResponse<Debit>>(
+      `/debits/monthly?year=${year}&month=${month}`
+    )
   }
 
   /**

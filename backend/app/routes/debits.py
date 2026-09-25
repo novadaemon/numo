@@ -1,6 +1,6 @@
 """Routes for debit (expense) management."""
 from flask import Blueprint, request, jsonify
-from datetime import datetime
+from datetime import date, datetime
 import json
 from sqlalchemy import desc
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
@@ -182,9 +182,9 @@ def get_debits():
         elif sort_field == 'method':
             order_by = desc(Debit.method) if sort_order == 'desc' else Debit.method
             query = query.order_by(order_by)
-        else:
-            # Default to expensed_at if invalid field
-            query = query.order_by(desc(Debit.expensed_at))
+
+        # Tie-breaker by id so pagination is stable when sort values repeat
+        query = query.order_by(desc(Debit.id) if sort_order == 'desc' else Debit.id)
 
         # Get total count before pagination
         total = query.count()
@@ -198,6 +198,42 @@ def get_debits():
             'page': page,
             'size': size,
             'total': total
+        }), 200
+    finally:
+        db.close()
+
+
+@bp.route('/monthly', methods=['GET'])
+@auth.login_required
+def get_monthly_debits():
+    """Get all debits of a given month (no pagination)."""
+    year = request.args.get('year', type=int)
+    month = request.args.get('month', type=int)
+
+    if year is None or month is None:
+        return jsonify({'error': 'year and month are required integer parameters'}), 400
+    if not 1 <= year <= 9999:
+        return jsonify({'error': 'year must be between 1 and 9999'}), 400
+    if not 1 <= month <= 12:
+        return jsonify({'error': 'month must be between 1 and 12'}), 400
+
+    start = date(year, month, 1)
+    end = date(year + 1, 1, 1) if month == 12 else date(year, month + 1, 1)
+
+    db = SessionLocal()
+    try:
+        debits = (
+            db.query(Debit)
+            .filter(Debit.expensed_at >= start, Debit.expensed_at < end)
+            .order_by(desc(Debit.expensed_at), desc(Debit.id))
+            .all()
+        )
+
+        return jsonify({
+            'data': [format_debit(d) for d in debits],
+            'year': year,
+            'month': month,
+            'total': len(debits)
         }), 200
     finally:
         db.close()

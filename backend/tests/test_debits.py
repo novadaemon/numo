@@ -554,3 +554,114 @@ class TestDebitsPaginationEndpoints:
         assert isinstance(data['page'], int)
         assert isinstance(data['size'], int)
         assert isinstance(data['total'], int)
+
+    def test_get_debits_same_date_ordered_by_id_desc(self, client, debit_factory, category):
+        """Test that debits sharing expensed_at are ordered by id desc by default."""
+        from datetime import date
+        ids = [
+            debit_factory.create(category_id=category.id, amount=10.0, expensed_at=date(2025, 6, 15)).id
+            for _ in range(5)
+        ]
+
+        response = client.get('/debits?from_date=2025-06-01&to_date=2025-06-30')
+        assert response.status_code == 200
+        data = json.loads(response.data)
+        assert [d['id'] for d in data['data']] == sorted(ids, reverse=True)
+
+    def test_get_debits_same_date_ordered_by_id_asc(self, client, debit_factory, category):
+        """Test that debits sharing expensed_at are ordered by id asc when sort_order=asc."""
+        from datetime import date
+        ids = [
+            debit_factory.create(category_id=category.id, amount=10.0, expensed_at=date(2025, 6, 15)).id
+            for _ in range(5)
+        ]
+
+        response = client.get('/debits?sort_field=expensed_at&sort_order=asc')
+        assert response.status_code == 200
+        data = json.loads(response.data)
+        assert [d['id'] for d in data['data']] == sorted(ids)
+
+    def test_get_debits_pagination_stable_with_ties(self, client, debit_factory, category):
+        """Test that paginating over tied sort values returns every debit exactly once."""
+        from datetime import date
+        ids = {
+            debit_factory.create(category_id=category.id, amount=10.0, expensed_at=date(2025, 6, 15)).id
+            for _ in range(15)
+        }
+
+        seen = []
+        for page in (0, 1):
+            response = client.get(f'/debits?sort_field=amount&page={page}&size=10')
+            assert response.status_code == 200
+            seen += [d['id'] for d in json.loads(response.data)['data']]
+
+        assert len(seen) == 15
+        assert set(seen) == ids
+
+
+class TestMonthlyDebitsEndpoint:
+    """Test suite for GET /debits/monthly."""
+
+    def test_get_monthly_debits_returns_only_that_month(self, client, debit_factory, category):
+        """Test that only debits within the requested month are returned."""
+        from datetime import date
+        inside = [
+            debit_factory.create(category_id=category.id, amount=10.0, expensed_at=date(2025, 6, 1)).id,
+            debit_factory.create(category_id=category.id, amount=20.0, expensed_at=date(2025, 6, 30)).id,
+        ]
+        debit_factory.create(category_id=category.id, amount=30.0, expensed_at=date(2025, 5, 31))
+        debit_factory.create(category_id=category.id, amount=40.0, expensed_at=date(2025, 7, 1))
+
+        response = client.get('/debits/monthly?year=2025&month=6')
+        assert response.status_code == 200
+        data = json.loads(response.data)
+        assert data['year'] == 2025
+        assert data['month'] == 6
+        assert data['total'] == 2
+        assert {d['id'] for d in data['data']} == set(inside)
+
+    def test_get_monthly_debits_not_paginated(self, client, debit_factory, category):
+        """Test that all debits of the month are returned, beyond the max page size."""
+        from datetime import date
+        for _ in range(510):
+            debit_factory.create(category_id=category.id, amount=1.0, expensed_at=date(2025, 6, 15))
+
+        response = client.get('/debits/monthly?year=2025&month=6')
+        assert response.status_code == 200
+        data = json.loads(response.data)
+        assert data['total'] == 510
+        assert len(data['data']) == 510
+
+    def test_get_monthly_debits_december(self, client, debit_factory, category):
+        """Test that December includes the 31st and excludes January of the next year."""
+        from datetime import date
+        dec = debit_factory.create(category_id=category.id, amount=10.0, expensed_at=date(2025, 12, 31)).id
+        debit_factory.create(category_id=category.id, amount=10.0, expensed_at=date(2026, 1, 1))
+
+        response = client.get('/debits/monthly?year=2025&month=12')
+        assert response.status_code == 200
+        data = json.loads(response.data)
+        assert [d['id'] for d in data['data']] == [dec]
+
+    def test_get_monthly_debits_empty(self, client):
+        """Test that a month without debits returns an empty list."""
+        response = client.get('/debits/monthly?year=2025&month=6')
+        assert response.status_code == 200
+        data = json.loads(response.data)
+        assert data['data'] == []
+        assert data['total'] == 0
+
+    @pytest.mark.parametrize('query', [
+        '',
+        '?year=2025',
+        '?month=6',
+        '?year=abc&month=6',
+        '?year=2025&month=0',
+        '?year=2025&month=13',
+        '?year=0&month=6',
+    ])
+    def test_get_monthly_debits_invalid_params(self, client, query):
+        """Test that missing or out-of-range year/month return 400."""
+        response = client.get(f'/debits/monthly{query}')
+        assert response.status_code == 400
+        assert 'error' in json.loads(response.data)

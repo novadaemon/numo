@@ -632,7 +632,7 @@ paths:
             minimum: 0.01
         - name: sort_field
           in: query
-          description: Sort field (expensed_at, category, place, amount, concept, method). Default is expensed_at
+          description: Sort field (expensed_at, category, place, amount, concept, method). Default is expensed_at. Ties are broken by id in the same direction as sort_order, so pagination is stable
           schema:
             type: string
             enum: [expensed_at, category, place, amount, concept, method]
@@ -691,6 +691,53 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+
+  /debits/monthly:
+    get:
+      summary: Get all debits of a month
+      operationId: getMonthlyDebits
+      tags:
+        - Debits
+      security:
+        - BasicAuth: []
+      description: |
+        Returns every expense (debit) whose expensed_at falls within the given
+        year and month. The result is not paginated. Debits are ordered by
+        expensed_at desc, then id desc.
+      parameters:
+        - name: year
+          in: query
+          required: true
+          description: Year (e.g., 2026)
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 9999
+          example: 2026
+        - name: month
+          in: query
+          required: true
+          description: Month number (1 = January, 12 = December)
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 12
+          example: 9
+      responses:
+        "200":
+          description: All debits of the requested month
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MonthlyDebits"
+        "400":
+          description: Missing or invalid year/month parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                error: month must be between 1 and 12
 
   /debits/{debitId}:
     get:
@@ -1376,6 +1423,29 @@ components:
         - data
         - page
         - size
+        - total
+
+    MonthlyDebits:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Debit"
+          description: All debits of the requested month
+        year:
+          type: integer
+          description: Requested year
+        month:
+          type: integer
+          description: Requested month (1-12)
+        total:
+          type: integer
+          description: Number of debits returned
+      required:
+        - data
+        - year
+        - month
         - total
 
     PaginatedDebits:

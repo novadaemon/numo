@@ -35,7 +35,7 @@ def get_system_version():
     return jsonify({
         "version": get_version(),
         "name": "numo",
-        "environment": os.getenv("FLASK_ENV", "production")
+        "environment": os.getenv("APP_ENV", "production")
     })
 
 

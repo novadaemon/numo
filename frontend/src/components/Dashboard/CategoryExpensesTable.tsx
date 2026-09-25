@@ -19,23 +19,28 @@ interface CategoryExpense {
 interface CategoryExpensesTableProps {
   data: CategoryExpense[]
   className?: string
+  /** Fecha dentro del mes a mostrar en el título (por defecto, el mes actual) */
+  date?: Date
 }
 
 type SortField = 'name' | 'value'
 type SortOrder = 'asc' | 'desc'
 
 /**
- * Tabla de gastos por categoría del mes actual
+ * Tabla de gastos por categoría de un mes (por defecto, el mes actual)
  * Permite ordenamiento por categoría o monto
  */
-export function CategoryExpensesTable({ data, className = '' }: CategoryExpensesTableProps) {
+export function CategoryExpensesTable({
+  data,
+  className = '',
+  date = new Date(),
+}: CategoryExpensesTableProps) {
   const [sortField, setSortField] = useState<SortField>('value')
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc')
 
-  // Obtener mes y año actual
-  const now = new Date()
-  const monthName = now.toLocaleString('es-ES', { month: 'long' })
-  const year = now.getFullYear()
+  // Obtener mes y año a mostrar
+  const monthName = date.toLocaleString('es-ES', { month: 'long' })
+  const year = date.getFullYear()
 
   // Función para manejar ordenamiento
   const handleSort = (field: SortField) => {
