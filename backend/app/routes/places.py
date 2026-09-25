@@ -8,6 +8,7 @@ from ..models import Place
 from ..http.validation import PlaceSchema
 from ..http.pagination import validate_pagination_params, apply_pagination
 from ..http.auth import auth
+from ..http.search import normalize_text
 
 bp = Blueprint('places', __name__, url_prefix='/places')
 schema = PlaceSchema()
@@ -16,9 +17,26 @@ schema = PlaceSchema()
 @bp.route('', methods=['GET'])
 @auth.login_required
 def get_places():
-    """Get all places with optional pagination and sorting."""
+    """Get all places with optional pagination, sorting, or search by name.
+
+    Query Parameters:
+        q (str, optional): Search query string for place names (case-insensitive, accent-insensitive partial match).
+            When provided, returns a flat array sorted by name (no pagination).
+        page (int, optional): Page number (0-indexed, default 0)
+        size (int, optional): Page size (default 10)
+        sort_field (str, optional): Field to sort by (default 'name')
+        sort_order (str, optional): Sort order 'asc' or 'desc' (default 'asc')
+    """
     db = SessionLocal()
     try:
+        # Search mode: return flat array for combobox usage
+        search_query = request.args.get('q', '').strip()
+        if search_query:
+            normalized_query = normalize_text(search_query)
+            places = db.query(Place).order_by(Place.name).all()
+            places = [p for p in places if normalized_query in normalize_text(p.name)]
+            return jsonify([{'id': p.id, 'name': p.name} for p in places]), 200
+
         # Get pagination parameters
         page = request.args.get('page', type=int)
         size = request.args.get('size', type=int)

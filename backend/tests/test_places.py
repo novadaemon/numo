@@ -20,6 +20,27 @@ class TestPlacesEndpoints:
         assert len(data['data']) == 0
         assert data['total'] == 0
 
+    def test_search_places(self, client):
+        """Test searching places by name (case- and accent-insensitive)."""
+        for name in ['Panadería Sol', 'Farmacia Central', 'Pan y Vino']:
+            client.post('/places', data=json.dumps({'name': name}), content_type='application/json')
+
+        response = client.get('/places?q=PANADERIA')
+        assert response.status_code == 200
+        data = json.loads(response.data)
+        assert isinstance(data, list)
+        assert [p['name'] for p in data] == ['Panadería Sol']
+
+        response = client.get('/places?q=pan')
+        data = json.loads(response.data)
+        assert [p['name'] for p in data] == ['Pan y Vino', 'Panadería Sol']
+
+    def test_search_places_no_results(self, client, place):
+        """Test searching places with no matches returns empty list."""
+        response = client.get('/places?q=xyz')
+        assert response.status_code == 200
+        assert json.loads(response.data) == []
+
     def test_create_place_valid(self, client):
         """Test creating a place with valid data."""
         payload = {'name': 'Supermarket ABC'}

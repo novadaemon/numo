@@ -383,29 +383,54 @@ paths:
         - Places
       security:
         - BasicAuth: []
-      description: Retrieve a list of all transaction places/locations with optional pagination
+      description: Retrieve a list of all transaction places/locations with optional pagination, sorting, or search filtering. When 'q' parameter is provided, returns a flat array sorted by name for combobox/search use. Without 'q', returns a paginated response.
       parameters:
+        - name: q
+          in: query
+          required: false
+          description: Search keyword to filter places by partial name match (case-insensitive, accent-insensitive). When provided, returns flat array of all matching places sorted by name, without pagination.
+          schema:
+            type: string
+            maxLength: 255
         - name: page
           in: query
-          description: Page number (0-indexed, default 0)
+          description: Page number (0-indexed, default 0). Ignored when 'q' parameter is provided.
           schema:
             type: integer
             default: 0
             minimum: 0
         - name: size
           in: query
-          description: Number of items per page (allowed values 10, 25, 50, 100, 500, default 10)
+          description: Number of items per page (allowed values 10, 25, 50, 100, 500, default 10). Ignored when 'q' parameter is provided.
           schema:
             type: integer
             enum: [10, 25, 50, 100, 500]
             default: 10
+        - name: sort_field
+          in: query
+          description: Field to sort by (default 'name'). Ignored when 'q' parameter is provided.
+          schema:
+            type: string
+            enum: [name]
+            default: name
+        - name: sort_order
+          in: query
+          description: Sort order direction (default 'asc'). Ignored when 'q' parameter is provided.
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: asc
       responses:
         "200":
-          description: List of places with pagination info
+          description: List of places. Returns either a paginated response (when no 'q' parameter) or a flat array (when 'q' parameter is provided).
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PaginatedPlaces"
+                oneOf:
+                  - $ref: "#/components/schemas/PaginatedPlaces"
+                  - type: array
+                    items:
+                      $ref: "#/components/schemas/Place"
 
     post:
       summary: Create a new place
