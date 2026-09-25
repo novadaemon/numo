@@ -84,7 +84,7 @@ export const createDebitsColumns = (
           </div>
         )
       },
-      size: 150,
+      size: 250,
     },
     {
       accessorKey: 'concept',

@@ -1,4 +1,12 @@
 import { CategoryExpensesTable } from '@/components/Dashboard'
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import {
@@ -12,13 +20,14 @@ import { debitsService } from '@/services'
 import { Debit } from '@/types/models'
 import { Search } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 const MONTHS = Array.from({ length: 12 }, (_, index) => {
   const name = new Date(2000, index, 1).toLocaleString('es-ES', { month: 'long' })
   return { value: index + 1, label: name.charAt(0).toUpperCase() + name.slice(1) }
 })
 
-const YEARS_BACK = 1
+const YEARS_BACK = 4
 
 /**
  * Agrupa los gastos por categoría con su total y porcentaje
@@ -46,6 +55,7 @@ function groupByCategory(debits: Debit[]) {
  * Permite seleccionar año y mes y muestra los gastos agrupados por categoría
  */
 export function MonthlyExpensesPage() {
+  const navigate = useNavigate()
   const now = new Date()
   const currentYear = now.getFullYear()
   const years = Array.from({ length: YEARS_BACK }, (_, index) => currentYear - index)
@@ -77,6 +87,29 @@ export function MonthlyExpensesPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
+        {/* Breadcrumb */}
+        <div className="mb-8">
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    navigate('/')
+                  }}>
+                  Dashboard
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>Gastos por mes</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+        </div>
+
+        {/* Header */}
         <div className="mb-8">
           <h1 className="mb-2 text-4xl font-bold text-gray-900">Gastos por mes</h1>
           <p className="text-gray-600">Consulta tus gastos por categoría de un mes concreto</p>
