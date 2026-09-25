@@ -632,7 +632,7 @@ paths:
             minimum: 0.01
         - name: sort_field
           in: query
-          description: Sort field (expensed_at, category, place, amount, concept, method). Default is expensed_at
+          description: Sort field (expensed_at, category, place, amount, concept, method). Default is expensed_at. Ties are broken by id in the same direction as sort_order, so pagination is stable
           schema:
             type: string
             enum: [expensed_at, category, place, amount, concept, method]

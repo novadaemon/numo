@@ -18,7 +18,7 @@ The system is designed as a full-stack application with a REST API backend and a
 - SQLAlchemy (ORM) - https://www.sqlalchemy.org/
 - Marshmallow (Data validation) - https://marshmallow.readthedocs.io/en/latest/
 - SQLite (database) - https://sqlite.org/
-- Gunicorn (WSGI server) - https://gunicorn.org/
+- Gunicorn (WSGI server, installed for production; not used by the dev container) - https://gunicorn.org/
 - pytest (testing framework) - https://docs.pytest.org/
 - pytest-flask (Flask testing) - https://pypi.org/project/pytest-flask/
 - pytest-cov (coverage reporting) - https://pypi.org/project/pytest-cov/
@@ -54,7 +54,7 @@ The system is designed as a full-stack application with a REST API backend and a
 
 - The project is containerized using Docker.
 - Services are orchestrated using docker-compose.
-- The backend container uses Gunicorn as the application server.
+- The backend container runs the Flask development server (`flask --app wsgi:app run`), not Gunicorn.
 - Flask-CORS is configured to allow requests from localhost:3000 and localhost:5173 (Vite/React dev servers).
 - Backend port is configurable via `BACKEND_PORT` environment variable (default: 8080).
 - Allowed origins for CORS are configurable via `ALLOWED_ORIGINS` environment variable.
@@ -76,7 +76,7 @@ See [backend/app/models/SCHEMA.md](backend/app/models/SCHEMA.md) for complete da
 ## API Documentation
 
 - **OpenAPI Specification**: See `numo.yml` for complete API specification (OpenAPI 3.0.0 format)
-- The OpenAPI specification documents all 4 resources (Categories, Places, Debits, Credits) with 19 endpoints
+- The OpenAPI specification documents all 5 resources (Categories, Concepts, Places, Debits, Credits) plus the system endpoints (`/version`, `/auth/verify`)
 - **IMPORTANT**: Whenever the API is modified (new endpoints, schema changes, status code changes), the `numo.yml` file MUST be updated to reflect these changes
 - The specification includes request/response examples, validation rules, and error responses
 
@@ -91,7 +91,7 @@ See [backend/app/models/SCHEMA.md](backend/app/models/SCHEMA.md) for complete da
 
 ### Testing & Fixtures
 
-- **Test Suite**: [backend/tests/](backend/tests/) - Comprehensive pytest test suite with 62+ tests achieving 80%+ code coverage
+- **Test Suite**: [backend/tests/](backend/tests/) - Comprehensive pytest test suite (120+ tests) achieving 80%+ code coverage
 - **Test Fixtures**: [backend/tests/conftest.py](backend/tests/conftest.py) - Pytest fixtures for all models
 - **Factory Helpers**: [backend/tests/factories/](backend/tests/factories/) - Factory-boy fixtures for test data generation
 

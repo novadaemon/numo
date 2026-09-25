@@ -182,9 +182,9 @@ def get_debits():
         elif sort_field == 'method':
             order_by = desc(Debit.method) if sort_order == 'desc' else Debit.method
             query = query.order_by(order_by)
-        else:
-            # Default to expensed_at if invalid field
-            query = query.order_by(desc(Debit.expensed_at))
+
+        # Tie-breaker by id so pagination is stable when sort values repeat
+        query = query.order_by(desc(Debit.id) if sort_order == 'desc' else Debit.id)
 
         # Get total count before pagination
         total = query.count()

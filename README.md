@@ -47,6 +47,30 @@ cd frontend
 npm run build
 ```
 
+## 🧪 Tests del Backend
+
+Los tests usan **pytest** y se ejecutan dentro del contenedor del backend (debe estar levantado con `docker-compose up`):
+
+```bash
+# Ejecutar toda la suite con reporte de cobertura
+docker-compose exec -T backend pytest tests/ -v --cov=app
+
+# Ejecutar un archivo concreto
+docker-compose exec -T backend pytest tests/test_debits.py -v
+
+# Ejecutar una clase o un test concreto
+docker-compose exec -T backend pytest tests/test_debits.py::TestDebitsEndpoints -v
+docker-compose exec -T backend pytest tests/test_debits.py::TestDebitsEndpoints::test_create_debit_valid -v
+
+# Filtrar tests por nombre
+docker-compose exec -T backend pytest tests/ -k "pagination" -v
+
+# Reporte de cobertura con líneas no cubiertas
+docker-compose exec -T backend pytest tests/ --cov=app --cov-report=term-missing
+```
+
+El objetivo es mantener una cobertura de al menos **80%**. Los fixtures están en [backend/tests/conftest.py](./backend/tests/conftest.py) y hay más detalles en [backend/tests/TESTS_GUIDE.md](./backend/tests/TESTS_GUIDE.md).
+
 ## 📁 Estructura del Proyecto
 
 ```
@@ -76,7 +100,7 @@ numo/
 - Flask (REST API)
 - SQLAlchemy (ORM)
 - SQLite (Base de datos)
-- Gunicorn (WSGI Server)
+- Gunicorn (WSGI Server, para producción; el contenedor de desarrollo usa el servidor de Flask)
 
 ### Frontend
 
@@ -134,7 +158,7 @@ curl http://localhost:8080/version
 - Flask (REST API)
 - SQLAlchemy (ORM)
 - SQLite (Base de datos)
-- Gunicorn (WSGI Server)
+- Gunicorn (WSGI Server, para producción; el contenedor de desarrollo usa el servidor de Flask)
 
 ### Frontend
 

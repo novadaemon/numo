@@ -35,7 +35,7 @@
 | category_id  | integer       | no       | index   | Reference to categories               |
 | place_id     | integer       | yes      | index   | Reference to places (optional)        |
 | concept      | varchar(255)  | yes      |         | Concept or description of the expense |
-| amount       | decimal(10,2) | no       |         | Expense amount                        |
+| amount       | float         | no       |         | Expense amount                        |
 | method       | enum          | no       |         | Payment method (debit, credit, cash)  |
 | observations | text          | yes      |         | Optional notes                        |
 | expensed_at  | date          | no       |         | When the expense occurred             |
@@ -48,7 +48,7 @@
 | field        | type          | nullable | index   | description                 |
 | ------------ | ------------- | -------- | ------- | --------------------------- |
 | id           | integer       | no       | primary | Unique identifier           |
-| amount       | decimal(10,2) | no       |         | Income amount               |
+| amount       | float         | no       |         | Income amount               |
 | observations | text          | yes      |         | Optional notes              |
 | credited_at  | date          | no       |         | When the income occurred    |
 | created_at   | datetime      | no       |         | When the record was created |

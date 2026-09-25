@@ -554,3 +554,46 @@ class TestDebitsPaginationEndpoints:
         assert isinstance(data['page'], int)
         assert isinstance(data['size'], int)
         assert isinstance(data['total'], int)
+
+    def test_get_debits_same_date_ordered_by_id_desc(self, client, debit_factory, category):
+        """Test that debits sharing expensed_at are ordered by id desc by default."""
+        from datetime import date
+        ids = [
+            debit_factory.create(category_id=category.id, amount=10.0, expensed_at=date(2025, 6, 15)).id
+            for _ in range(5)
+        ]
+
+        response = client.get('/debits?from_date=2025-06-01&to_date=2025-06-30')
+        assert response.status_code == 200
+        data = json.loads(response.data)
+        assert [d['id'] for d in data['data']] == sorted(ids, reverse=True)
+
+    def test_get_debits_same_date_ordered_by_id_asc(self, client, debit_factory, category):
+        """Test that debits sharing expensed_at are ordered by id asc when sort_order=asc."""
+        from datetime import date
+        ids = [
+            debit_factory.create(category_id=category.id, amount=10.0, expensed_at=date(2025, 6, 15)).id
+            for _ in range(5)
+        ]
+
+        response = client.get('/debits?sort_field=expensed_at&sort_order=asc')
+        assert response.status_code == 200
+        data = json.loads(response.data)
+        assert [d['id'] for d in data['data']] == sorted(ids)
+
+    def test_get_debits_pagination_stable_with_ties(self, client, debit_factory, category):
+        """Test that paginating over tied sort values returns every debit exactly once."""
+        from datetime import date
+        ids = {
+            debit_factory.create(category_id=category.id, amount=10.0, expensed_at=date(2025, 6, 15)).id
+            for _ in range(15)
+        }
+
+        seen = []
+        for page in (0, 1):
+            response = client.get(f'/debits?sort_field=amount&page={page}&size=10')
+            assert response.status_code == 200
+            seen += [d['id'] for d in json.loads(response.data)['data']]
+
+        assert len(seen) == 15
+        assert set(seen) == ids
